@@ -1,2 +1,2 @@
-# Local Jupyter Notebook checkpoints
-.ipynb_checkpoints
+.DS_Store
+*/figures/*.pdf
