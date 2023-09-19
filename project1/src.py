@@ -60,6 +60,7 @@ class Regression:
 
             clf = model.fit(self.X_train, self.y_train)
             beta = model.named_steps['linear'].coef_
+            beta = beta[0] if len(beta) == 1 else beta
             zeros = np.zeros(max_polys - len(beta))
             beta = np.append(beta, zeros)
             self.beta_ols[i, :] = beta
@@ -147,7 +148,8 @@ class Regression:
             for i in range(len(beta[:, 0])):
                 ax[3].plot(x, beta[:, i], lw=1, label=r'$\beta$' + f'$_{i+1}$')
             
-            ax[3].legend()
+            if not figname == 'test':
+                ax[3].legend()
         
         elif model =='ridge':
 
@@ -186,7 +188,7 @@ if __name__ == '__main__':
     y = np.exp(-x**2) + 1.5 * np.exp(-(x - 2)**2) + np.random.normal(0, 0.1, x.shape)
 
     fit = Regression(x, y)
-    fit.OLS(35, identity_test=True)
+    fit.OLS(20, identity_test=True)
     fit.plot_evolution('OLS', 'test')
     plt.show()
 
