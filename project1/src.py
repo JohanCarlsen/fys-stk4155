@@ -12,8 +12,39 @@ from sklearn.linear_model import LinearRegression, Ridge
 plt.rcParams.update({
     'lines.linewidth': 1,
     'xtick.direction': 'inout',
-    'ytick.direction': 'inout'
+    'ytick.direction': 'inout',
+    'font.size': 8,
+    'axes.titlesize': 8,
+    'axes.labelsize': 8,
+    'xtick.major.width': 0.6,
+    'ytick.major.width': 0.6,
+    'xtick.minor.width': 0.4,
+    'ytick.minor.width': 0.4,
+    'xtick.labelsize': 8,
+    'ytick.labelsize': 8,
+    'legend.fontsize': 8,
+    'legend.frameon': False
 })
+
+def set_size(width='col', scale=1, subplot=(1, 1)):
+
+    widths = {
+        'col': 255.46837,
+        'text': 528.93675
+    }
+
+    if width in widths:
+        width_pt = widths[width]
+    
+    else:
+        width_pt = width
+    
+    ratio = (5**0.5 - 1) / 2
+    fig_width = width_pt / 72.27
+    fig_height = fig_width * ratio * scale * subplot[0] / subplot[1]
+    fig_dims = (fig_width, fig_height)
+
+    return fig_dims
 
 class Regression:
 
@@ -127,16 +158,16 @@ class Regression:
             x_label = r'$\lambda$'
         
         grid_spec = dict(hspace=0, height_ratios=[1, 1, 0, 2])
-        fig, ax = plt.subplots(4, 1, figsize=(10, 7.5), gridspec_kw=grid_spec)
+        fig, ax = plt.subplots(4, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
 
-        ax[0].plot(x, mse_test, lw=1, color='red', label='MSE test')
-        ax[0].plot(x, mse_train, lw=1, color='black', label='MSE train')
+        ax[0].plot(x, mse_test, lw=1, color='red', label='Test')
+        ax[0].plot(x, mse_train, lw=1, color='black', label='Train')
         ax[0].set_ylabel('MSE')
         ax[0].legend()
         ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=True, labelbottom=False)
 
-        ax[1].plot(x, r2_test, lw=1, color='red', label='R2 test')
-        ax[1].plot(x, r2_train, lw=1, color='black', label='R2 train')
+        ax[1].plot(x, r2_test, lw=1, color='red', label='Test')
+        ax[1].plot(x, r2_train, lw=1, color='black', label='Train')
         ax[1].set_ylabel('R2 score')
         ax[1].legend()
         ax[1].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=False)
@@ -149,7 +180,7 @@ class Regression:
                 ax[3].plot(x, beta[:, i], lw=1, label=r'$\beta$' + f'$_{i+1}$')
             
             if not figname == 'test':
-                ax[3].legend()
+                ax[3].legend(ncol=2)
         
         elif model =='ridge':
 
@@ -164,6 +195,7 @@ class Regression:
         ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
         ax[3].set_xlabel(x_label)
 
+        fig.tight_layout()
         fig.savefig('figures/' + model + '_' + figname + '.pdf', bbox_inches='tight')
         fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
 
