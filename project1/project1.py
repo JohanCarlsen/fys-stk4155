@@ -8,9 +8,11 @@ np.random.seed(2018)
 n = 100
 x, y = rand(2, n)
 X, Y = np.meshgrid(x, y)
-z = frankes_function(X, Y)
+z = frankes_function(x, y)
 
 reg = Regression(x, y, z)
 reg.OLS(5)
 reg.plot_evolution('OLS', 'franke-test')
+reg.ridge(-1, 4, 5, 1000)
+reg.plot_evolution('ridge', 'franke-test')
 plt.show()
