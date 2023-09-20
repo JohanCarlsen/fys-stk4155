@@ -256,7 +256,7 @@ class Regression:
         ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
         ax[3].set_xlabel(x_label)
 
-        fig.legend(loc='center right', handles=[line1, line2])
+        fig.legend(handles=[line1, line2], bbox_to_anchor=(1, 0.75))
         fig.tight_layout()
         fig.savefig('figures/' + model + '_' + figname + '.pdf', bbox_inches='tight')
         fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
