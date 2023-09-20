@@ -206,6 +206,8 @@ class Regression:
 
             fig.legend(loc='center right')
             fig.tight_layout()
+            fig.savefig('figures/' + model + '_lasso_' + figname + '.pdf', bbox_inches='tight')
+            fig.savefig('figures/' + model + '_lasso_' + figname + '.png', bbox_inches='tight')
 
             return
         
