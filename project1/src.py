@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error as MSE, r2_score as R2
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 
 plt.rcParams.update({
     'lines.linewidth': 1,
@@ -23,7 +23,7 @@ plt.rcParams.update({
     'xtick.labelsize': 8,
     'ytick.labelsize': 8,
     'legend.fontsize': 8,
-    'legend.frameon': False
+    'legend.fancybox': False
 })
 
 def set_size(width='col', scale=1, subplot=(1, 1)):
@@ -121,7 +121,13 @@ class Regression:
         self.r2_ridge_train = np.zeros(n_lambda)
         self.r2_ridge_test = np.zeros(n_lambda)
 
+        self.mse_lasso_train = np.zeros(n_lambda)
+        self.mse_lasso_test = np.zeros(n_lambda)
+        self.r2_lasso_train = np.zeros(n_lambda)
+        self.r2_lasso_test = np.zeros(n_lambda)
+
         beta = []
+        beta_lasso = []
 
         for i in range(n_lambda):
             lambda_i = self.lambdas[i]
@@ -140,10 +146,29 @@ class Regression:
             self.mse_ridge_test[i] = mse_test
             self.r2_ridge_train[i] = r2_train
             self.r2_ridge_test[i] = r2_test
+
+            lasso_reg = Lasso(lambda_i)
+            lasso_reg.fit(X_train, y_train)
+
+            y_tilde_lasso = lasso_reg.predict(X_train)
+            y_predict_lasso = lasso_reg.predict(X_test)
+
+            beta_lasso.append(lasso_reg.coef_)
+
+            mse_train_lasso = MSE(y_train, y_tilde_lasso)
+            mse_test_lasso = MSE(y_test, y_predict_lasso)
+            r2_train_lasso = R2(y_train, y_tilde_lasso)
+            r2_test_lasso = R2(y_test, y_predict_lasso)
+
+            self.mse_lasso_train[i] = mse_train_lasso
+            self.mse_lasso_train[i] = mse_test_lasso
+            self.r2_lasso_train[i] = r2_train_lasso
+            self.r2_lasso_test[i] = r2_test_lasso
         
         self.beta_ridge = np.array(beta)
+        self.beta_lasso = np.array(beta_lasso)
 
-    def plot_evolution(self, model, figname):
+    def plot_evolution(self, model, figname, add_lasso=True):
 
         if model == 'OLS':
             mse_train, mse_test = self.mse_ols_train, self.mse_ols_test
@@ -151,25 +176,63 @@ class Regression:
             beta = self.beta_ols; x = self.poly_degs
             x_label = 'Polynomial degree'
         
-        elif model == 'ridge':
+        elif model == 'ridge' and add_lasso:
             mse_train, mse_test = self.mse_ridge_train, self.mse_ridge_test
             r2_train, r2_test = self.r2_ridge_train, self.r2_ridge_test
-            beta = self.beta_ridge; x = self.lambdas
-            x_label = r'$\lambda$'
+            beta = self.beta_ridge; x = np.log10(self.lambdas)
+
+            mse_train_lasso, mse_test_lasso = self.mse_lasso_train, self.mse_lasso_test
+            r2_train_lasso, r2_test_lasso = self.r2_lasso_train, self.r2_lasso_test
+            beta_lasso = self.beta_lasso; x = np.log10(self.lambdas)
+
+            x_label = r'$\log_{10}\,\lambda$'
+
+            grid_spec = dict(hspace=0)
+            fig, ax = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
+
+            ax[0].plot(x, mse_test, color='red', label='Ridge test')
+            ax[0].plot(x, mse_test_lasso, ls='dashed', color='red', label='Lasso test')
+            ax[0].plot(x, mse_train, color='black', label='Ridge train')
+            ax[0].plot(x, mse_train_lasso, ls='dashed', color='black', label='Ridge train')
+            ax[0].set_ylabel('MSE')
+            ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=False, labelbottom=False)
+
+            ax[1].plot(x, r2_test, color='red')
+            ax[1].plot(x, r2_test_lasso, ls='dashed', color='red')
+            ax[1].plot(x, r2_train, color='black')
+            ax[1].plot(x, r2_train_lasso, ls='dashed', color='black')
+            ax[1].set_ylabel('R2 score')
+            ax[1].set_xlabel(x_label)
+
+            fig.legend(loc='center right')
+            fig.tight_layout()
+
+            return
+        
+        elif model == 'ridge' and not add_lasso:
+            mse_train, mse_test = self.mse_ridge_train, self.mse_ridge_test
+            r2_train, r2_test = self.r2_ridge_train, self.r2_ridge_test
+            beta = self.beta_ridge; x = np.log10(self.lambdas)
+
+            x_label = r'$\log_{10}\,\lambda$'
+        
+        elif model == 'lasso':
+            mse_train, mse_test = self.mse_lasso_train, self.mse_lasso_test
+            r2_train, r2_test = self.r2_lasso_train, self.r2_lasso_test
+            beta = self.beta_lasso; x = np.log10(self.lambdas)
+            x_label = r'$\log_{10}\,\lambda$'
         
         grid_spec = dict(hspace=0, height_ratios=[1, 1, 0, 2])
         fig, ax = plt.subplots(4, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
 
-        ax[0].plot(x, mse_test, lw=1, color='red', label='Test')
-        ax[0].plot(x, mse_train, lw=1, color='black', label='Train')
+        line1, = ax[0].plot(x, mse_test, color='red', label='Test')
+        line2, = ax[0].plot(x, mse_train, color='black', label='Train')
         ax[0].set_ylabel('MSE')
-        ax[0].legend()
         ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=True, labelbottom=False)
 
-        ax[1].plot(x, r2_test, lw=1, color='red', label='Test')
-        ax[1].plot(x, r2_train, lw=1, color='black', label='Train')
+        ax[1].plot(x, r2_test, color='red', label='Test')
+        ax[1].plot(x, r2_train, color='black', label='Train')
         ax[1].set_ylabel('R2 score')
-        ax[1].legend()
         ax[1].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=False)
 
         ax[2].set_visible(False)
@@ -177,24 +240,21 @@ class Regression:
         if model == 'OLS':
 
             for i in range(len(beta[:, 0])):
-                ax[3].plot(x, beta[:, i], lw=1, label=r'$\beta$' + f'$_{i+1}$')
+                ax[3].plot(x, beta[:, i], label=r'$\beta$' + f'$_{i+1}$')
             
             if not figname == 'test':
                 ax[3].legend(ncol=2)
         
-        elif model =='ridge':
+        elif model =='ridge' or model == 'lasso':
 
             for i in range(len(beta[0, :])):
                 ax[3].plot(x, beta[:, i])
-            
-            ax[0].set_xscale('log')
-            ax[1].set_xscale('log')
-            ax[3].set_xscale('log')
 
         ax[3].set_ylabel(r'$\beta_i$ value')
         ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
         ax[3].set_xlabel(x_label)
 
+        fig.legend(loc='center right', handles=[line1, line2])
         fig.tight_layout()
         fig.savefig('figures/' + model + '_' + figname + '.pdf', bbox_inches='tight')
         fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
