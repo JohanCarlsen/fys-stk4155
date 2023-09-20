@@ -193,7 +193,7 @@ class Regression:
             ax[0].plot(x, mse_test, color='red', label='Ridge test')
             ax[0].plot(x, mse_test_lasso, ls='dashed', color='red', label='Lasso test')
             ax[0].plot(x, mse_train, color='black', label='Ridge train')
-            ax[0].plot(x, mse_train_lasso, ls='dashed', color='black', label='Ridge train')
+            ax[0].plot(x, mse_train_lasso, ls='dashed', color='black', label='Lasso train')
             ax[0].set_ylabel('MSE')
             ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=False, labelbottom=False)
 
