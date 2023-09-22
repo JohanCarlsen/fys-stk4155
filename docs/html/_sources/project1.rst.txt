@@ -2,12 +2,7 @@ Project 1
 =========
 
 .. autoclass:: src.Regression
-
-.. autofunction:: src.Regression.OLS
-
-.. autofunction:: src.Regression.ridge
-
-.. autofunction:: src.Regression.plot_evolution
+    :members:
 
 .. autofunction:: src.set_size
 
