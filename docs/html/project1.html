@@ -100,16 +100,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
 <dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge (<a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge</span></code></a>),
 and Lasso (<code class="xref any docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
-<section id="parameters">
-<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<dl>
-<dt>x_data, y_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>Data along the x and y axes.</p>
-</dd>
-<dt>z_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code></span></dt><dd><p>If the function describing the data is 2D, the z_data parameter describe
-the data along the z axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – Data along the x and y axes.</p></li>
+<li><p><strong>y_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – Data along the x and y axes.</p></li>
+<li><p><strong>z_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If the function describing the data is 2D, the z_data parameter describe
+the data along the z axis.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>
@@ -125,16 +125,15 @@ the data along the z axis.</p>
 \tilde y &amp;= X\tilde\beta
 \end{align}\end{split}\]</div>
 <p>with a user-defined polynomial degree.</p>
-<section id="id1">
-<h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<dl>
-<dt>n_poly<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Polynomial degree.</p>
-</dd>
-<dt>identity_test<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
-ie. if the design matrix is the identity matrix, the mean square error should be 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_poly</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Polynomial degree.</p></li>
+<li><p><strong>identity_test</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
+ie. if the design matrix is the identity matrix, the mean square error should be 0.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
@@ -146,17 +145,16 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 \hat\beta&amp;=(X^TX+\lambda\mathbb{I})^{-1}X^T y \\
 \tilde y&amp;=X\hat\beta
 \end{align}\end{split}\]</div>
-<section id="id2">
-<h3>Parameters:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<dl>
-<dt>lambda_min, lambda_max<span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p>
-</dd>
-<dt>poly_deg<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Order of the polynomial to fit.</p>
-</dd>
-<dt>n_lambda<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lambda_min</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>lambda_max</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>poly_deg</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Order of the polynomial to fit.</p></li>
+<li><p><strong>n_lambda</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
@@ -164,23 +162,22 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
 <dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
 values for the optimal parameters <span class="math notranslate nohighlight">\(\hat\beta\)</span>.</p>
-<section id="id3">
-<h3>Parameters:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
-<dl>
-<dt>model<span class="classifier">{‘OLS’, ‘ridge’, ‘lasso’}</span></dt><dd><p>Which model to use.</p>
-<ul class="simple">
-<li><p>‘OLS’: The curves will be as functions of the polynomial degree.</p></li>
-<li><p>‘ridge’ or ‘lasso’: The curves will be as functions of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>{'OLS'</em><em>, </em><em>'ridge'</em><em>, </em><em>'lasso'}</em>) – <p>Which model to use.</p>
+<ul>
+<li><p>’OLS’: The curves will be as functions of the polynomial degree.</p></li>
+<li><p>’ridge’ or ‘lasso’: The curves will be as functions of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>figname</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – For saving the figure.</p></li>
+<li><p><strong>add_lasso</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
+If so, the figure will show only the MSE and R2 score for
+both models.</p></li>
 </ul>
 </dd>
-<dt>figname<span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>For saving the figure.</p>
-</dd>
-<dt>add_lasso<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
-If so, the figure will show only the MSE and R2 score for
-both models.</p>
-</dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>
@@ -208,39 +205,38 @@ both models.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tuple</span></code> – Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p></li>
+<li><p><em>Notes</em></p></li>
+<li><p><em>——</em> – The built-in values for <cite>width</cite> and <cite>height</cite> are the column width and text width
+in REVTeX document class. To obtain the appropriate values for your document,
+run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your dobument body.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The built-in values for <cite>width</cite> and <cite>height</cite> are the column width and text width
-in REVTeX document class. To obtain the appropriate values for your document,
-run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your dobument body.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.frankes_function">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">frankes_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.frankes_function" title="Link to this definition"></a></dt>
 <dd><p>Franke’s function.</p>
-<section id="id4">
-<h3>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<dl>
-<dt>x, y<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>y</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>add_noise</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
+to the data.</p></li>
+</ul>
 </dd>
-<dt>add_noise<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
-to the data.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resulting Franke’s function, with or without the noise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">array_like</span></code></p>
 </dd>
 </dl>
-</section>
-<section id="returns">
-<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">array_like</span></code></dt><dd><p>The resulting Franke’s function, with or without the noise.</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 </section>

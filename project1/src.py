@@ -36,8 +36,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     width : {'col', 'text'} or ``float``, optional 
         Width of the figure in pt. Possible values:
 
-            * 'col' (default): 255.46837
-            * 'text' : 528.93675
+            - 'col' (default): 255.46837
+            - 'text' : 528.93675
 
     scale : ``float``, default: 1.0
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
@@ -53,8 +53,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     ``tuple``
         Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``
     
-    Notes
-    -----
+    Notes:
+    ------
         The built-in values for `width` and `height` are the column width and text width
         in REVTeX document class. To obtain the appropriate values for your document, 
         run the commands ``\the\columnwidth`` and ``\the\textwidth`` in your dobument body.
@@ -82,8 +82,8 @@ class Regression:
     Regression class for Ordinary Least Square (:any:`OLS`), Ridge (:any:`ridge`),
     and Lasso (:any:`lasso`) regression. 
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
 
     x_data, y_data : ``array_like``
         Data along the x and y axes. 
@@ -123,8 +123,8 @@ class Regression:
         
         with a user-defined polynomial degree.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         n_poly : ``int``
             Polynomial degree.
 
@@ -184,8 +184,8 @@ class Regression:
             \tilde y&=X\hat\beta
             \end{align}
         
-        Parameters:
-        -----------
+        Parameters
+        ----------
 
         lambda_min, lambda_max : ``float``
             Lowest/highest value for :math:`\log_{10}\lambda`.
@@ -259,8 +259,8 @@ class Regression:
         Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
         values for the optimal parameters :math:`\hat\beta`.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
 
         model : {'OLS', 'ridge', 'lasso'}
             Which model to use.
@@ -371,8 +371,8 @@ def frankes_function(x, y, add_noise=True):
     r'''
     Franke's function.
 
-    Parameters: 
-    -----------
+    Parameters
+    ----------
 
     x, y : ``array_like``
         The `x` and `y` values to evaluate the function on. 
@@ -381,8 +381,8 @@ def frankes_function(x, y, add_noise=True):
         Weather to add Gaussian noise :math:`\epsilon\sim\mathcal N(+,\sigma^2)`
         to the data. 
 
-    Returns:
-    --------
+    Returns
+    -------
 
     ``array_like``
         The resulting Franke's function, with or without the noise. 
