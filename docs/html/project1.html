@@ -98,14 +98,14 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Regression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
-<dd><p>Regression class for Ordinary Least Square (<code class="xref py py-mod docutils literal notranslate"><span class="pre">OLS</span></code>), Ridge (<code class="xref py py-mod docutils literal notranslate"><span class="pre">ridge</span></code>),
-and Lasso (<code class="xref py py-mod docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
+<dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge (<a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge</span></code></a>),
+and Lasso (<code class="xref any docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
 <section id="parameters">
 <h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <dl>
 <dt>x_data, y_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>Data along the x and y axes.</p>
 </dd>
-<dt>z_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default=``None``</span></dt><dd><p>If the function describing the data is 2D, the z_data parameter describe
+<dt>z_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code></span></dt><dd><p>If the function describing the data is 2D, the z_data parameter describe
 the data along the z axis.</p>
 </dd>
 </dl>
@@ -120,15 +120,17 @@ the data along the z axis.</p>
 <span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
 <dd><p>Ordinary least square regression method, ie.:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\tilde\beta = (X^TX)^{-1}X^Ty \\
-\tilde y = X\tilde\beta\end{split}\]</div>
+\[\begin{split}\begin{align}
+\tilde\beta &amp;= (X^TX)^{-1}X^Ty \\
+\tilde y &amp;= X\tilde\beta
+\end{align}\end{split}\]</div>
 <p>with a user-defined polynomial degree.</p>
 <section id="id1">
 <h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl>
 <dt>n_poly<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Polynomial degree.</p>
 </dd>
-<dt>identity_test<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default=``False``</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
+<dt>identity_test<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
 ie. if the design matrix is the identity matrix, the mean square error should be 0.</p>
 </dd>
 </dl>
@@ -138,12 +140,48 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.ridge">
 <span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.ridge" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform Ridge regression on the provided data.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\hat\beta&amp;=(X^TX+\lambda\mathbb{I})^{-1}X^T y \\
+\tilde y&amp;=X\hat\beta
+\end{align}\end{split}\]</div>
+<section id="id2">
+<h3>Parameters:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl>
+<dt>lambda_min, lambda_max<span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p>
+</dd>
+<dt>poly_deg<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Order of the polynomial to fit.</p>
+</dd>
+<dt>n_lambda<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.plot_evolution">
 <span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
+values for the optimal parameters <span class="math notranslate nohighlight">\(\hat\beta\)</span>.</p>
+<section id="id3">
+<h3>Parameters:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl>
+<dt>model<span class="classifier">{‘OLS’, ‘ridge’, ‘lasso’}</span></dt><dd><p>Which model to use.</p>
+<ul class="simple">
+<li><p>‘OLS’: The curves will be as functions of the polynomial degree.</p></li>
+<li><p>‘ridge’ or ‘lasso’: The curves will be as functions of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+</ul>
+</dd>
+<dt>figname<span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>For saving the figure.</p>
+</dd>
+<dt>add_lasso<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
+If so, the figure will show only the MSE and R2 score for
+both models.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
 
 </section>
 <section id="functions">
@@ -152,10 +190,10 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <dt class="sig sig-object py" id="src.set_size">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">set_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.set_size" title="Link to this definition"></a></dt>
 <dd><p>Set the size of a figure where the height/wifdth equals the golden ratio.</p>
-<section id="id2">
-<h3>Parameters:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl>
-<dt>width<span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional</span></dt><dd><p>Width of the figure in pt. Possible values:</p>
+<dt>width<span class="classifier">{‘col’, ‘text’} or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional</span></dt><dd><p>Width of the figure in pt. Possible values:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>‘col’ (default): 255.46837</p></li>
@@ -163,9 +201,9 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 </ul>
 </div></blockquote>
 </dd>
-<dt>scale<span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code>, default = 1.0</span></dt><dd><p>How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p>
+<dt>scale<span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code>, default: 1.0</span></dt><dd><p>How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p>
 </dd>
-<dt>subplot<span class="classifier"><code class="docutils literal notranslate"><span class="pre">tuple</span></code>, default = (1, 1)</span></dt><dd><p>How to scale the figure size based on the number of subplots:</p>
+<dt>subplot<span class="classifier"><code class="docutils literal notranslate"><span class="pre">tuple</span></code>, default: (1, 1)</span></dt><dd><p>How to scale the figure size based on the number of subplots:</p>
 <p><code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
 </dd>
 </dl>
@@ -182,7 +220,25 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <dl class="py function">
 <dt class="sig sig-object py" id="src.frankes_function">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">frankes_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.frankes_function" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Franke’s function.</p>
+<section id="id5">
+<h3>Parameters:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<dl>
+<dt>x, y<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p>
+</dd>
+<dt>add_noise<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
+to the data.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">array_like</span></code></dt><dd><p>The resulting Franke’s function, with or without the noise.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
 
 </section>
 </section>

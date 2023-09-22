@@ -33,16 +33,16 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     Parameters:
     -----------
 
-    width : ``str`` or ``float``, optional 
+    width : {'col', 'text'} or ``float``, optional 
         Width of the figure in pt. Possible values:
 
             * 'col' (default): 255.46837
             * 'text' : 528.93675
 
-    scale : ``float``, default = 1.0
+    scale : ``float``, default: 1.0
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
     
-    subplot : ``tuple``, default = (1, 1)
+    subplot : ``tuple``, default: (1, 1)
         How to scale the figure size based on the number of subplots:
 
         ``figsize=(width, height * subplot[0] / subplot[1])``
@@ -73,8 +73,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 
 class Regression:
     r'''
-    Regression class for Ordinary Least Square (:mod:`OLS`), Ridge (:mod:`ridge`),
-    and Lasso (:mod:`lasso`) regression. 
+    Regression class for Ordinary Least Square (:any:`OLS`), Ridge (:any:`ridge`),
+    and Lasso (:any:`lasso`) regression. 
 
     Parameters:
     -----------
@@ -82,7 +82,7 @@ class Regression:
     x_data, y_data : ``array_like``
         Data along the x and y axes. 
     
-    z_data : ``array_like``, default=``None``
+    z_data : ``array_like``, default: ``None``
         If the function describing the data is 2D, the z_data parameter describe
         the data along the z axis. 
     '''
@@ -109,19 +109,20 @@ class Regression:
         r'''
         Ordinary least square regression method, ie.:
 
-        .. math:: 
-            \tilde\beta = (X^TX)^{-1}X^Ty \\
-            \tilde y = X\tilde\beta
+        .. math::
+            \begin{align}
+            \tilde\beta &= (X^TX)^{-1}X^Ty \\
+            \tilde y &= X\tilde\beta
+            \end{align}
         
         with a user-defined polynomial degree.
 
         Parameters:
         -----------
-
         n_poly : ``int``
             Polynomial degree.
-        
-        identity_test : ``bool``, default=``False``
+
+        identity_test : ``bool``, default: ``False``
             If ``True``, the method performs a test to see if the implementation is correct, 
             ie. if the design matrix is the identity matrix, the mean square error should be 0.
         '''
@@ -168,6 +169,27 @@ class Regression:
             self.r2_ols_test[i] = r2_test
     
     def ridge(self, lambda_min, lambda_max, poly_deg, n_lambda):
+        r'''
+        Perform Ridge regression on the provided data.
+
+        .. math::
+            \begin{align}
+            \hat\beta&=(X^TX+\lambda\mathbb{I})^{-1}X^T y \\
+            \tilde y&=X\hat\beta
+            \end{align}
+        
+        Parameters:
+        -----------
+
+        lambda_min, lambda_max : ``float``
+            Lowest/highest value for :math:`\log_{10}\lambda`.
+        
+        poly_deg : ``int``
+            Order of the polynomial to fit. 
+        
+        n_lambda : ``int``
+            Number of :math:`\lambda`-elements to compute.
+        '''
         y_train, y_test = self.y_train, self.y_test
         poly = PolynomialFeatures(degree=poly_deg)
         X_train = poly.fit_transform(self.X_train, y_train)
@@ -227,7 +249,27 @@ class Regression:
         self.beta_lasso = np.array(beta_lasso)
 
     def plot_evolution(self, model, figname, add_lasso=True):
+        r'''
+        Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
+        values for the optimal parameters :math:`\hat\beta`.
 
+        Parameters:
+        -----------
+
+        model : {'OLS', 'ridge', 'lasso'}
+            Which model to use.
+
+            * 'OLS': The curves will be as functions of the polynomial degree.
+            * 'ridge' or 'lasso': The curves will be as functions of :math:`\lambda`.
+        
+        figname : ``str``
+            For saving the figure. 
+        
+        add_lasso : ``bool``, default: ``True``
+            Option to add the `lasso` model to the figure for `ridge`.
+            If so, the figure will show only the MSE and R2 score for 
+            both models. 
+        '''
         if model == 'OLS':
             mse_train, mse_test = self.mse_ols_train, self.mse_ols_test
             r2_train, r2_test = self.r2_ols_train, self.r2_ols_test
@@ -320,6 +362,25 @@ class Regression:
         fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
 
 def frankes_function(x, y, add_noise=True):
+    r'''
+    Franke's function.
+
+    Parameters: 
+    -----------
+
+    x, y : ``array_like``
+        The `x` and `y` values to evaluate the function on. 
+
+    add_noise : ``bool``, default: ``True``
+        Weather to add Gaussian noise :math:`\epsilon\sim\mathcal N(+,\sigma^2)`
+        to the data. 
+
+    Returns:
+    --------
+
+    ``array_like``
+        The resulting Franke's function, with or without the noise. 
+    '''
     term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2)**2) - 0.25 * ((9 * y - 2)**2))
     term2 = 0.75 * np.exp(-((9 * x + 1)**2) / 49.0 - 0.1 * (9 * y + 1))
     term3 = 0.5 * np.exp(-(9 * x - 7)**2 / 4.0 - 0.25 * ((9 * y - 3)**2))
