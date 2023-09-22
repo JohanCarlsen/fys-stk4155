@@ -190,39 +190,42 @@ both models.</p>
 <dt class="sig sig-object py" id="src.set_size">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">set_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.set_size" title="Link to this definition"></a></dt>
 <dd><p>Set the size of a figure where the height/wifdth equals the golden ratio.</p>
-<section id="id4">
-<h3>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<dl>
-<dt>width<span class="classifier">{‘col’, ‘text’} or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional</span></dt><dd><p>Width of the figure in pt. Possible values:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> ({‘col’, ‘text’} or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – <p>Width of the figure in pt. Possible values:</p>
 <blockquote>
-<div><ul class="simple">
-<li><p>‘col’ (default): 255.46837</p></li>
-<li><p>‘text’ : 528.93675</p></li>
+<div><ul>
+<li><p>’col’ (default): 255.46837</p></li>
+<li><p>’text’ : 528.93675</p></li>
 </ul>
 </div></blockquote>
-</dd>
-<dt>scale<span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code>, default: 1.0</span></dt><dd><p>How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p>
-</dd>
-<dt>subplot<span class="classifier"><code class="docutils literal notranslate"><span class="pre">tuple</span></code>, default: (1, 1)</span></dt><dd><p>How to scale the figure size based on the number of subplots:</p>
+</p></li>
+<li><p><strong>scale</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, default: 1.0) – How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p></li>
+<li><p><strong>subplot</strong> (<code class="docutils literal notranslate"><span class="pre">tuple</span></code>, default: (1, 1)) – <p>How to scale the figure size based on the number of subplots:</p>
 <p><code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">tuple</span></code></p>
 </dd>
 </dl>
-</section>
-<section id="returns">
-<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">tuple</span></code></dt><dd><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
-</dd>
-</dl>
-</section>
+<p class="rubric">Notes</p>
+<p>The built-in values for <cite>width</cite> and <cite>height</cite> are the column width and text width
+in REVTeX document class. To obtain the appropriate values for your document,
+run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your dobument body.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.frankes_function">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">frankes_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.frankes_function" title="Link to this definition"></a></dt>
 <dd><p>Franke’s function.</p>
-<section id="id5">
-<h3>Parameters:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl>
 <dt>x, y<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p>
 </dd>
@@ -231,8 +234,8 @@ to the data.</p>
 </dd>
 </dl>
 </section>
-<section id="id6">
-<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">array_like</span></code></dt><dd><p>The resulting Franke’s function, with or without the noise.</p>
 </dd>

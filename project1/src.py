@@ -27,11 +27,11 @@ plt.rcParams.update({
 })
 
 def set_size(width='col', scale=1.0, subplot=(1, 1)):
-    '''
+    r'''
     Set the size of a figure where the height/wifdth equals the golden ratio.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
 
     width : {'col', 'text'} or ``float``, optional 
         Width of the figure in pt. Possible values:
@@ -47,11 +47,17 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 
         ``figsize=(width, height * subplot[0] / subplot[1])``
 
-    Returns:
-    --------
+    Returns
+    -------
 
     ``tuple``
         Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``
+    
+    Notes
+    -----
+        The built-in values for `width` and `height` are the column width and text width
+        in REVTeX document class. To obtain the appropriate values for your document, 
+        run the commands ``\the\columnwidth`` and ``\the\textwidth`` in your dobument body.
     '''
     widths = {
         'col': 255.46837,
