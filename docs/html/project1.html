@@ -190,25 +190,24 @@ both models.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>width</strong> ({‘col’, ‘text’} or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional) – <p>Width of the figure in pt. Possible values:</p>
-<blockquote>
-<div><ul>
+<li><p><strong>width</strong> (<em>{'col'</em><em>, </em><em>'text'}</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>Width of the figure in pt. Possible values:</dt><dd><ul>
 <li><p>’col’ (default): 255.46837</p></li>
 <li><p>’text’ : 528.93675</p></li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </p></li>
-<li><p><strong>scale</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>, default: 1.0) – How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p></li>
-<li><p><strong>subplot</strong> (<code class="docutils literal notranslate"><span class="pre">tuple</span></code>, default: (1, 1)) – <p>How to scale the figure size based on the number of subplots:</p>
-<p><code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
-</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>default: 1.0</em>) – How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p></li>
+<li><p><strong>subplot</strong> (<em>tuple</em><em>, </em><em>default:</em><em> (</em><em>1</em><em>, </em><em>1</em><em>)</em>) – How to scale the figure size based on the number of subplots:
+<code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
