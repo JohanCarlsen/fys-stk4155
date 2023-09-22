@@ -43,8 +43,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
     
     subplot : ``tuple``, default = (1, 1)
-        How to scale the figure size based on the number of subplots:
-        
+        How to scale the figure size based on the number of subplots::
+
         ``figsize=(width, height * subplot[0] / subplot[1])``
 
     Returns:
