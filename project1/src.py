@@ -26,8 +26,32 @@ plt.rcParams.update({
     'legend.fancybox': False
 })
 
-def set_size(width='col', scale=1, subplot=(1, 1)):
+def set_size(width='col', scale=1.0, subplot=(1, 1)):
+    '''
+    Set the size of a figure where the height/wifdth equals the golden ratio.
 
+    Parameters:
+    -----------
+
+    width : ``str`` or ``float``, optional 
+        Width of the figure in pt. Possible values:
+
+            * 'col' (default): 255.46837
+            * 'text' : 528.93675
+
+    scale : ``float``, default = 1.0
+        How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
+    
+    subplot : ``tuple``, default = (1, 1)
+        How to scale the figure size based on the number of subplots:
+        ``figsize=(width, height * subplot[0] / subplot[1])``
+
+    Returns:
+    --------
+
+    ``tuple``
+        Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``
+    '''
     widths = {
         'col': 255.46837,
         'text': 528.93675
