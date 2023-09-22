@@ -161,7 +161,7 @@ class Regression:
             r2_test_lasso = R2(y_test, y_predict_lasso)
 
             self.mse_lasso_train[i] = mse_train_lasso
-            self.mse_lasso_train[i] = mse_test_lasso
+            self.mse_lasso_test[i] = mse_test_lasso
             self.r2_lasso_train[i] = r2_train_lasso
             self.r2_lasso_test[i] = r2_test_lasso
         
