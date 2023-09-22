@@ -47,7 +47,10 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Project 1</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#regression-class">Regression class</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.Regression.z_data"><code class="docutils literal notranslate"><span class="pre">Regression.z_data</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#regression-methods">Regression methods</a><ul>
@@ -100,16 +103,29 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
 <dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge (<a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge</span></code></a>),
 and Lasso (<code class="xref any docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">x_data,</span> <span class="pre">y_data</span></span></dt>
+<dd><p>Data along the x and y axes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x_data</strong> (<em>array_like</em>) – Data along the x and y axes.</p></li>
-<li><p><strong>y_data</strong> (<em>array_like</em>) – Data along the x and y axes.</p></li>
-<li><p><strong>z_data</strong> (<em>array_like</em><em>, </em><em>default: None</em>) – If the function describing the data is 2D, the z_data parameter describe
-the data along the z axis.</p></li>
-</ul>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.Regression.z_data">
+<span class="sig-name descname"><span class="pre">z_data</span></span><a class="headerlink" href="#src.Regression.z_data" title="Link to this definition"></a></dt>
+<dd><p>If the function describing the data is 2D, the z_data parameter describe
+the data along the z axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like, default: None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

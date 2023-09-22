@@ -74,7 +74,7 @@ class Regression:
     Regression class for Ordinary Least Square (:any:`OLS`), Ridge (:any:`ridge`),
     and Lasso (:any:`lasso`) regression. 
 
-    Parameters
+    Attributes
     ----------
     x_data, y_data : array_like
         Data along the x and y axes.     
