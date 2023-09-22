@@ -74,7 +74,7 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 class Regression:
     r'''
     Regression class for Ordinary Least Square (:mod:`OLS`), Ridge (:mod:`ridge`),
-    and Lasse (:mod:`lasso`) regression. 
+    and Lasso (:mod:`lasso`) regression. 
 
     Parameters:
     -----------
