@@ -46,12 +46,21 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Project 1</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#src.Regression.OLS"><code class="docutils literal notranslate"><span class="pre">Regression.OLS()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regression-class">Regression class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#src.set_size"><code class="docutils literal notranslate"><span class="pre">set_size()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#src.frankes_function"><code class="docutils literal notranslate"><span class="pre">frankes_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regression-methods">Regression methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.OLS"><code class="docutils literal notranslate"><span class="pre">Regression.OLS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.ridge"><code class="docutils literal notranslate"><span class="pre">Regression.ridge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.plot_evolution"><code class="docutils literal notranslate"><span class="pre">Regression.plot_evolution()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.set_size"><code class="docutils literal notranslate"><span class="pre">set_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.frankes_function"><code class="docutils literal notranslate"><span class="pre">frankes_function()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html">Project 2</a></li>
@@ -84,23 +93,31 @@
              
   <section id="project-1">
 <h1>Project 1<a class="headerlink" href="#project-1" title="Link to this heading"></a></h1>
+<section id="regression-class">
+<h2>Regression class<a class="headerlink" href="#regression-class" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Regression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
 <dd><p>Regression class for Ordinary Least Square (<code class="xref py py-mod docutils literal notranslate"><span class="pre">OLS</span></code>), Ridge (<code class="xref py py-mod docutils literal notranslate"><span class="pre">ridge</span></code>),
 and Lasso (<code class="xref py py-mod docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
 <section id="parameters">
-<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <dl>
-<dt>x_data, y_data<span class="classifier"><cite>array_like</cite></span></dt><dd><p>Data along the x and y axes.</p>
+<dt>x_data, y_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code></span></dt><dd><p>Data along the x and y axes.</p>
 </dd>
-<dt>z_data<span class="classifier"><cite>array_like</cite>, default=`None`</span></dt><dd><p>If the function describing the data is 2D, the z_data parameter describe
+<dt>z_data<span class="classifier"><code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default=``None``</span></dt><dd><p>If the function describing the data is 2D, the z_data parameter describe
 the data along the z axis.</p>
 </dd>
 </dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="regression-methods">
+<h2>Regression methods<a class="headerlink" href="#regression-methods" title="Link to this heading"></a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.OLS">
-<span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
 <dd><p>Ordinary least square regression method, ie.:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\tilde\beta = (X^TX)^{-1}X^Ty \\
@@ -109,24 +126,34 @@ the data along the z axis.</p>
 <section id="id1">
 <h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl>
-<dt>n_poly<span class="classifier"><cite>int</cite></span></dt><dd><p>Polynomial degree.</p>
+<dt>n_poly<span class="classifier"><code class="docutils literal notranslate"><span class="pre">int</span></code></span></dt><dd><p>Polynomial degree.</p>
 </dd>
-<dt>identity_test<span class="classifier"><cite>bool</cite>, default=`False`</span></dt><dd><p>If <cite>True</cite>, the method performs a test to see if the implementation is correct,
+<dt>identity_test<span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code>, default=``False``</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
 ie. if the design matrix is the identity matrix, the mean square error should be 0.</p>
 </dd>
 </dl>
 </section>
 </dd></dl>
 
-</section>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.ridge">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.ridge" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.plot_evolution">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.set_size">
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">set_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.set_size" title="Link to this definition"></a></dt>
 <dd><p>Set the size of a figure where the height/wifdth equals the golden ratio.</p>
 <section id="id2">
-<h2>Parameters:<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<h3>Parameters:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl>
 <dt>width<span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>, optional</span></dt><dd><p>Width of the figure in pt. Possible values:</p>
 <blockquote>
@@ -144,7 +171,7 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 </dl>
 </section>
 <section id="returns">
-<h2>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">tuple</span></code></dt><dd><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
 </dd>
@@ -157,6 +184,7 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">frankes_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.frankes_function" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+</section>
 </section>
 
 

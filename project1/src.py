@@ -79,10 +79,10 @@ class Regression:
     Parameters:
     -----------
 
-    x_data, y_data : `array_like`
+    x_data, y_data : ``array_like``
         Data along the x and y axes. 
     
-    z_data : `array_like`, default=`None`
+    z_data : ``array_like``, default=``None``
         If the function describing the data is 2D, the z_data parameter describe
         the data along the z axis. 
     '''
@@ -118,11 +118,11 @@ class Regression:
         Parameters:
         -----------
 
-        n_poly : `int`
+        n_poly : ``int``
             Polynomial degree.
         
-        identity_test : `bool`, default=`False`
-            If `True`, the method performs a test to see if the implementation is correct, 
+        identity_test : ``bool``, default=``False``
+            If ``True``, the method performs a test to see if the implementation is correct, 
             ie. if the design matrix is the identity matrix, the mean square error should be 0.
         '''
         max_polys = n_poly * self.dim**2 + 1
