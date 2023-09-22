@@ -5,6 +5,8 @@
 
 FYS-STK4155, Applied Data Analysis and Machine Learning
 =======================================================
+This is the documentation of the code I have developed 
+in the course FYS-STK4155 at the University of Oslo.
 
 .. toctree::
    :maxdepth: 3
