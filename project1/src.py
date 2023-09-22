@@ -32,13 +32,12 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 
     Parameters
     ----------
-
     width : {'col', 'text'} or ``float``, optional 
         Width of the figure in pt. Possible values:
 
             - 'col' (default): 255.46837
             - 'text' : 528.93675
-
+            
     scale : ``float``, default: 1.0
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
     
@@ -46,13 +45,10 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
         How to scale the figure size based on the number of subplots:
 
         ``figsize=(width, height * subplot[0] / subplot[1])``
-
     Returns
     -------
-
     ``tuple``
-        Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``
-    
+        Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``    
     Notes:
     ------
         The built-in values for `width` and `height` are the column width and text width
@@ -84,10 +80,8 @@ class Regression:
 
     Parameters
     ----------
-
     x_data, y_data : ``array_like``
-        Data along the x and y axes. 
-    
+        Data along the x and y axes.     
     z_data : ``array_like``, default: ``None``
         If the function describing the data is 2D, the z_data parameter describe
         the data along the z axis. 
@@ -127,7 +121,6 @@ class Regression:
         ----------
         n_poly : ``int``
             Polynomial degree.
-
         identity_test : ``bool``, default: ``False``
             If ``True``, the method performs a test to see if the implementation is correct, 
             ie. if the design matrix is the identity matrix, the mean square error should be 0.
@@ -261,7 +254,6 @@ class Regression:
 
         Parameters
         ----------
-
         model : {'OLS', 'ridge', 'lasso'}
             Which model to use.
 
@@ -269,8 +261,7 @@ class Regression:
             * 'ridge' or 'lasso': The curves will be as functions of :math:`\lambda`.
         
         figname : ``str``
-            For saving the figure. 
-        
+            For saving the figure.         
         add_lasso : ``bool``, default: ``True``
             Option to add the `lasso` model to the figure for `ridge`.
             If so, the figure will show only the MSE and R2 score for 
@@ -373,17 +364,14 @@ def frankes_function(x, y, add_noise=True):
 
     Parameters
     ----------
-
     x, y : ``array_like``
         The `x` and `y` values to evaluate the function on. 
-
     add_noise : ``bool``, default: ``True``
         Weather to add Gaussian noise :math:`\epsilon\sim\mathcal N(+,\sigma^2)`
         to the data. 
 
     Returns
     -------
-
     ``array_like``
         The resulting Franke's function, with or without the noise. 
     '''
