@@ -37,7 +37,7 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 
             - 'col' (default): 255.46837
             - 'text' : 528.93675
-            
+
     scale : ``float``, default: 1.0
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``
     
@@ -49,8 +49,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     -------
     ``tuple``
         Dimension of the figure, ie. ``(width, height * scale * subplot[0] / subplot[1])``    
-    Notes:
-    ------
+    Notes
+    -----
         The built-in values for `width` and `height` are the column width and text width
         in REVTeX document class. To obtain the appropriate values for your document, 
         run the commands ``\the\columnwidth`` and ``\the\textwidth`` in your dobument body.
