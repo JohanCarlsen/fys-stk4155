@@ -103,9 +103,9 @@ and Lasso (<code class="xref any docutils literal notranslate"><span class="pre"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – Data along the x and y axes.</p></li>
-<li><p><strong>y_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – Data along the x and y axes.</p></li>
-<li><p><strong>z_data</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If the function describing the data is 2D, the z_data parameter describe
+<li><p><strong>x_data</strong> (<em>array_like</em>) – Data along the x and y axes.</p></li>
+<li><p><strong>y_data</strong> (<em>array_like</em>) – Data along the x and y axes.</p></li>
+<li><p><strong>z_data</strong> (<em>array_like</em><em>, </em><em>default: None</em>) – If the function describing the data is 2D, the z_data parameter describe
 the data along the z axis.</p></li>
 </ul>
 </dd>
@@ -148,10 +148,10 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lambda_min</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
-<li><p><strong>lambda_max</strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
-<li><p><strong>poly_deg</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Order of the polynomial to fit.</p></li>
-<li><p><strong>n_lambda</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p></li>
+<li><p><strong>lambda_min</strong> (<em>float</em>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>lambda_max</strong> (<em>float</em>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>poly_deg</strong> (<em>int</em>) – Order of the polynomial to fit.</p></li>
+<li><p><strong>n_lambda</strong> (<em>int</em>) – Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p></li>
 </ul>
 </dd>
 </dl>
@@ -171,8 +171,8 @@ values for the optimal parameters <span class="math notranslate nohighlight">\(\
 <li><p>’ridge’ or ‘lasso’: The curves will be as functions of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
 </ul>
 </p></li>
-<li><p><strong>figname</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) – For saving the figure.</p></li>
-<li><p><strong>add_lasso</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
+<li><p><strong>figname</strong> (<em>str</em>) – For saving the figure.</p></li>
+<li><p><strong>add_lasso</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
 If so, the figure will show only the MSE and R2 score for
 both models.</p></li>
 </ul>
@@ -223,9 +223,9 @@ run the commands <code class="docutils literal notranslate"><span class="pre">\t
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
-<li><p><strong>y</strong> (<code class="docutils literal notranslate"><span class="pre">array_like</span></code>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
-<li><p><strong>add_noise</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
+<li><p><strong>x</strong> (<em>array_like</em>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>add_noise</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
 to the data.</p></li>
 </ul>
 </dd>
@@ -233,7 +233,7 @@ to the data.</p></li>
 <dd class="field-even"><p>The resulting Franke’s function, with or without the noise.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">array_like</span></code></p>
+<dd class="field-odd"><p>array_like</p>
 </dd>
 </dl>
 </dd></dl>

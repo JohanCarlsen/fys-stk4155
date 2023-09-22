@@ -34,8 +34,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     ----------
     width : {'col', 'text'} or float, optional 
         Width of the figure in pt. Possible values:
-            - 'col' (default): 255.46837
-            - 'text' : 528.93675
+            * 'col' (default): 255.46837
+            * 'text' : 528.93675
     scale : float, default: 1.0
         How to scale the height of the figure, ie. ``figsize=(width, height * scale)``    
     subplot : tuple, default: (1, 1)
@@ -76,9 +76,9 @@ class Regression:
 
     Parameters
     ----------
-    x_data, y_data : ``array_like``
+    x_data, y_data : array_like
         Data along the x and y axes.     
-    z_data : ``array_like``, default: ``None``
+    z_data : array_like, default: None
         If the function describing the data is 2D, the z_data parameter describe
         the data along the z axis. 
     '''
@@ -176,13 +176,13 @@ class Regression:
         Parameters
         ----------
 
-        lambda_min, lambda_max : ``float``
+        lambda_min, lambda_max : float
             Lowest/highest value for :math:`\log_{10}\lambda`.
         
-        poly_deg : ``int``
+        poly_deg : int
             Order of the polynomial to fit. 
         
-        n_lambda : ``int``
+        n_lambda : int
             Number of :math:`\lambda`-elements to compute.
         '''
         y_train, y_test = self.y_train, self.y_test
@@ -256,9 +256,9 @@ class Regression:
             * 'OLS': The curves will be as functions of the polynomial degree.
             * 'ridge' or 'lasso': The curves will be as functions of :math:`\lambda`.
         
-        figname : ``str``
+        figname : str
             For saving the figure.         
-        add_lasso : ``bool``, default: ``True``
+        add_lasso : bool, default: True
             Option to add the `lasso` model to the figure for `ridge`.
             If so, the figure will show only the MSE and R2 score for 
             both models. 
@@ -360,15 +360,15 @@ def frankes_function(x, y, add_noise=True):
 
     Parameters
     ----------
-    x, y : ``array_like``
+    x, y : array_like
         The `x` and `y` values to evaluate the function on. 
-    add_noise : ``bool``, default: ``True``
+    add_noise : bool, default: True
         Weather to add Gaussian noise :math:`\epsilon\sim\mathcal N(+,\sigma^2)`
         to the data. 
 
     Returns
     -------
-    ``array_like``
+    array_like
         The resulting Franke's function, with or without the noise. 
     '''
     term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2)**2) - 0.25 * ((9 * y - 2)**2))
