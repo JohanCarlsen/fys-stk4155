@@ -72,6 +72,20 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     return fig_dims
 
 class Regression:
+    '''
+    Regression class for Ordinary Least Square (:mod:`OLS`), Ridge (:mod:`ridge`),
+    and Lasse (:mod:`lasso`) regression. 
+
+    Parameters:
+    -----------
+
+    x_data, y_data : `array_like`
+        Data along the x and y axes. 
+    
+    z_data : `array_like`, default=`None`
+        If the function describing the data is 2D, the z_data parameter describe
+        the data along the z axis. 
+    '''
 
     def __init__(self, x_data, y_data, z_data=None):
 
@@ -92,6 +106,25 @@ class Regression:
         self.X_test = scaler.transform(self.X_test_unscaled)
 
     def OLS(self, n_poly, identity_test=False):
+        r'''
+        Ordinary least square regression method, ie.:
+
+        .. math:: 
+            \tilde\beta = (X^TX)^{-1}X^Ty \\
+            \tilde y = X\tilde\beta
+        
+        with a user-defined polynomial degree.
+
+        Parameters:
+        -----------
+
+        n_poly : `int`
+            Polynomial degree.
+        
+        identity_test : `bool`, default=`False`
+            If `True`, the method performs a test to see if the implementation is correct, 
+            ie. if the design matrix is the identity matrix, the mean square error should be 0.
+        '''
         max_polys = n_poly * self.dim**2 + 1
 
         if identity_test:
