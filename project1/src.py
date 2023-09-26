@@ -6,8 +6,9 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error as MSE, r2_score as R2
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.utils import resample 
 
 plt.rcParams.update({
     'lines.linewidth': 1,
@@ -361,6 +362,63 @@ class Regression:
         fig.tight_layout()
         fig.savefig('figures/' + model + '_' + figname + '.pdf', bbox_inches='tight')
         fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
+    
+    def bias_variance_tradeoff(self, max_degree, n_bootstraps, data_dim=2):
+        r'''
+        Perform OLS on the data and plot the evolution of the
+        bias and variance as functions of the polynomial degree.
+
+        Parameters
+        ----------
+        max_degree : int
+            Maximum polynomial degree to evalute the OLS for.
+        
+        n_bootstraps : int 
+            The number of bootstrap resamples to perform.
+        
+        data_dim : int, default: 2
+            Dimension of the data the model is evaluated on.
+        '''
+        if data_dim == 1:
+            max_degree += 1
+            degree = np.arange(max_degree)
+            error_y_test = self.y_test
+            keepdims = True
+        
+        elif data_dim == 2:
+            degree = np.arange(1, max_degree+1)
+            error_y_test = self.y_test[:, np.newaxis]
+            keepdims = False
+
+        error = np.zeros(max_degree)
+        bias = np.zeros_like(error)
+        variance = np.zeros_like(error)
+
+        for deg in degree:
+            model = make_pipeline(PolynomialFeatures(degree=deg),
+                                  LinearRegression(fit_intercept=False))
+
+            y_pred = np.empty((self.y_test.shape[0], n_bootstraps))
+
+            for i in range(n_bootstraps):
+                x_, y_ = resample(self.X_train, self.y_train)
+                y_pred[:, i] = model.fit(x_, y_).predict(self.X_test).ravel()
+
+            deg_idx = deg - 1 if data_dim == 2 else deg
+
+            error[deg_idx] = np.mean(np.mean((error_y_test - y_pred)**2, axis=1, keepdims=keepdims))
+            bias[deg_idx] = np.mean((self.y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
+            variance[deg_idx] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.plot(degree, error, label='Error', color='red')
+        ax.plot(degree, bias, label='Bias', color='green')
+        ax.plot(degree, variance, label='Variance', color='blue')
+        ax.legend()
+
+        ax.set_xlabel('Polynomial degree')
+        fig.tight_layout()
+
 
 def frankes_function(x, y, add_noise=True):
     r'''
@@ -400,8 +458,9 @@ if __name__ == '__main__':
     y = np.exp(-x**2) + 1.5 * np.exp(-(x - 2)**2) + np.random.normal(0, 0.1, x.shape)
 
     fit = Regression(x, y)
-    fit.OLS(20, identity_test=True)
-    fit.plot_evolution('OLS', 'test')
+    # fit.OLS(20, identity_test=True)
+    # fit.plot_evolution('OLS', 'test')
+    fit.bias_variance_tradeoff(max_degree=15, n_bootstraps=100, data_dim=1)
     plt.show()
 
     # fig = plt.figure(figsize=(8, 6))
