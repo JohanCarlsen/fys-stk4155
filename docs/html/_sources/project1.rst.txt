@@ -15,6 +15,8 @@ Regression methods
 
 .. automethod:: src.Regression.plot_evolution
 
+.. automethod:: src.Regression.bias_variance_tradeoff
+
 Functions
 ---------
 

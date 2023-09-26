@@ -366,10 +366,13 @@ the data along the z axis.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OLS</span></code></a>(n_poly[, identity_test])</p></td>
 <td><p>Ordinary least square regression method, ie.:</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model, figname[, add_lasso])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a>(max_degree, n_bootstraps)</p></td>
+<td><p>Perform OLS on the data and plot the evolution of the bias and variance as functions of the polynomial degree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model, figname[, add_lasso])</p></td>
 <td><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the values for the optimal parameters <span class="math notranslate nohighlight">\(\hat\beta\)</span>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge</span></code></a>(lambda_min, lambda_max, poly_deg, n_lambda)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge</span></code></a>(lambda_min, lambda_max, poly_deg, n_lambda)</p></td>
 <td><p>Perform Ridge regression on the provided data.</p></td>
 </tr>
 </tbody>
@@ -439,6 +442,22 @@ values for the optimal parameters <span class="math notranslate nohighlight">\(\
 <li><p><strong>add_lasso</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
 If so, the figure will show only the MSE and R2 score for
 both models.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.bias_variance_tradeoff">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">bias_variance_tradeoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.bias_variance_tradeoff" title="Link to this definition">#</a></dt>
+<dd><p>Perform OLS on the data and plot the evolution of the
+bias and variance as functions of the polynomial degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_degree</strong> (<em>int</em>) – Maximum polynomial degree to evalute the OLS for.</p></li>
+<li><p><strong>n_bootstraps</strong> (<em>int</em>) – The number of bootstrap resamples to perform.</p></li>
+<li><p><strong>data_dim</strong> (<em>int</em><em>, </em><em>default: 2</em>) – Dimension of the data the model is evaluated on.</p></li>
 </ul>
 </dd>
 </dl>
@@ -559,6 +578,7 @@ to the data.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#src.Regression.OLS"><code class="docutils literal notranslate"><span class="pre">Regression.OLS()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#src.Regression.ridge"><code class="docutils literal notranslate"><span class="pre">Regression.ridge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#src.Regression.plot_evolution"><code class="docutils literal notranslate"><span class="pre">Regression.plot_evolution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#src.Regression.bias_variance_tradeoff"><code class="docutils literal notranslate"><span class="pre">Regression.bias_variance_tradeoff()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a><ul class="nav section-nav flex-column">
