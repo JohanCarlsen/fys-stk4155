@@ -384,11 +384,13 @@ class Regression:
             degree = np.arange(max_degree)
             error_y_test = self.y_test
             keepdims = True
+            filename = 'test-bias-var-trade'
         
         elif data_dim == 2:
             degree = np.arange(1, max_degree+1)
             error_y_test = self.y_test[:, np.newaxis]
             keepdims = False
+            filename = 'bias-var-trade'
 
         error = np.zeros(max_degree)
         bias = np.zeros_like(error)
@@ -410,7 +412,7 @@ class Regression:
             bias[deg_idx] = np.mean((self.y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
             variance[deg_idx] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
 
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=set_size())
         ax.plot(degree, error, label='Error', color='red')
         ax.plot(degree, bias, label='Bias', color='green')
         ax.plot(degree, variance, label='Variance', color='blue')
@@ -418,6 +420,8 @@ class Regression:
 
         ax.set_xlabel('Polynomial degree')
         fig.tight_layout()
+        fig.savefig('figures/' + filename + '.png', bbox_inches='tight')
+        fig.savefig('figures/' + filename + '.pdf', bbox_inches='tight')
 
 
 def frankes_function(x, y, add_noise=True):
