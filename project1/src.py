@@ -87,7 +87,7 @@ class Regression:
 
     z_data : array_like, default: None
         If the function describing the data is 2D, the z_data parameter describe
-        the data along the z axis. 
+        the data along the z axis.
     '''
 
     def __init__(self, x_data, y_data, z_data=None):
@@ -420,10 +420,10 @@ class Regression:
         ax.plot(degree, error, label='Error', color='red')
         ax.plot(degree, bias, label='Bias', color='green')
         ax.plot(degree, variance, label='Variance', color='blue')
+        ax.set_xlabel('Polynomial degree')
         ax.set_yscale(scale)
         ax.legend()
 
-        ax.set_xlabel('Polynomial degree')
         fig.tight_layout()
         fig.savefig('figures/' + filename + '.png', bbox_inches='tight')
         fig.savefig('figures/' + filename + '.pdf', bbox_inches='tight')
@@ -481,6 +481,7 @@ class Regression:
                 y_pred_OLS = X_test @ beta_OLS 
                 scores_OLS[i, k] = np.sum((y_pred_OLS - y_test)**2) / np.size(y_pred_OLS)
 
+                # Sklearn's OLS results
                 X_sklearn = poly.fit_transform(X)
                 lin = LinearRegression(fit_intercept=False)
                 MSE_OLS_sklearn = cross_val_score(lin, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
@@ -498,10 +499,12 @@ class Regression:
                 y_pred_Ridge = X_test @ beta_Ridge
                 scores_Ridge[l, k] = np.sum((y_pred_Ridge - y_test)**2) / np.size(y_pred_Ridge)
 
+                # Sklearn's Ridge results
                 ridge = Ridge(alpha=lambdas[l])
                 MSE_Ridge_sklearn = cross_val_score(ridge, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
+                # Sklearn' Lasso results
                 lasso = Lasso(lambdas[l])
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
@@ -517,16 +520,16 @@ class Regression:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1)))
 
         ax1.set_title(f'{n_kfolds} KFolds')
-        ax1.plot(degrees, est_MSE_OLS, color='k', label=r'KFold$_\mathrm{OLS}$')
-        ax1.plot(degrees, est_MSE_OLS_sklearn, 'r--', label=r'Cross val. score')
+        ax1.plot(degrees, est_MSE_OLS, color='k', label=r'OLS')
+        ax1.plot(degrees, est_MSE_OLS_sklearn, 'k--')
         ax1.set_xlabel('Polynomial degree')
         ax1.set_yscale('log')
         ax1.legend()
 
-        ax2.plot(np.log10(lambdas), est_MSE_Ridge, color='k', label=r'KFolds$_\mathrm{Ridge}$')
-        ax2.plot(np.log10(lambdas), est_MSE_Ridge_sklearn, 'r--', label=r'Cross val. score$_\mathrm{Ridge}$')
-        ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'KFolds$_\mathrm{Lasso}$')
-        ax2.plot(np.log10(lambdas), est_MSE_Lasso_sklearn, 'g--', label=r'Cross val. score$_\mathrm{Lasso}$')
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge, color='r', label=r'Ridge')
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge_sklearn, 'r--')
+        ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'Lasso')
+        ax2.plot(np.log10(lambdas), est_MSE_Lasso_sklearn, 'b--')
         ax2.set_xlabel(r'$\log_{10}\lambda$')
         ax2.legend()
 
@@ -569,14 +572,14 @@ def frankes_function(x, y, add_noise=True):
     
 if __name__ == '__main__':
     np.random.seed(2018)
-    n = 100
+    n = 40
     x = np.linspace(-3, 3, n).reshape(-1, 1)
     y = np.exp(-x**2) + 1.5 * np.exp(-(x - 2)**2) + np.random.normal(0, 0.1, x.shape)
 
     fit = Regression(x, y)
     fit.OLS(20, identity_test=True)
     fit.plot_evolution('OLS', 'test')
-    fit.bias_variance_tradeoff(max_degree=15, n_bootstraps=100, data_dim=1)
+    fit.bias_variance_tradeoff(max_degree=13, n_bootstraps=100, data_dim=1)
     plt.show()
 
     # fig = plt.figure(figsize=(8, 6))
