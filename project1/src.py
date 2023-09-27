@@ -9,6 +9,8 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.utils import resample 
+from scipy.linalg import svd
+from time import perf_counter_ns
 
 plt.rcParams.update({
     'lines.linewidth': 1,
@@ -24,7 +26,8 @@ plt.rcParams.update({
     'xtick.labelsize': 8,
     'ytick.labelsize': 8,
     'legend.fontsize': 8,
-    'legend.fancybox': False
+    'legend.fancybox': False,
+    'savefig.bbox': 'tight'
 })
 
 def set_size(width='col', scale=1.0, subplot=(1, 1)):
@@ -88,14 +91,20 @@ class Regression:
     z_data : array_like, default: None
         If the function describing the data is 2D, the z_data parameter describe
         the data along the z axis.
+    
+    name : str, optional
+        The name that will be the title of certain figures. If not set during
+        initialization, the figname has to be set  when calling :any:`plot_evolution`
     '''
 
-    def __init__(self, x_data, y_data, z_data=None):
+    def __init__(self, x_data, y_data, z_data=None, name=None):
+        self.figname = name
 
         if z_data is None:
             self.X = x_data
             self.y_data = y_data
             self.dim = 1
+        
         else:
             self.X = np.column_stack((x_data, y_data))
             self.y_data = z_data 
@@ -108,7 +117,12 @@ class Regression:
         self.X_train = scaler.transform(self.X_train_unscaled)
         self.X_test = scaler.transform(self.X_test_unscaled)
 
-    def OLS(self, n_poly, identity_test=False):
+        y_scaler = np.mean(self.y_train)
+        self.y_train = self.y_train - y_scaler
+        self.y_test = self.y_test - y_scaler
+
+
+    def OLS(self, n_poly, identity_test=False, store_beta=True):
         r'''
         Ordinary least square regression method.
 
@@ -128,8 +142,13 @@ class Regression:
         identity_test : bool, default: False
             If ``True``, the method performs a test to see if the implementation is correct, 
             ie. if the design matrix is the identity matrix, the mean square error should be 0.
+        
+        store_beta : bool, default: True
+            If the input data is large, there is a chance that the beta values will be large 
+            arrays. This parameter ensures the betas are not stored.
         '''
-        max_polys = n_poly * self.dim**2 + 1
+        max_polys = int((n_poly + 1) * (n_poly + 2) / 2)
+        self.store_beta = store_beta
 
         if identity_test:
             X = np.eye(len(self.X))
@@ -147,19 +166,19 @@ class Regression:
         self.beta_ols = np.zeros((n_poly, max_polys))
 
         for i in range(len(self.poly_degs)):
-            model = Pipeline([('scaler', StandardScaler()), \
-                            ('poly', PolynomialFeatures(degree=self.poly_degs[i])), \
-                            ('linear', LinearRegression())])
+            poly = PolynomialFeatures(degree=self.poly_degs[i])
+            X_train = poly.fit_transform(self.X_train)
+            X_test = poly.fit_transform(self.X_test)
 
-            clf = model.fit(self.X_train, self.y_train)
-            beta = model.named_steps['linear'].coef_
-            beta = beta[0] if len(beta) == 1 else beta
-            zeros = np.zeros(max_polys - len(beta))
-            beta = np.append(beta, zeros)
-            self.beta_ols[i, :] = beta
+            beta = np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ self.y_train
+            y_tilde = X_train @ beta 
+            y_predict = X_test @ beta
 
-            y_tilde = clf.predict(self.X_train)
-            y_predict = clf.predict(self.X_test)
+            if store_beta:
+                beta = beta[0] if len(beta) == 1 else beta
+                zeros = np.zeros(max_polys - len(beta))
+                beta = np.append(beta, zeros)
+                self.beta_ols[i, :] = beta
             
             mse_train = MSE(self.y_train, y_tilde)
             mse_test = MSE(self.y_test, y_predict)
@@ -170,6 +189,14 @@ class Regression:
             self.mse_ols_test[i] = mse_test
             self.r2_ols_train[i] = r2_train
             self.r2_ols_test[i] = r2_test
+
+        min_ols = np.min(self.mse_ols_test)
+        best_r2 = np.max(self.r2_ols_test)
+
+        print('\nOLS results')
+        print('-----------')
+        print(f'Highest R2 score: {best_r2:.3f} at degree: {self.poly_degs[self.r2_ols_test == best_r2][0]}')
+        print(f'Lowest MSE: {min_ols:11.3f} at degree: {self.poly_degs[self.mse_ols_test == min_ols][0]}\n')
     
     def ridge(self, lambda_min, lambda_max, poly_deg, n_lambda):
         r'''
@@ -193,10 +220,11 @@ class Regression:
         n_lambda : int
             Number of :math:`\lambda`-elements to compute.
         '''
+        self.ridge_lasse_poly_deg = poly_deg
         y_train, y_test = self.y_train, self.y_test
         poly = PolynomialFeatures(degree=poly_deg)
-        X_train = poly.fit_transform(self.X_train, y_train)
-        X_test = poly.fit_transform(self.X_test, y_test)
+        X_train = poly.fit_transform(self.X_train)
+        X_test = poly.fit_transform(self.X_test)
 
         self.lambdas = np.logspace(lambda_min, lambda_max, n_lambda)
         self.mse_ridge_train = np.zeros(n_lambda)
@@ -212,9 +240,11 @@ class Regression:
         beta = []
         beta_lasso = []
 
+        print('\nFinished:')
+        
         for i in range(n_lambda):
             lambda_i = self.lambdas[i]
-            beta_tilde = np.linalg.inv(X_train.T @ X_train + lambda_i * np.eye(X_train.shape[1])) @ X_train.T @ y_train
+            beta_tilde = np.linalg.pinv(X_train.T @ X_train + lambda_i * np.eye(X_train.shape[1])) @ X_train.T @ y_train
             beta.append(beta_tilde)
 
             y_tilde = X_train @ beta_tilde
@@ -230,7 +260,7 @@ class Regression:
             self.r2_ridge_train[i] = r2_train
             self.r2_ridge_test[i] = r2_test
 
-            lasso_reg = Lasso(lambda_i)
+            lasso_reg = Lasso(lambda_i, fit_intercept=False)
             lasso_reg.fit(X_train, y_train)
 
             y_tilde_lasso = lasso_reg.predict(X_train)
@@ -247,11 +277,28 @@ class Regression:
             self.mse_lasso_test[i] = mse_test_lasso
             self.r2_lasso_train[i] = r2_train_lasso
             self.r2_lasso_test[i] = r2_test_lasso
+
+            print(f'{(i+1) / n_lambda * 100:5.1f} %')
         
         self.beta_ridge = np.array(beta)
         self.beta_lasso = np.array(beta_lasso)
 
-    def plot_evolution(self, model, figname, add_lasso=True):
+        min_ridge = np.min(self.mse_ridge_test)
+        min_lasso = np.min(self.mse_lasso_test)
+        best_r2_ridge = np.max(self.r2_ridge_test)
+        best_r2_lasso = np.max(self.r2_lasso_test)
+        
+        print('\nRidge results')
+        print('-------------')
+        print(f'Highest R2 score: {best_r2_ridge:.3f} at lambda: {self.lambdas[self.r2_ridge_test == best_r2_ridge][0]:.3e}')
+        print(f'Lowest MSE: {min_ridge:11.3f} at lambda: {self.lambdas[self.mse_ridge_test == min_ridge][0]:.3e}\n')
+
+        print('Lasso results')
+        print('-------------')
+        print(f'Highest R2 score: {best_r2_lasso:.3f} at lambda: {self.lambdas[self.r2_lasso_test == best_r2_lasso][0]:.3e}')
+        print(f'Lowest MSE: {min_lasso:11.3f} at lambda: {self.lambdas[self.mse_lasso_test == min_lasso][0]:.3e}\n')
+
+    def plot_evolution(self, model, figname=None, add_lasso=True):
         r'''
         Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
         values for the optimal parameters.
@@ -272,11 +319,15 @@ class Regression:
             If so, the figure will show only the MSE and R2 score for 
             both models. 
         '''
+        if self.figname is None: 
+            self.figname = figname
+
         if model == 'OLS':
             mse_train, mse_test = self.mse_ols_train, self.mse_ols_test
             r2_train, r2_test = self.r2_ols_train, self.r2_ols_test
             beta = self.beta_ols; x = self.poly_degs
             x_label = 'Polynomial degree'
+            title = 'OLS'
         
         elif model == 'ridge' and add_lasso:
             mse_train, mse_test = self.mse_ridge_train, self.mse_ridge_test
@@ -285,31 +336,32 @@ class Regression:
 
             mse_train_lasso, mse_test_lasso = self.mse_lasso_train, self.mse_lasso_test
             r2_train_lasso, r2_test_lasso = self.r2_lasso_train, self.r2_lasso_test
-            beta_lasso = self.beta_lasso; x = np.log10(self.lambdas)
+            beta_lasso = self.beta_lasso
 
             x_label = r'$\log_{10}\,\lambda$'
 
-            grid_spec = dict(hspace=0)
-            fig, ax = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
+            fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
+            fig.suptitle(f'Polynomial degree: {self.ridge_lasse_poly_deg}')
 
-            ax[0].plot(x, mse_test, color='red', label='Ridge test')
-            ax[0].plot(x, mse_test_lasso, ls='dashed', color='red', label='Lasso test')
-            ax[0].plot(x, mse_train, color='black', label='Ridge train')
-            ax[0].plot(x, mse_train_lasso, ls='dashed', color='black', label='Lasso train')
+            ax[0].plot(x, mse_test, 'r', label='Ridge test')
+            ax[0].plot(x, mse_train, 'r--', label='Ridge train')
+            ax[0].plot(x, mse_test_lasso, 'b', label='Lasso test')
+            ax[0].plot(x, mse_train_lasso, 'b--', label='Lasso train')
             ax[0].set_ylabel('MSE')
-            ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=False, labelbottom=False)
+            ax[0].legend(ncol=2)
 
-            ax[1].plot(x, r2_test, color='red')
-            ax[1].plot(x, r2_test_lasso, ls='dashed', color='red')
-            ax[1].plot(x, r2_train, color='black')
-            ax[1].plot(x, r2_train_lasso, ls='dashed', color='black')
-            ax[1].set_ylabel('R2 score')
-            ax[1].set_xlabel(x_label)
+            ax[1].plot(x, r2_test, 'r', label='Ridge test')
+            ax[1].plot(x, r2_train, 'r--', label='Ridge train')
+            ax[1].plot(x, r2_test_lasso, 'b', label='Lasso test')
+            ax[1].plot(x, r2_train_lasso, 'b--', label='Lasso train')
+            ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
+            ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
+            ax[1].legend(ncol=2)
 
-            fig.legend(loc='center right')
+            fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
-            fig.savefig('figures/' + model + '_lasso_' + figname + '.pdf', bbox_inches='tight')
-            fig.savefig('figures/' + model + '_lasso_' + figname + '.png', bbox_inches='tight')
+            fig.savefig('figures/' + model + '_lasso_' + self.figname + '.pdf')
+            fig.savefig('figures/' + model + '_lasso_' + self.figname + '.png')
 
             return
         
@@ -317,6 +369,7 @@ class Regression:
             mse_train, mse_test = self.mse_ridge_train, self.mse_ridge_test
             r2_train, r2_test = self.r2_ridge_train, self.r2_ridge_test
             beta = self.beta_ridge; x = np.log10(self.lambdas)
+            title = f'Ridge, polynomial degree: {self.ridge_lasse_poly_deg}'
 
             x_label = r'$\log_{10}\,\lambda$'
         
@@ -325,43 +378,69 @@ class Regression:
             r2_train, r2_test = self.r2_lasso_train, self.r2_lasso_test
             beta = self.beta_lasso; x = np.log10(self.lambdas)
             x_label = r'$\log_{10}\,\lambda$'
+            title = f'Lasso, polynomial degree: {self.ridge_lasse_poly_deg}'
         
-        grid_spec = dict(hspace=0, height_ratios=[1, 1, 0, 2])
-        fig, ax = plt.subplots(4, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
+        if model == 'OLS' and not self.store_beta:
+            fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
+            fig.suptitle(title, fontsize=8)
 
-        line1, = ax[0].plot(x, mse_test, color='red', label='Test')
-        line2, = ax[0].plot(x, mse_train, color='black', label='Train')
-        ax[0].set_ylabel('MSE')
-        ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=True, labelbottom=False)
+            ax[0].plot(x, mse_test, 'r', label='Test')
+            ax[0].plot(x, mse_train, 'r--', label='Train')
+            ax[0].set_ylabel('MSE')
+            ax[0].legend(ncol=2)
 
-        ax[1].plot(x, r2_test, color='red', label='Test')
-        ax[1].plot(x, r2_train, color='black', label='Train')
-        ax[1].set_ylabel('R2 score')
-        ax[1].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=False)
+            ax[1].plot(x, r2_test, 'b', label='Test')
+            ax[1].plot(x, r2_train, 'b--', label='Train')
+            ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
+            ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
+            ax[1].legend(ncol=2)
 
-        ax[2].set_visible(False)
+            fig.supxlabel(x_label, fontsize=8)
+            fig.tight_layout()
+            fig.savefig('figures/' + model + '_' + self.figname + '.pdf')
+            fig.savefig('figures/' + model + '_' + self.figname + '.png')
 
-        if model == 'OLS':
+        else:
+            grid_spec = dict(hspace=0, height_ratios=[1, 1, 0, 2])
+            fig, ax = plt.subplots(4, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
+            ax[0].set_title(title)
 
-            for i in range(len(beta[:, 0])):
-                ax[3].plot(x, beta[:, i], label=r'$\beta$' + f'$_{i+1}$')
+            line1, = ax[0].plot(x, mse_test, color='red', label='Test')
+            line2, = ax[0].plot(x, mse_train, color='black', label='Train')
+            ax[0].set_ylabel('MSE')
+            ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=True, labelbottom=False)
+
+            ax[1].plot(x, r2_test, color='red', label='Test')
+            ax[1].plot(x, r2_train, color='black', label='Train')
+            ax[1].set_ylabel('R2 score')
+            ax[1].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=False)
+
+            ax[2].set_visible(False)
+
+            if model == 'OLS':
+
+                for i in range(len(beta[:, 0])):
+                    ax[3].plot(x, beta[:, i], label=r'$\beta$' + f'$_{i+1}$')
+                
+                if not figname == 'test' and beta.shape[0] < 5:
+                    ax[3].legend(ncol=2)
             
-            if not figname == 'test':
-                ax[3].legend(ncol=2)
-        
-        elif model =='ridge' or model == 'lasso':
+            elif model =='ridge' or model == 'lasso':
 
-            for i in range(len(beta[0, :])):
-                ax[3].plot(x, beta[:, i])
+                for i in range(len(beta[0, :])):
+                    ax[3].plot(x, beta[:, i])
 
-        ax[3].set_ylabel(r'$\beta_i$ value')
-        ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
-        ax[3].set_xlabel(x_label)
+            ax[3].set_ylabel(r'$\beta_i$ value')
+            ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
+            ax[3].set_xlabel(x_label)
 
-        fig.legend(handles=[line1, line2], bbox_to_anchor=(1, 0.75))
-        fig.tight_layout()
-        fig.savefig('figures/' + model + '_' + figname + '.pdf', bbox_inches='tight')
-        fig.savefig('figures/' + model + '_' + figname + '.png', bbox_inches='tight')
+            if not self.figname == 'geodata':
+                ax[3].set_ylim(-0.75, 1.25)
+
+            fig.legend(handles=[line1, line2], bbox_to_anchor=(1, 0.75))
+            fig.tight_layout()
+            fig.savefig('figures/' + model + '_' + self.figname + '.pdf')
+            fig.savefig('figures/' + model + '_' + self.figname + '.png')
     
     def bias_variance_tradeoff(self, max_degree, n_bootstraps, data_dim=2):
         r'''
@@ -380,7 +459,7 @@ class Regression:
             Dimension of the data the model is evaluated on.
         '''
         X_train, X_test, y_train, y_test = self.X_train, self.X_test, self.y_train, self.y_test
-
+        
         if data_dim == 1:
             max_degree += 1
             degree = np.arange(max_degree)
@@ -389,44 +468,64 @@ class Regression:
             filename = 'test-bias-var-trade'
             scale = 'linear'
         
-        elif data_dim == 2:
+        elif data_dim == 2 and not self.figname == 'geodata':
             degree = np.arange(1, max_degree+1)
             error_y_test = y_test[:, np.newaxis]
             keepdims = False
-            filename = 'bias-var-trade'
+            filename = self.figname + '-bias-var-trade'
             scale = 'log'
-
+        
+        else:
+            degree = np.arange(1, max_degree+1)
+            y_test = y_test.flatten()
+            error_y_test = y_test[:, np.newaxis]
+            keepdims = False 
+            scale = 'log'
+        
         error = np.zeros(max_degree)
         bias = np.zeros_like(error)
         variance = np.zeros_like(error)
+
+        j = 0
+
+        print('\nFinished:')
+        t1 = perf_counter_ns()
 
         for deg in degree:
             model = make_pipeline(PolynomialFeatures(degree=deg),
                                   LinearRegression(fit_intercept=False))
 
-            y_pred = np.empty((y_test.shape[0], n_bootstraps))
+            idx = y_test.shape[0] if not self.figname == 'geodata' else len(y_test.flatten())
+            y_pred = np.empty((idx, n_bootstraps))
 
             for i in range(n_bootstraps):
                 x_, y_ = resample(X_train, y_train)
                 y_pred[:, i] = model.fit(x_, y_).predict(X_test).ravel()
 
-            deg_idx = deg - 1 if data_dim == 2 else deg
+            error[j] = np.mean(np.mean((error_y_test - y_pred)**2, axis=1, keepdims=keepdims))
+            bias[j] = np.mean((y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
+            variance[j] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
 
-            error[deg_idx] = np.mean(np.mean((error_y_test - y_pred)**2, axis=1, keepdims=keepdims))
-            bias[deg_idx] = np.mean((y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
-            variance[deg_idx] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
+            j += 1
+
+            print(f'{deg / max_degree * 100:5.1f} %')
+
+        t2 = perf_counter_ns()
+        time = (t2 - t1) * 1e-9
+        print(f'Completed in {time//60} min {time%60:.0f} sec.')
 
         fig, ax = plt.subplots(figsize=set_size())
-        ax.plot(degree, error, label='Error', color='red')
-        ax.plot(degree, bias, label='Bias', color='green')
-        ax.plot(degree, variance, label='Variance', color='blue')
+        ax.set_title(f'{n_bootstraps} bootstraps')
+        ax.plot(degree, error, 'r', label='Error')
+        ax.plot(degree, bias, 'g--', label='Bias')
+        ax.plot(degree, variance, 'b', label='Variance')
         ax.set_xlabel('Polynomial degree')
         ax.set_yscale(scale)
         ax.legend()
 
         fig.tight_layout()
-        fig.savefig('figures/' + filename + '.png', bbox_inches='tight')
-        fig.savefig('figures/' + filename + '.pdf', bbox_inches='tight')
+        fig.savefig('figures/' + self.figname + '.png')
+        fig.savefig('figures/' + self.figname + '.pdf')
 
     def cross_validation(self, n_kfolds):
         r'''
@@ -437,17 +536,28 @@ class Regression:
         n_kfolds : int 
             The number of k-folds to concider.
         '''
-        X, y = self.X, self.y_data 
+        X, y = self.X, self.y_data
         n_data = X.shape[0]
         indices = np.arange(n_data)
         shuffled_inds = np.random.choice(indices, replace=False, size=n_data)
         kfolds = np.array_split(shuffled_inds, n_kfolds)
         KFold_sklearn = KFold(n_splits=n_kfolds)
 
-        n_poly = 15
-        n_lambda = 500
+        if self.figname == 'geodata':
+            n_poly = 3
+            n_lambda = 50
+            lambdas = np.logspace(-5, 1, n_lambda)
+        
+        else:
+            n_poly = 15
+            n_lambda = 500 
+            lambdas = np.logspace(-4, 2, n_lambda)
+        # # n_poly = 15
+        # n_poly = 7
+        # n_lambda = 500
         degrees = np.arange(1, n_poly+1)
-        lambdas = np.logspace(-4, 4, n_lambda)
+        # # lambdas = np.logspace(-4, 2, n_lambda)
+        # lambdas = np.logspace(-10, 1, n_lambda)
 
         scores_OLS = np.zeros((n_poly, n_kfolds))
         scores_Ridge = np.zeros((n_lambda, n_kfolds))
@@ -477,7 +587,7 @@ class Regression:
                 X_test = poly.fit_transform(x_test)
 
                 # OLS
-                beta_OLS = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train
+                beta_OLS = np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
                 y_pred_OLS = X_test @ beta_OLS 
                 scores_OLS[i, k] = np.sum((y_pred_OLS - y_test)**2) / np.size(y_pred_OLS)
 
@@ -489,23 +599,23 @@ class Regression:
 
 
             # Ridge and Lasso
-            poly = PolynomialFeatures(degree=5)
+            poly = PolynomialFeatures(degree=n_poly)
             X_train = poly.fit_transform(x_train)
             X_test = poly.fit_transform(x_test)
             X_sklearn = poly.fit_transform(X)
 
             for l in range(len(lambdas)):
-                beta_Ridge = np.linalg.inv(X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])) @ X_train.T @ y_train
+                beta_Ridge = np.linalg.pinv(X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])) @ X_train.T @ y_train
                 y_pred_Ridge = X_test @ beta_Ridge
                 scores_Ridge[l, k] = np.sum((y_pred_Ridge - y_test)**2) / np.size(y_pred_Ridge)
 
                 # Sklearn's Ridge results
-                ridge = Ridge(alpha=lambdas[l])
+                ridge = Ridge(alpha=lambdas[l], fit_intercept=False)
                 MSE_Ridge_sklearn = cross_val_score(ridge, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
                 # Sklearn' Lasso results
-                lasso = Lasso(lambdas[l])
+                lasso = Lasso(lambdas[l], fit_intercept=False)
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
 
@@ -535,8 +645,8 @@ class Regression:
 
         fig.supylabel('MSE', fontsize=8)
         fig.tight_layout()
-        fig.savefig(f'figures/{n_kfolds}-KFolds-cross-val.png', bbox_inches='tight')
-        fig.savefig(f'figures/{n_kfolds}-KFolds-cross-val.pdf', bbox_inches='tight')
+        fig.savefig('figures/' + self.figname + f'-{n_kfolds}-KFolds-cross-val.png')
+        fig.savefig('figures/' + self.figname + f'-{n_kfolds}-KFolds-cross-val.pdf')
         
 
 def frankes_function(x, y, add_noise=True):
@@ -565,7 +675,7 @@ def frankes_function(x, y, add_noise=True):
     res = term1 + term2 + term3 + term4
 
     if add_noise:
-        return res + np.random.normal(0, 1.0, x.shape)
+        return res + 0.1 * np.random.normal(0, 1.0, x.shape)
 
     else:
         return res
@@ -582,24 +692,24 @@ if __name__ == '__main__':
     fit.bias_variance_tradeoff(max_degree=13, n_bootstraps=100, data_dim=1)
     plt.show()
 
-    # fig = plt.figure(figsize=(8, 6))
-    # ax = fig.add_subplot(projection="3d")
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(projection="3d")
 
-    # x = np.arange(0, 1, 0.05)
-    # y = np.arange(0, 1, 0.05)
-    # X, Y = np.meshgrid(x,y)
-    # z = frankes_function(X, Y, add_noise=False)
+    x = np.arange(0, 1, 0.05)
+    y = np.arange(0, 1, 0.05)
+    X, Y = np.meshgrid(x,y)
+    z = frankes_function(X, Y, add_noise=True)
 
-    # # Plot the surface.
-    # surf = ax.plot_surface(X, Y, z, cmap=cm.coolwarm,
-    #                     linewidth=0, antialiased=False)
+    # Plot the surface.
+    surf = ax.plot_surface(X, Y, z, cmap=cm.coolwarm,
+                        linewidth=0, antialiased=False)
 
-    # # Customize the z axis.
-    # ax.set_zlim(-0.10, 1.40)
-    # ax.zaxis.set_major_locator(LinearLocator(10))
-    # ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+    # Customize the z axis.
+    ax.set_zlim(-0.10, 1.40)
+    ax.zaxis.set_major_locator(LinearLocator(10))
+    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
-    # # Add a color bar which maps values to colors.
-    # fig.colorbar(surf, shrink=0.5, aspect=5)
+    # Add a color bar which maps values to colors.
+    fig.colorbar(surf, shrink=0.5, aspect=5)
 
-    # plt.show()
+    plt.show()

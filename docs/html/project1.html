@@ -49,6 +49,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#regression-class">Regression class</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#src.Regression.z_data"><code class="docutils literal notranslate"><span class="pre">Regression.z_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.Regression.name"><code class="docutils literal notranslate"><span class="pre">Regression.name</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -102,7 +103,7 @@
 <h2>Regression class<a class="headerlink" href="#regression-class" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Regression">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
 <dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge (<a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge</span></code></a>),
 and Lasso (<code class="xref any docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
 <dl class="py attribute">
@@ -128,10 +129,22 @@ the data along the z axis.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.Regression.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#src.Regression.name" title="Link to this definition"></a></dt>
+<dd><p>The name that will be the title of certain figures. If not set during
+initialization, the figname has to be set  when calling <a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">plot_evolution</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OLS</span></code></a>(n_poly[, identity_test])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OLS</span></code></a>(n_poly[, identity_test, store_beta])</p></td>
 <td><p>Ordinary least square regression method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a>(max_degree, n_bootstraps)</p></td>
@@ -140,7 +153,7 @@ the data along the z axis.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds)</p></td>
 <td><p>Calculate and plot the results from a k-fold cross validation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model, figname[, add_lasso])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso])</p></td>
 <td><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the values for the optimal parameters.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge</span></code></a>(lambda_min, lambda_max, poly_deg, n_lambda)</p></td>
@@ -155,7 +168,7 @@ the data along the z axis.</p>
 <h2>Regression methods<a class="headerlink" href="#regression-methods" title="Link to this heading"></a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.OLS">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
 <dd><p>Ordinary least square regression method.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align}
@@ -169,6 +182,8 @@ the data along the z axis.</p>
 <li><p><strong>n_poly</strong> (<em>int</em>) – Polynomial degree.</p></li>
 <li><p><strong>identity_test</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
 ie. if the design matrix is the identity matrix, the mean square error should be 0.</p></li>
+<li><p><strong>store_beta</strong> (<em>bool</em><em>, </em><em>default: True</em>) – If the input data is large, there is a chance that the beta values will be large
+arrays. This parameter ensures the betas are not stored.</p></li>
 </ul>
 </dd>
 </dl>
@@ -197,7 +212,7 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.plot_evolution">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
 <dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
 values for the optimal parameters.</p>
 <dl class="field-list simple">
