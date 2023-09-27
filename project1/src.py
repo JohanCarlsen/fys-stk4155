@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.metrics import mean_squared_error as MSE, r2_score as R2
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.pipeline import Pipeline, make_pipeline
@@ -110,7 +110,7 @@ class Regression:
 
     def OLS(self, n_poly, identity_test=False):
         r'''
-        Ordinary least square regression method, ie.:
+        Ordinary least square regression method.
 
         .. math::
             \begin{align}
@@ -254,7 +254,7 @@ class Regression:
     def plot_evolution(self, model, figname, add_lasso=True):
         r'''
         Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
-        values for the optimal parameters :math:`\hat\beta`.
+        values for the optimal parameters.
 
         Parameters
         ----------
@@ -379,18 +379,22 @@ class Regression:
         data_dim : int, default: 2
             Dimension of the data the model is evaluated on.
         '''
+        X_train, X_test, y_train, y_test = self.X_train, self.X_test, self.y_train, self.y_test
+
         if data_dim == 1:
             max_degree += 1
             degree = np.arange(max_degree)
-            error_y_test = self.y_test
+            error_y_test = y_test
             keepdims = True
             filename = 'test-bias-var-trade'
+            scale = 'linear'
         
         elif data_dim == 2:
             degree = np.arange(1, max_degree+1)
-            error_y_test = self.y_test[:, np.newaxis]
+            error_y_test = y_test[:, np.newaxis]
             keepdims = False
             filename = 'bias-var-trade'
+            scale = 'log'
 
         error = np.zeros(max_degree)
         bias = np.zeros_like(error)
@@ -400,22 +404,23 @@ class Regression:
             model = make_pipeline(PolynomialFeatures(degree=deg),
                                   LinearRegression(fit_intercept=False))
 
-            y_pred = np.empty((self.y_test.shape[0], n_bootstraps))
+            y_pred = np.empty((y_test.shape[0], n_bootstraps))
 
             for i in range(n_bootstraps):
-                x_, y_ = resample(self.X_train, self.y_train)
-                y_pred[:, i] = model.fit(x_, y_).predict(self.X_test).ravel()
+                x_, y_ = resample(X_train, y_train)
+                y_pred[:, i] = model.fit(x_, y_).predict(X_test).ravel()
 
             deg_idx = deg - 1 if data_dim == 2 else deg
 
             error[deg_idx] = np.mean(np.mean((error_y_test - y_pred)**2, axis=1, keepdims=keepdims))
-            bias[deg_idx] = np.mean((self.y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
+            bias[deg_idx] = np.mean((y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
             variance[deg_idx] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
 
         fig, ax = plt.subplots(figsize=set_size())
         ax.plot(degree, error, label='Error', color='red')
         ax.plot(degree, bias, label='Bias', color='green')
         ax.plot(degree, variance, label='Variance', color='blue')
+        ax.set_yscale(scale)
         ax.legend()
 
         ax.set_xlabel('Polynomial degree')
@@ -423,6 +428,113 @@ class Regression:
         fig.savefig('figures/' + filename + '.png', bbox_inches='tight')
         fig.savefig('figures/' + filename + '.pdf', bbox_inches='tight')
 
+    def cross_validation(self, n_kfolds):
+        r'''
+        Calculate and plot the results from a k-fold cross validation.
+
+        Parameters
+        ----------
+        n_kfolds : int 
+            The number of k-folds to concider.
+        '''
+        X, y = self.X, self.y_data 
+        n_data = X.shape[0]
+        indices = np.arange(n_data)
+        shuffled_inds = np.random.choice(indices, replace=False, size=n_data)
+        kfolds = np.array_split(shuffled_inds, n_kfolds)
+        KFold_sklearn = KFold(n_splits=n_kfolds)
+
+        n_poly = 15
+        n_lambda = 500
+        degrees = np.arange(1, n_poly+1)
+        lambdas = np.logspace(-4, 4, n_lambda)
+
+        scores_OLS = np.zeros((n_poly, n_kfolds))
+        scores_Ridge = np.zeros((n_lambda, n_kfolds))
+        scores_Lasso = np.zeros_like(scores_Ridge)
+
+        est_MSE_OLS_sklearn = np.zeros(n_poly)
+        est_MSE_Ridge_sklearn = np.zeros(n_lambda)
+        est_MSE_Lasso_sklearn = np.zeros_like(est_MSE_Ridge_sklearn)
+
+        for k in range(n_kfolds):
+            inds = kfolds[k]
+            boolean = np.zeros_like(indices, dtype=bool)
+            boolean[inds] = True 
+            train_inds = ~boolean 
+            test_inds = boolean
+
+            x_train = X[train_inds]
+            y_train = y[train_inds]
+            x_test = X[test_inds]
+            y_test = y[test_inds]
+
+            for deg in degrees:
+                i = deg - 1
+
+                poly = PolynomialFeatures(degree=deg)
+                X_train = poly.fit_transform(x_train)
+                X_test = poly.fit_transform(x_test)
+
+                # OLS
+                beta_OLS = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train
+                y_pred_OLS = X_test @ beta_OLS 
+                scores_OLS[i, k] = np.sum((y_pred_OLS - y_test)**2) / np.size(y_pred_OLS)
+
+                X_sklearn = poly.fit_transform(X)
+                lin = LinearRegression(fit_intercept=False)
+                MSE_OLS_sklearn = cross_val_score(lin, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
+                est_MSE_OLS_sklearn[i] = np.mean(-MSE_OLS_sklearn)
+
+
+            # Ridge and Lasso
+            poly = PolynomialFeatures(degree=5)
+            X_train = poly.fit_transform(x_train)
+            X_test = poly.fit_transform(x_test)
+            X_sklearn = poly.fit_transform(X)
+
+            for l in range(len(lambdas)):
+                beta_Ridge = np.linalg.inv(X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])) @ X_train.T @ y_train
+                y_pred_Ridge = X_test @ beta_Ridge
+                scores_Ridge[l, k] = np.sum((y_pred_Ridge - y_test)**2) / np.size(y_pred_Ridge)
+
+                ridge = Ridge(alpha=lambdas[l])
+                MSE_Ridge_sklearn = cross_val_score(ridge, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
+                est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
+
+                lasso = Lasso(lambdas[l])
+                y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
+                scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
+
+                MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
+                est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
+
+        
+        est_MSE_OLS = np.mean(scores_OLS, axis=1)
+        est_MSE_Ridge = np.mean(scores_Ridge, axis=1)
+        est_MSE_Lasso = np.mean(scores_Lasso, axis=1)
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1)))
+
+        ax1.set_title(f'{n_kfolds} KFolds')
+        ax1.plot(degrees, est_MSE_OLS, color='k', label=r'KFold$_\mathrm{OLS}$')
+        ax1.plot(degrees, est_MSE_OLS_sklearn, 'r--', label=r'Cross val. score')
+        ax1.set_xlabel('Polynomial degree')
+        ax1.set_yscale('log')
+        ax1.legend()
+
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge, color='k', label=r'KFolds$_\mathrm{Ridge}$')
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge_sklearn, 'r--', label=r'Cross val. score$_\mathrm{Ridge}$')
+        ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'KFolds$_\mathrm{Lasso}$')
+        ax2.plot(np.log10(lambdas), est_MSE_Lasso_sklearn, 'g--', label=r'Cross val. score$_\mathrm{Lasso}$')
+        ax2.set_xlabel(r'$\log_{10}\lambda$')
+        ax2.legend()
+
+        fig.supylabel('MSE', fontsize=8)
+        fig.tight_layout()
+        fig.savefig(f'figures/{n_kfolds}-KFolds-cross-val.png', bbox_inches='tight')
+        fig.savefig(f'figures/{n_kfolds}-KFolds-cross-val.pdf', bbox_inches='tight')
+        
 
 def frankes_function(x, y, add_noise=True):
     r'''
@@ -462,8 +574,8 @@ if __name__ == '__main__':
     y = np.exp(-x**2) + 1.5 * np.exp(-(x - 2)**2) + np.random.normal(0, 0.1, x.shape)
 
     fit = Regression(x, y)
-    # fit.OLS(20, identity_test=True)
-    # fit.plot_evolution('OLS', 'test')
+    fit.OLS(20, identity_test=True)
+    fit.plot_evolution('OLS', 'test')
     fit.bias_variance_tradeoff(max_degree=15, n_bootstraps=100, data_dim=1)
     plt.show()
 

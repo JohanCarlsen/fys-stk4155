@@ -17,6 +17,8 @@ Regression methods
 
 .. automethod:: src.Regression.bias_variance_tradeoff
 
+.. automethod:: src.Regression.cross_validation
+
 Functions
 ---------
 
