@@ -4,26 +4,32 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from src import Regression, set_size
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 # Load the terrain
 terrain1 = np.array(imread('n59_e008_1arc_v3.tif')).T
 terrain2 = np.array(imread('n59_e007_1arc_v3.tif')).T
 terrain = np.concatenate(np.array([terrain2, terrain1])).T / 1e3
 
-n_points = np.min(terrain.shape)
-terrain = terrain[:n_points, :n_points]
+np.random.seed(2023)
 
-x = np.arange(n_points)
-y = np.arange(n_points)
+tot_points = np.min(terrain.shape)
+n_samples = 1000
+data_samples = np.random.randint(0, tot_points, size=(n_samples, 2))
+x = data_samples[:, 0]
+y = data_samples[:, 1]
+
+terrain = terrain[x, y]
 
 reg = Regression(x, y, terrain.T, 'geodata')
 reg.OLS(30, store_beta=False)
 reg.plot_evolution('OLS')
-reg.ridge(-5, 1, 3, 50)
+reg.ridge(-5, -2, 5, 500)
+print(reg.OLS_results)
 reg.plot_evolution('ridge')
 reg.plot_evolution('lasso')
-reg.bias_variance_tradeoff(max_degree=10, n_bootstraps=50)
-reg.cross_validation(n_kfolds=2)
+reg.bias_variance_tradeoff(max_degree=16, n_bootstraps=100)
+reg.cross_validation(n_kfolds=10)
 
 plt.show()
 
@@ -39,10 +45,5 @@ ax.set_ylabel('Y [arcsec]')
 fig.tight_layout()
 fig.savefig('figures/geo-data.pdf')
 fig.savefig('figures/geo-data.png')
-
-X, Y = np.meshgrid(x, y)
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-ax.plot_surface(X, Y, terrain.T, cmap='terrain', linewidth=0, antialiased=False)
 
 plt.show()

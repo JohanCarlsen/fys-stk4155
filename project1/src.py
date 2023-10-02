@@ -111,7 +111,7 @@ class Regression:
             self.dim = 2
 
         self.X_train_unscaled, self.X_test_unscaled, self.y_train, self.y_test = train_test_split(self.X, self.y_data, test_size=0.2)
-        
+
         scaler = StandardScaler()
         scaler.fit(self.X_train_unscaled)
         self.X_train = scaler.transform(self.X_train_unscaled)
@@ -189,14 +189,17 @@ class Regression:
             self.mse_ols_test[i] = mse_test
             self.r2_ols_train[i] = r2_train
             self.r2_ols_test[i] = r2_test
-
+                
         min_ols = np.min(self.mse_ols_test)
         best_r2 = np.max(self.r2_ols_test)
 
-        print('\nOLS results')
-        print('-----------')
-        print(f'Highest R2 score: {best_r2:.3f} at degree: {self.poly_degs[self.r2_ols_test == best_r2][0]}')
-        print(f'Lowest MSE: {min_ols:11.3f} at degree: {self.poly_degs[self.mse_ols_test == min_ols][0]}\n')
+        OLS_results = '\nOLS results\n-----------\n'
+        OLS_results += f'Highest R2 score: {best_r2:.3f} at degree: {self.poly_degs[self.r2_ols_test == best_r2][0]}\n'
+        OLS_results += f'Lowest MSE: {min_ols:11.3f} at degree: {self.poly_degs[self.mse_ols_test == min_ols][0]}\n'
+
+        print(OLS_results)
+
+        self.OLS_results = OLS_results
     
     def ridge(self, lambda_min, lambda_max, poly_deg, n_lambda):
         r'''
@@ -244,7 +247,9 @@ class Regression:
         
         for i in range(n_lambda):
             lambda_i = self.lambdas[i]
-            beta_tilde = np.linalg.pinv(X_train.T @ X_train + lambda_i * np.eye(X_train.shape[1])) @ X_train.T @ y_train
+            beta_tilde = np.linalg.pinv(
+                X_train.T @ X_train + lambda_i * np.eye(X_train.shape[1])
+                ) @ X_train.T @ y_train
             beta.append(beta_tilde)
 
             y_tilde = X_train @ beta_tilde
@@ -288,15 +293,19 @@ class Regression:
         best_r2_ridge = np.max(self.r2_ridge_test)
         best_r2_lasso = np.max(self.r2_lasso_test)
         
-        print('\nRidge results')
-        print('-------------')
-        print(f'Highest R2 score: {best_r2_ridge:.3f} at lambda: {self.lambdas[self.r2_ridge_test == best_r2_ridge][0]:.3e}')
-        print(f'Lowest MSE: {min_ridge:11.3f} at lambda: {self.lambdas[self.mse_ridge_test == min_ridge][0]:.3e}\n')
+        Ridge_results = '\nRidge results\n-------------\n'
+        Ridge_results += f'Highest R2 score: {best_r2_ridge:.5f} at lambda: {self.lambdas[self.r2_ridge_test == best_r2_ridge][0]:.3e}\n'
+        Ridge_results += f'Lowest MSE: {min_ridge:13.5f} at lambda: {self.lambdas[self.mse_ridge_test == min_ridge][0]:.3e}\n'
 
-        print('Lasso results')
-        print('-------------')
-        print(f'Highest R2 score: {best_r2_lasso:.3f} at lambda: {self.lambdas[self.r2_lasso_test == best_r2_lasso][0]:.3e}')
-        print(f'Lowest MSE: {min_lasso:11.3f} at lambda: {self.lambdas[self.mse_lasso_test == min_lasso][0]:.3e}\n')
+        Lasso_results = '\nLasso results\n-------------\n'
+        Lasso_results += f'Highest R2 score: {best_r2_lasso:.5f} at lambda: {self.lambdas[self.r2_lasso_test == best_r2_lasso][0]:.3e}\n'
+        Lasso_results += f'Lowest MSE: {min_lasso:13.5f} at lambda: {self.lambdas[self.mse_lasso_test == min_lasso][0]:.3e}\n'
+
+        print(Ridge_results)
+        print(Lasso_results)
+
+        self.Ridge_results = Ridge_results
+        self.Lasso_results = Lasso_results
 
     def plot_evolution(self, model, figname=None, add_lasso=True):
         r'''
@@ -387,12 +396,14 @@ class Regression:
             ax[0].plot(x, mse_test, 'r', label='Test')
             ax[0].plot(x, mse_train, 'r--', label='Train')
             ax[0].set_ylabel('MSE')
+            ax[0].set_yscale('log')
             ax[0].legend(ncol=2)
 
             ax[1].plot(x, r2_test, 'b', label='Test')
             ax[1].plot(x, r2_train, 'b--', label='Train')
             ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
+            ax[1].set_yscale('log')
             ax[1].legend(ncol=2)
 
             fig.supxlabel(x_label, fontsize=8)
@@ -480,7 +491,8 @@ class Regression:
             y_test = y_test.flatten()
             error_y_test = y_test[:, np.newaxis]
             keepdims = False 
-            scale = 'log'
+            filename = self.figname + '-bias-var-trade'
+            scale = 'linear'
         
         error = np.zeros(max_degree)
         bias = np.zeros_like(error)
@@ -544,20 +556,18 @@ class Regression:
         KFold_sklearn = KFold(n_splits=n_kfolds)
 
         if self.figname == 'geodata':
-            n_poly = 3
-            n_lambda = 50
-            lambdas = np.logspace(-5, 1, n_lambda)
+            n_poly = 30
+            poly_deg = 2
+            n_lambda = 500
+            lambdas = np.logspace(-2, 25, n_lambda)
         
         else:
             n_poly = 15
+            poly_deg = 15
             n_lambda = 500 
             lambdas = np.logspace(-4, 2, n_lambda)
-        # # n_poly = 15
-        # n_poly = 7
-        # n_lambda = 500
+
         degrees = np.arange(1, n_poly+1)
-        # # lambdas = np.logspace(-4, 2, n_lambda)
-        # lambdas = np.logspace(-10, 1, n_lambda)
 
         scores_OLS = np.zeros((n_poly, n_kfolds))
         scores_Ridge = np.zeros((n_lambda, n_kfolds))
@@ -567,6 +577,7 @@ class Regression:
         est_MSE_Ridge_sklearn = np.zeros(n_lambda)
         est_MSE_Lasso_sklearn = np.zeros_like(est_MSE_Ridge_sklearn)
 
+        count = 0
         for k in range(n_kfolds):
             inds = kfolds[k]
             boolean = np.zeros_like(indices, dtype=bool)
@@ -599,13 +610,20 @@ class Regression:
 
 
             # Ridge and Lasso
-            poly = PolynomialFeatures(degree=n_poly)
+            poly = PolynomialFeatures(degree=poly_deg)
             X_train = poly.fit_transform(x_train)
             X_test = poly.fit_transform(x_test)
             X_sklearn = poly.fit_transform(X)
 
             for l in range(len(lambdas)):
-                beta_Ridge = np.linalg.pinv(X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])) @ X_train.T @ y_train
+                _singular = X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])
+                U, s, VT = np.linalg.svd(_singular)
+                D = np.zeros((len(U), len(VT)))
+                np.fill_diagonal(D, s)
+                _unsingular = U @ D @ VT 
+                inv = np.linalg.pinv(_unsingular)
+
+                beta_Ridge = inv @ X_train.T @ y_train
                 y_pred_Ridge = X_test @ beta_Ridge
                 scores_Ridge[l, k] = np.sum((y_pred_Ridge - y_test)**2) / np.size(y_pred_Ridge)
 
@@ -615,12 +633,15 @@ class Regression:
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
                 # Sklearn' Lasso results
-                lasso = Lasso(lambdas[l], fit_intercept=False)
+                lasso = Lasso(lambdas[l], fit_intercept=False, tol=1e-2, max_iter=100000)
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
 
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
+            
+                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:.3f} %')
+                count += 1
 
         
         est_MSE_OLS = np.mean(scores_OLS, axis=1)
@@ -636,10 +657,10 @@ class Regression:
         ax1.set_yscale('log')
         ax1.legend()
 
-        ax2.plot(np.log10(lambdas), est_MSE_Ridge, color='r', label=r'Ridge')
-        ax2.plot(np.log10(lambdas), est_MSE_Ridge_sklearn, 'r--')
         ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'Lasso')
         ax2.plot(np.log10(lambdas), est_MSE_Lasso_sklearn, 'b--')
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge, color='r', label=r'Ridge')
+        ax2.plot(np.log10(lambdas), est_MSE_Ridge_sklearn, 'r--')
         ax2.set_xlabel(r'$\log_{10}\lambda$')
         ax2.legend()
 
