@@ -484,7 +484,7 @@ class Regression:
             error_y_test = y_test[:, np.newaxis]
             keepdims = False
             filename = self.figname + '-bias-var-trade'
-            scale = 'log'
+            scale = 'linear'
         
         else:
             degree = np.arange(1, max_degree+1)
