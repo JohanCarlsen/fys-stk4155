@@ -24,7 +24,7 @@ terrain = _terrain[x, y]
 reg = Regression(x, y, terrain.T, 'geodata')
 reg.OLS(30, store_beta=False)
 reg.plot_evolution('OLS')
-reg.ridge(-5, -2, 5, 500)
+reg.ridge(-8, 8, 5, 1000)
 print(reg.OLS_results)
 reg.plot_evolution('ridge')
 reg.plot_evolution('lasso')

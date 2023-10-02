@@ -367,6 +367,41 @@ class Regression:
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
             ax[1].legend(ncol=2)
 
+            if self.figname == 'geodata':
+                x01, x02, y01, y02 = -5, -1.5, 0.043, 0.0444
+                axins0 = ax[0].inset_axes(
+                    [-7.5, 0.05, 4.5, 0.015],
+                    transform=ax[0].transData,
+                    xlim=(x01, x02),
+                    ylim=(y01, y02),
+                    xticklabels=[],
+                    yticklabels=[]
+                )
+                axins0.plot(x, mse_test, 'r')
+                axins0.plot(x, mse_test_lasso, 'b')
+                _, corners = ax[0].indicate_inset_zoom(axins0, ec='k')
+                corners[0].set_visible(True)
+                corners[1].set_visible(False)
+                corners[2].set_visible(False)
+                corners[3].set_visible(True)
+
+                x11, x12, y11, y12 = -5, -1.5, 0.594, 0.602
+                axins1 = ax[1].inset_axes(
+                    [-7.5, 0.4, 4.5, 0.15],
+                    transform=ax[1].transData,
+                    xlim=(x11, x12),
+                    ylim=(y11, y12),
+                    xticklabels=[],
+                    yticklabels=[]
+                )
+                axins1.plot(x, r2_test, 'r')
+                axins1.plot(x, r2_test_lasso, 'b')
+                _, corners1 = ax[1].indicate_inset_zoom(axins1, ec='k')
+                corners1[0].set_visible(False)
+                corners1[1].set_visible(True)
+                corners1[2].set_visible(True)
+                corners1[3].set_visible(False)
+
             fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
             fig.savefig('figures/' + model + '_lasso_' + self.figname + '.pdf')
