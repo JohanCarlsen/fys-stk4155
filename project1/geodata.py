@@ -52,7 +52,7 @@ compare_terrain(_terrain, ols_p, ols_beta, n_samples=n_samples, reg_model='OLS')
 plt.show()
 
 # Show the terrain
-fig, ax = plt.subplots(figsize=set_size())
+fig, ax = plt.subplots(figsize=set_size('text'))
 ax.set_title('Terrain over Telemark, Norway')
 im = ax.imshow(_terrain, cmap='terrain')
 fig.colorbar(im, label='Elevation [km]', pad=0.02)
