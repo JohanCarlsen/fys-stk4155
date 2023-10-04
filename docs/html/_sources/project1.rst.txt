@@ -11,7 +11,7 @@ Regression methods
 
 .. automethod:: src.Regression.OLS
 
-.. automethod:: src.Regression.ridge
+.. automethod:: src.Regression.ridge_and_lasso
 
 .. automethod:: src.Regression.plot_evolution
 

@@ -56,7 +56,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#regression-methods">Regression methods</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression.OLS"><code class="docutils literal notranslate"><span class="pre">Regression.OLS()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.Regression.ridge"><code class="docutils literal notranslate"><span class="pre">Regression.ridge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.ridge_and_lasso"><code class="docutils literal notranslate"><span class="pre">Regression.ridge_and_lasso()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression.plot_evolution"><code class="docutils literal notranslate"><span class="pre">Regression.plot_evolution()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression.bias_variance_tradeoff"><code class="docutils literal notranslate"><span class="pre">Regression.bias_variance_tradeoff()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression.cross_validation"><code class="docutils literal notranslate"><span class="pre">Regression.cross_validation()</span></code></a></li>
@@ -105,8 +105,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Regression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
-<dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge (<a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge</span></code></a>),
-and Lasso (<code class="xref any docutils literal notranslate"><span class="pre">lasso</span></code>) regression.</p>
+<dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge,
+and Lasso (<a class="reference internal" href="#src.Regression.ridge_and_lasso" title="src.Regression.ridge_and_lasso"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge_and_lasso</span></code></a>) regression.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">x_data,</span> <span class="pre">y_data</span></span></dt>
@@ -157,8 +157,8 @@ initialization, the figname has to be set  when calling <a class="reference inte
 <tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso])</p></td>
 <td><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the values for the optimal parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge" title="src.Regression.ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge</span></code></a>(lambda_min, lambda_max, poly_deg, n_lambda)</p></td>
-<td><p>Perform Ridge regression on the provided data.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge_and_lasso" title="src.Regression.ridge_and_lasso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge_and_lasso</span></code></a>(lambda_min, lambda_max, ...)</p></td>
+<td><p>Perform Ridge and Lasso regression on the provided data.</p></td>
 </tr>
 </tbody>
 </table>
@@ -198,9 +198,9 @@ arrays. This parameter ensures the betas are not stored.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.Regression.ridge">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.ridge" title="Link to this definition"></a></dt>
-<dd><p>Perform Ridge regression on the provided data.</p>
+<dt class="sig sig-object py" id="src.Regression.ridge_and_lasso">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">ridge_and_lasso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.ridge_and_lasso" title="Link to this definition"></a></dt>
+<dd><p>Perform Ridge and Lasso regression on the provided data.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align}
 \hat\beta&amp;=(X^TX+\lambda\mathbb{I})^{-1}X^T y \\
@@ -214,6 +214,14 @@ arrays. This parameter ensures the betas are not stored.</p></li>
 <li><p><strong>poly_deg</strong> (<em>int</em>) – Order of the polynomial to fit.</p></li>
 <li><p><strong>n_lambda</strong> (<em>int</em>) – Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ridge_lasso_poly_deg</strong> (<em>int</em>) – The polynomial degree used for the regression.</p></li>
+<li><p><strong>beta_opt_ridge</strong> (<em>ndarray</em>) – The optimal parameter for the Ridge regression.</p></li>
+<li><p><strong>beta_opt_lasso</strong> (<em>ndarray</em>) – The optimal parameters for the Lasso regression.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -328,7 +336,7 @@ to the data.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.compare_terrain">
-<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
 <dd><p>Create a side-by-side comparison figure of model and terrain data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

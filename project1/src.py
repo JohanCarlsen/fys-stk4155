@@ -80,8 +80,8 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
 
 class Regression:
     r'''
-    Regression class for Ordinary Least Square (:any:`OLS`), Ridge (:any:`ridge`),
-    and Lasso (:any:`lasso`) regression. 
+    Regression class for Ordinary Least Square (:any:`OLS`), Ridge,
+    and Lasso (:any:`ridge_and_lasso`) regression. 
 
     Attributes
     ----------
@@ -234,9 +234,9 @@ class Regression:
 
         return opt_deg, beta_opt
     
-    def ridge(self, lambda_min, lambda_max, poly_deg, n_lambda):
+    def ridge_and_lasso(self, lambda_min, lambda_max, poly_deg, n_lambda):
         r'''
-        Perform Ridge regression on the provided data.
+        Perform Ridge and Lasso regression on the provided data.
 
         .. math::
             \begin{align}
@@ -246,7 +246,6 @@ class Regression:
         
         Parameters
         ----------
-
         lambda_min, lambda_max : float
             Lowest/highest value for :math:`\log_{10}\lambda`.
         
@@ -255,6 +254,17 @@ class Regression:
         
         n_lambda : int
             Number of :math:`\lambda`-elements to compute.
+        
+        Returns
+        -------
+        ridge_lasso_poly_deg : int
+            The polynomial degree used for the regression.
+        
+        beta_opt_ridge : ndarray
+            The optimal parameter for the Ridge regression.
+        
+        beta_opt_lasso : ndarray
+            The optimal parameters for the Lasso regression.
         '''
         self.ridge_lasso_poly_deg = poly_deg
         y_train, y_test = self.y_train, self.y_test
@@ -427,7 +437,7 @@ class Regression:
                 x_center_idx = np.argwhere(mse_test_lasso == y_center)[0]
                 x_center = x[x_center_idx]
 
-                y_diff = 0.00001
+                y_diff = 0.000003
                 x_diff = 1.5
 
                 x01 = x_center - x_diff
@@ -436,11 +446,11 @@ class Regression:
                 y02 = y_center + y_diff
 
                 axins0 = ax[0].inset_axes(
-                    [x[0], 0.025, 4.5, 0.01],
-                    transform=ax[0].transData,
+                    [0.1, 0.5, 0.25, 0.3],
+                    # [x[0], 0.055, 4.5, 0.02],
+                    # transform=ax[0].transData,
                     xlim=(x01, x02),
                     ylim=(y01, y02),
-                    # xticklabels=[],
                     yticklabels=[]
                 )
 
@@ -456,7 +466,7 @@ class Regression:
                 x_center_idx = np.argwhere(r2_test_lasso == y_center)[0]
                 x_center = x[x_center_idx]
 
-                y_diff = 0.0003
+                y_diff = 0.00005
 
                 x11 = x_center - x_diff
                 x12 = x_center + x_diff
@@ -464,11 +474,11 @@ class Regression:
                 y12 = y_center + y_diff
 
                 axins1 = ax[1].inset_axes(
-                    [x[0], 0.32, 4.5, 0.175],
-                    transform=ax[1].transData,
+                    [0.1, 0.2, 0.25, 0.3],
+                    # [x[0], 0.32, 4.5, 0.175],
+                    # transform=ax[1].transData,
                     xlim=(x11, x12),
                     ylim=(y11, y12),
-                    # xticklabels=[],
                     yticklabels=[]
                 )
 
@@ -509,14 +519,12 @@ class Regression:
             ax[0].plot(x, mse_test, 'r', label='Test')
             ax[0].plot(x, mse_train, 'r--', label='Train')
             ax[0].set_ylabel('MSE')
-            # ax[0].set_yscale('log')
             ax[0].legend(ncol=2)
 
             ax[1].plot(x, r2_test, 'b', label='Test')
             ax[1].plot(x, r2_train, 'b--', label='Train')
             ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
-            # ax[1].set_yscale('log')
             ax[1].legend(ncol=2)
 
             fig.supxlabel(x_label, fontsize=8)
@@ -670,10 +678,10 @@ class Regression:
         KFold_sklearn = KFold(n_splits=n_kfolds, shuffle=True, random_state=2023)
 
         if self.figname == 'geodata':
-            n_poly = 25
+            n_poly = 20
             poly_deg = 2
-            n_lambda = 250
-            lambdas = np.logspace(-2, 25, n_lambda)
+            n_lambda = 100
+            lambdas = np.logspace(-1, 20, n_lambda)
         
         else:
             n_poly = 15
@@ -758,7 +766,7 @@ class Regression:
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
             
-                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:.2f} %')
+                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:5.2f} %')
                 count += 1
 
         t2 = perf_counter_ns()
@@ -790,7 +798,6 @@ class Regression:
         fig.savefig('figures/' + self.figname + f'-{n_kfolds}-KFolds-cross-val.png')
         fig.savefig('figures/' + self.figname + f'-{n_kfolds}-KFolds-cross-val.pdf')
         
-
 def frankes_function(x, y, add_noise=True):
     r'''
     Franke's function.
@@ -822,7 +829,7 @@ def frankes_function(x, y, add_noise=True):
     else:
         return res
     
-def compare_terrain(full_terrain, poly_deg, opt_param, model_points, n_samples, reg_model):
+def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, model_points=500):
     r'''
     Create a side-by-side comparison figure of model and terrain data.
 
