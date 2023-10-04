@@ -844,15 +844,15 @@ def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, mod
     opt_param : array_like
         The optimal parameters for the regression model.
     
-    model_points : int
-        Number of elements along both `x` and `y` to create the 
-        meshgrid.
-    
     n_samples : int
         The number of samples that was used to compute the model.
     
     reg_model : str
         Regression model, used to set the figure title.
+    
+    model_points : int, default: 500
+        The number of elements between 0 and 1 to create the mesh grid
+        that the model elevatioin figure will be plotted on. 
     '''
     n_points = model_points
     name = reg_model + f'-compare-terrain-{poly_deg}-{n_samples}'
