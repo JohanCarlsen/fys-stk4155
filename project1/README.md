@@ -4,4 +4,4 @@ Regression and topological data. The documentation can be found [here](https://j
 In this project, I fit a model by different regression methods, namely
 OLS, Ridge, and Lasso. The models are tested on the Franke's function,
 which looks like this:
-![Franke's function](fys-stk4155/project1/figures/franke-surface.png)
+![Franke's function](figures/franke-surface.png)
