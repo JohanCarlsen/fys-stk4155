@@ -65,6 +65,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#src.set_size"><code class="docutils literal notranslate"><span class="pre">set_size()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.frankes_function"><code class="docutils literal notranslate"><span class="pre">frankes_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.compare_terrain"><code class="docutils literal notranslate"><span class="pre">compare_terrain()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -185,6 +186,13 @@ ie. if the design matrix is the identity matrix, the mean square error should be
 <li><p><strong>store_beta</strong> (<em>bool</em><em>, </em><em>default: True</em>) – If the input data is large, there is a chance that the beta values will be large
 arrays. This parameter ensures the betas are not stored.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>opt_deg</strong> (<em>int</em>) – The degree where the MSE of the test data is lowest.</p></li>
+<li><p><strong>beta_opt</strong> (<em>ndarray</em>) – The optimal parameters for the lowest MSE.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -314,6 +322,25 @@ to the data.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.compare_terrain">
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
+<dd><p>Create a side-by-side comparison figure of model and terrain data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>full_terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
+<li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree that was used to create the <code class="docutils literal notranslate"><span class="pre">opt_param</span></code>.</p></li>
+<li><p><strong>opt_param</strong> (<em>array_like</em>) – The optimal parameters for the regression model.</p></li>
+<li><p><strong>model_points</strong> (<em>int</em>) – Number of elements along both <cite>x</cite> and <cite>y</cite> to create the
+meshgrid.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples that was used to compute the model.</p></li>
+<li><p><strong>reg_model</strong> (<em>str</em>) – Regression model, used to set the figure title.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

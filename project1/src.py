@@ -104,12 +104,15 @@ class Regression:
             self.X = x_data
             self.y_data = y_data
             self.dim = 1
+            tot_data_points = len(x_data)
         
         else:
             self.X = np.column_stack((x_data, y_data))
             self.y_data = z_data 
             self.dim = 2
-
+            tot_data_points = len(self.X.ravel())
+        
+        print(f'\nLoaded with {tot_data_points} data points.')
         self.X_train_unscaled, self.X_test_unscaled, self.y_train, self.y_test = train_test_split(self.X, self.y_data, test_size=0.2)
 
         scaler = StandardScaler()
@@ -120,7 +123,6 @@ class Regression:
         y_scaler = np.mean(self.y_train)
         self.y_train = self.y_train - y_scaler
         self.y_test = self.y_test - y_scaler
-
 
     def OLS(self, n_poly, identity_test=False, store_beta=True):
         r'''
@@ -146,6 +148,14 @@ class Regression:
         store_beta : bool, default: True
             If the input data is large, there is a chance that the beta values will be large 
             arrays. This parameter ensures the betas are not stored.
+        
+        Returns
+        -------
+        opt_deg : int
+            The degree where the MSE of the test data is lowest.
+        
+        beta_opt : ndarray
+            The optimal parameters for the lowest MSE.
         '''
         max_polys = int((n_poly + 1) * (n_poly + 2) / 2)
         self.store_beta = store_beta
@@ -164,6 +174,14 @@ class Regression:
         self.r2_ols_train = np.zeros(n_poly)
         self.r2_ols_test = np.zeros(n_poly)
         self.beta_ols = np.zeros((n_poly, max_polys))
+
+        beta_opt = None 
+        min_mse = np.inf
+
+        t1 = perf_counter_ns()
+        print('\nOLS REGRESSION')
+        print('--------------')
+        print('Finished:')
 
         for i in range(len(self.poly_degs)):
             poly = PolynomialFeatures(degree=self.poly_degs[i])
@@ -185,21 +203,36 @@ class Regression:
             r2_train = R2(self.y_train, y_tilde)
             r2_test = R2(self.y_test, y_predict)
 
+            if mse_test < min_mse:
+                beta_opt = beta 
+                min_mse = mse_test
+
             self.mse_ols_train[i] = mse_train
             self.mse_ols_test[i] = mse_test
             self.r2_ols_train[i] = r2_train
             self.r2_ols_test[i] = r2_test
-                
+
+            print(f'{(i+1)/len(self.poly_degs)*100:5.1f} %')
+
+        t2 = perf_counter_ns()
+        time = (t2 - t1) * 1e-9
+        print(f'Completed in {time//60} min {time%60:.0f} sec.')
+
         min_ols = np.min(self.mse_ols_test)
         best_r2 = np.max(self.r2_ols_test)
 
+        opt_deg = self.poly_degs[self.mse_ols_test == min_ols][0]
+        opt_deg_r2 = self.poly_degs[self.r2_ols_test == best_r2][0]
+
         OLS_results = '\nOLS results\n-----------\n'
-        OLS_results += f'Highest R2 score: {best_r2:.3f} at degree: {self.poly_degs[self.r2_ols_test == best_r2][0]}\n'
-        OLS_results += f'Lowest MSE: {min_ols:11.3f} at degree: {self.poly_degs[self.mse_ols_test == min_ols][0]}\n'
+        OLS_results += f'Highest R2 score: {best_r2:.3f} at degree: {opt_deg_r2}\n'
+        OLS_results += f'Lowest MSE: {min_ols:11.3f} at degree: {opt_deg}\n'
 
         print(OLS_results)
 
         self.OLS_results = OLS_results
+
+        return opt_deg, beta_opt
     
     def ridge(self, lambda_min, lambda_max, poly_deg, n_lambda):
         r'''
@@ -223,7 +256,7 @@ class Regression:
         n_lambda : int
             Number of :math:`\lambda`-elements to compute.
         '''
-        self.ridge_lasse_poly_deg = poly_deg
+        self.ridge_lasso_poly_deg = poly_deg
         y_train, y_test = self.y_train, self.y_test
         poly = PolynomialFeatures(degree=poly_deg)
         X_train = poly.fit_transform(self.X_train)
@@ -243,8 +276,16 @@ class Regression:
         beta = []
         beta_lasso = []
 
-        print('\nFinished:')
+        print('\nRIDGE AND LASSO REGRESSION')
+        print('--------------------------')
+        print('Finished:')
+        t1 = perf_counter_ns()
         
+        min_mse_lasso = np.inf
+        min_mse_ridge = np.inf
+        beta_opt_lasso = None 
+        beta_opt_ridge = None
+
         for i in range(n_lambda):
             lambda_i = self.lambdas[i]
             beta_tilde = np.linalg.pinv(
@@ -265,7 +306,11 @@ class Regression:
             self.r2_ridge_train[i] = r2_train
             self.r2_ridge_test[i] = r2_test
 
-            lasso_reg = Lasso(lambda_i, fit_intercept=False)
+            if mse_test < min_mse_ridge:
+                beta_opt_ridge = beta_tilde
+                min_mse_ridge = mse_test
+
+            lasso_reg = Lasso(lambda_i, fit_intercept=False, max_iter=int(1e4))
             lasso_reg.fit(X_train, y_train)
 
             y_tilde_lasso = lasso_reg.predict(X_train)
@@ -278,6 +323,10 @@ class Regression:
             r2_train_lasso = R2(y_train, y_tilde_lasso)
             r2_test_lasso = R2(y_test, y_predict_lasso)
 
+            if mse_test_lasso < min_mse_lasso:
+                beta_opt_lasso = lasso_reg.coef_
+                min_mse_lasso = mse_test_lasso
+
             self.mse_lasso_train[i] = mse_train_lasso
             self.mse_lasso_test[i] = mse_test_lasso
             self.r2_lasso_train[i] = r2_train_lasso
@@ -285,6 +334,10 @@ class Regression:
 
             print(f'{(i+1) / n_lambda * 100:5.1f} %')
         
+        t2 = perf_counter_ns()
+        time = (t2 - t1) * 1e-9
+        print(f'Completed in {time//60} min {time%60:.0f} sec.')
+
         self.beta_ridge = np.array(beta)
         self.beta_lasso = np.array(beta_lasso)
 
@@ -306,6 +359,8 @@ class Regression:
 
         self.Ridge_results = Ridge_results
         self.Lasso_results = Lasso_results
+
+        return self.ridge_lasso_poly_deg, beta_opt_ridge, beta_opt_lasso
 
     def plot_evolution(self, model, figname=None, add_lasso=True):
         r'''
@@ -350,14 +405,14 @@ class Regression:
             x_label = r'$\log_{10}\,\lambda$'
 
             fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
-            fig.suptitle(f'Polynomial degree: {self.ridge_lasse_poly_deg}')
+            fig.suptitle(f'Polynomial degree: {self.ridge_lasso_poly_deg}')
 
             ax[0].plot(x, mse_test, 'r', label='Ridge test')
             ax[0].plot(x, mse_train, 'r--', label='Ridge train')
             ax[0].plot(x, mse_test_lasso, 'b', label='Lasso test')
             ax[0].plot(x, mse_train_lasso, 'b--', label='Lasso train')
             ax[0].set_ylabel('MSE')
-            ax[0].legend(ncol=2)
+            ax[0].legend(ncol=2, loc='upper left')
 
             ax[1].plot(x, r2_test, 'r', label='Ridge test')
             ax[1].plot(x, r2_train, 'r--', label='Ridge train')
@@ -365,42 +420,65 @@ class Regression:
             ax[1].plot(x, r2_train_lasso, 'b--', label='Lasso train')
             ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
-            ax[1].legend(ncol=2)
+            ax[1].legend(ncol=2, loc='lower right')
 
             if self.figname == 'geodata':
-                x01, x02, y01, y02 = -5, -1.5, 0.043, 0.0444
+                y_center = np.min(mse_test_lasso)
+                x_center_idx = np.argwhere(mse_test_lasso == y_center)[0]
+                x_center = x[x_center_idx]
+
+                y_diff = 0.00001
+                x_diff = 1.5
+
+                x01 = x_center - x_diff
+                x02 = x_center + x_diff
+                y01 = y_center - y_diff
+                y02 = y_center + y_diff
+
                 axins0 = ax[0].inset_axes(
-                    [-7.5, 0.05, 4.5, 0.015],
+                    [x[0], 0.025, 4.5, 0.01],
                     transform=ax[0].transData,
                     xlim=(x01, x02),
                     ylim=(y01, y02),
-                    xticklabels=[],
+                    # xticklabels=[],
                     yticklabels=[]
                 )
+
                 axins0.plot(x, mse_test, 'r')
                 axins0.plot(x, mse_test_lasso, 'b')
                 _, corners = ax[0].indicate_inset_zoom(axins0, ec='k')
                 corners[0].set_visible(True)
                 corners[1].set_visible(False)
-                corners[2].set_visible(False)
-                corners[3].set_visible(True)
+                corners[2].set_visible(True)
+                corners[3].set_visible(False)
 
-                x11, x12, y11, y12 = -5, -1.5, 0.594, 0.602
+                y_center = np.max(r2_test_lasso)
+                x_center_idx = np.argwhere(r2_test_lasso == y_center)[0]
+                x_center = x[x_center_idx]
+
+                y_diff = 0.0003
+
+                x11 = x_center - x_diff
+                x12 = x_center + x_diff
+                y11 = y_center - y_diff
+                y12 = y_center + y_diff
+
                 axins1 = ax[1].inset_axes(
-                    [-7.5, 0.4, 4.5, 0.15],
+                    [x[0], 0.32, 4.5, 0.175],
                     transform=ax[1].transData,
                     xlim=(x11, x12),
                     ylim=(y11, y12),
-                    xticklabels=[],
+                    # xticklabels=[],
                     yticklabels=[]
                 )
+
                 axins1.plot(x, r2_test, 'r')
                 axins1.plot(x, r2_test_lasso, 'b')
                 _, corners1 = ax[1].indicate_inset_zoom(axins1, ec='k')
                 corners1[0].set_visible(False)
                 corners1[1].set_visible(True)
-                corners1[2].set_visible(True)
-                corners1[3].set_visible(False)
+                corners1[2].set_visible(False)
+                corners1[3].set_visible(True)
 
             fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
@@ -413,7 +491,7 @@ class Regression:
             mse_train, mse_test = self.mse_ridge_train, self.mse_ridge_test
             r2_train, r2_test = self.r2_ridge_train, self.r2_ridge_test
             beta = self.beta_ridge; x = np.log10(self.lambdas)
-            title = f'Ridge, polynomial degree: {self.ridge_lasse_poly_deg}'
+            title = f'Ridge, polynomial degree: {self.ridge_lasso_poly_deg}'
 
             x_label = r'$\log_{10}\,\lambda$'
         
@@ -422,7 +500,7 @@ class Regression:
             r2_train, r2_test = self.r2_lasso_train, self.r2_lasso_test
             beta = self.beta_lasso; x = np.log10(self.lambdas)
             x_label = r'$\log_{10}\,\lambda$'
-            title = f'Lasso, polynomial degree: {self.ridge_lasse_poly_deg}'
+            title = f'Lasso, polynomial degree: {self.ridge_lasso_poly_deg}'
         
         if model == 'OLS' and not self.store_beta:
             fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
@@ -431,14 +509,14 @@ class Regression:
             ax[0].plot(x, mse_test, 'r', label='Test')
             ax[0].plot(x, mse_train, 'r--', label='Train')
             ax[0].set_ylabel('MSE')
-            ax[0].set_yscale('log')
+            # ax[0].set_yscale('log')
             ax[0].legend(ncol=2)
 
             ax[1].plot(x, r2_test, 'b', label='Test')
             ax[1].plot(x, r2_train, 'b--', label='Train')
             ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
-            ax[1].set_yscale('log')
+            # ax[1].set_yscale('log')
             ax[1].legend(ncol=2)
 
             fig.supxlabel(x_label, fontsize=8)
@@ -534,8 +612,9 @@ class Regression:
         variance = np.zeros_like(error)
 
         j = 0
-
-        print('\nFinished:')
+        print('\nBIAS VARIANCE TRADEOFF')
+        print('----------------------')
+        print('Finished:')
         t1 = perf_counter_ns()
 
         for deg in degree:
@@ -588,17 +667,17 @@ class Regression:
         indices = np.arange(n_data)
         shuffled_inds = np.random.choice(indices, replace=False, size=n_data)
         kfolds = np.array_split(shuffled_inds, n_kfolds)
-        KFold_sklearn = KFold(n_splits=n_kfolds)
+        KFold_sklearn = KFold(n_splits=n_kfolds, shuffle=True, random_state=2023)
 
         if self.figname == 'geodata':
-            n_poly = 30
+            n_poly = 25
             poly_deg = 2
-            n_lambda = 500
+            n_lambda = 250
             lambdas = np.logspace(-2, 25, n_lambda)
         
         else:
             n_poly = 15
-            poly_deg = 15
+            poly_deg = 5
             n_lambda = 500 
             lambdas = np.logspace(-4, 2, n_lambda)
 
@@ -611,6 +690,11 @@ class Regression:
         est_MSE_OLS_sklearn = np.zeros(n_poly)
         est_MSE_Ridge_sklearn = np.zeros(n_lambda)
         est_MSE_Lasso_sklearn = np.zeros_like(est_MSE_Ridge_sklearn)
+
+        print('\nCROSS VALIDATION')
+        print('----------------')
+        print('Finished:')
+        t1 = perf_counter_ns()
 
         count = 0
         for k in range(n_kfolds):
@@ -643,7 +727,6 @@ class Regression:
                 MSE_OLS_sklearn = cross_val_score(lin, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_OLS_sklearn[i] = np.mean(-MSE_OLS_sklearn)
 
-
             # Ridge and Lasso
             poly = PolynomialFeatures(degree=poly_deg)
             X_train = poly.fit_transform(x_train)
@@ -675,9 +758,12 @@ class Regression:
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
             
-                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:.3f} %')
+                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:.2f} %')
                 count += 1
 
+        t2 = perf_counter_ns()
+        time = (t2 - t1) * 1e-9
+        print(f'Completed in {time//60} min {time%60:.0f} sec.')
         
         est_MSE_OLS = np.mean(scores_OLS, axis=1)
         est_MSE_Ridge = np.mean(scores_Ridge, axis=1)
@@ -736,6 +822,76 @@ def frankes_function(x, y, add_noise=True):
     else:
         return res
     
+def compare_terrain(full_terrain, poly_deg, opt_param, model_points, n_samples, reg_model):
+    r'''
+    Create a side-by-side comparison figure of model and terrain data.
+
+    Parameters
+    ----------
+    full_terrain : ndarray
+        An `NxN` matrix holding the terrain data.
+    
+    poly_deg : int
+        Polynomial degree that was used to create the ``opt_param``.
+    
+    opt_param : array_like
+        The optimal parameters for the regression model.
+    
+    model_points : int
+        Number of elements along both `x` and `y` to create the 
+        meshgrid.
+    
+    n_samples : int
+        The number of samples that was used to compute the model.
+    
+    reg_model : str
+        Regression model, used to set the figure title.
+    '''
+    n_points = model_points
+    name = reg_model + f'-compare-terrain-{poly_deg}-{n_samples}'
+    path = 'figures/' + name
+
+    x = np.linspace(0, 1, n_points)
+    y = np.linspace(0, 1, n_points)
+    X, Y = np.meshgrid(x, y)
+    data = np.column_stack((X.ravel(), Y.ravel()))
+
+    feature = PolynomialFeatures(degree=poly_deg).fit_transform(data)
+
+    model = (feature @ opt_param).reshape(n_points, n_points)
+    model += abs(np.min(model) - np.min(full_terrain))
+
+    gspecs = {'wspace': 0.06}
+    fig, axes = plt.subplots(1, 2, figsize=set_size('text', scale=0.75))
+    ax1, ax2 = axes
+
+    title = f'{n_samples**2*2:.2e} samples, '
+    title += reg_model + f', poly deg. {poly_deg}'
+    fig.suptitle(title, fontsize=8)
+
+    im1 = ax1.imshow(model, cmap='terrain')
+    im2 = ax2.imshow(full_terrain, cmap='terrain')
+    ims = [im1, im2]
+
+    label1 = ''
+    label2 = 'Elevation [km]'
+    labels = [label1, label2]
+
+    ax1.set_title('Model')
+    ax1.set_xlabel(r'$x$')
+    ax1.set_ylabel(r'$y$')    
+    ax2.set_title('Terrain data')
+    ax2.set_xlabel(r'$x$ [arcsec]')
+    ax2.set_ylabel(r'$y$ [arcsec]')
+
+    for im, ax, lab in zip(ims, axes, labels):
+        fig.colorbar(im, pad=0.02, shrink=0.855, ax=ax, label=lab)
+
+    fig.tight_layout()    
+    fig.savefig(path + '.png')
+    fig.savefig(path + '.pdf')
+
+
 if __name__ == '__main__':
     np.random.seed(2018)
     n = 40

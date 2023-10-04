@@ -25,3 +25,5 @@ Functions
 .. autofunction:: src.set_size
 
 .. autofunction:: src.frankes_function
+
+.. autofunction:: src.compare_terrain
