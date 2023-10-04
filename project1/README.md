@@ -12,6 +12,6 @@ topological data from the [EarthExplorer](https://earthexplorer.usgs.gov/)
 website. I select some interesting areas around Telemark, Norway, and
 the data looks like this:
 
-![Topological data](figures/geo-data.png)
+
 
 Cherio!
