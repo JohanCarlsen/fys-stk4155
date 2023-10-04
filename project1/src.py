@@ -911,13 +911,13 @@ if __name__ == '__main__':
     fit.bias_variance_tradeoff(max_degree=13, n_bootstraps=100, data_dim=1)
     plt.show()
 
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=set_size('text'))
     ax = fig.add_subplot(projection="3d")
 
     x = np.arange(0, 1, 0.05)
     y = np.arange(0, 1, 0.05)
     X, Y = np.meshgrid(x,y)
-    z = frankes_function(X, Y, add_noise=True)
+    z = frankes_function(X, Y, add_noise=False)
 
     # Plot the surface.
     surf = ax.plot_surface(X, Y, z, cmap=cm.coolwarm,
@@ -930,5 +930,6 @@ if __name__ == '__main__':
 
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
-
+    fig.savefig('figures/franke-surface.png')
+    fig.savefig('figures/franke-surface.pdf')
     plt.show()
