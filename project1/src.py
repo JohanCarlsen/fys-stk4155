@@ -27,7 +27,10 @@ plt.rcParams.update({
     'ytick.labelsize': 8,
     'legend.fontsize': 8,
     'legend.fancybox': False,
-    'savefig.bbox': 'tight'
+    'savefig.bbox': 'tight',
+    'axes.formatter.use_mathtext': True,
+    'axes.formatter.useoffset': False,
+    'axes.formatter.limits': [-2, 4]
 })
 
 def set_size(width='col', scale=1.0, subplot=(1, 1)):
@@ -353,6 +356,7 @@ class Regression:
 
         min_ridge = np.min(self.mse_ridge_test)
         min_lasso = np.min(self.mse_lasso_test)
+        abs_diff = abs(min_ridge - min_lasso)
         best_r2_ridge = np.max(self.r2_ridge_test)
         best_r2_lasso = np.max(self.r2_lasso_test)
         
@@ -366,6 +370,7 @@ class Regression:
 
         print(Ridge_results)
         print(Lasso_results)
+        print(f'Absolute difference between Ridge and Lasso MSE: {abs_diff:.3e}')
 
         self.Ridge_results = Ridge_results
         self.Lasso_results = Lasso_results
@@ -446,12 +451,11 @@ class Regression:
                 y02 = y_center + y_diff
 
                 axins0 = ax[0].inset_axes(
-                    [0.1, 0.5, 0.25, 0.3],
+                    [0.25, 0.45, 0.25, 0.3],
                     # [x[0], 0.055, 4.5, 0.02],
                     # transform=ax[0].transData,
                     xlim=(x01, x02),
-                    ylim=(y01, y02),
-                    yticklabels=[]
+                    ylim=(y01, y02)
                 )
 
                 axins0.plot(x, mse_test, 'r')
@@ -474,12 +478,11 @@ class Regression:
                 y12 = y_center + y_diff
 
                 axins1 = ax[1].inset_axes(
-                    [0.1, 0.2, 0.25, 0.3],
+                    [0.25, 0.3, 0.25, 0.3],
                     # [x[0], 0.32, 4.5, 0.175],
                     # transform=ax[1].transData,
                     xlim=(x11, x12),
-                    ylim=(y11, y12),
-                    yticklabels=[]
+                    ylim=(y11, y12)
                 )
 
                 axins1.plot(x, r2_test, 'r')
