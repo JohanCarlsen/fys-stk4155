@@ -11,6 +11,7 @@ from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.utils import resample 
 from scipy.linalg import svd
 from time import perf_counter_ns
+from numba import njit
 
 plt.rcParams.update({
     'lines.linewidth': 1,
@@ -516,19 +517,19 @@ class Regression:
             title = f'Lasso, polynomial degree: {self.ridge_lasso_poly_deg}'
         
         if model == 'OLS' and not self.store_beta:
-            fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
+            fig, ax = plt.subplots(1, 2, figsize=set_size())
             fig.suptitle(title, fontsize=8)
 
             ax[0].plot(x, mse_test, 'r', label='Test')
             ax[0].plot(x, mse_train, 'r--', label='Train')
             ax[0].set_ylabel('MSE')
-            ax[0].legend(ncol=2)
+            ax[0].legend()
 
             ax[1].plot(x, r2_test, 'b', label='Test')
             ax[1].plot(x, r2_train, 'b--', label='Train')
-            ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
+            ax[1].text(1.25, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
-            ax[1].legend(ncol=2)
+            ax[1].legend()
 
             fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
@@ -579,8 +580,9 @@ class Regression:
     
     def bias_variance_tradeoff(self, max_degree, n_bootstraps, data_dim=2):
         r'''
-        Perform OLS on the data and plot the evolution of the
-        bias and variance as functions of the polynomial degree.
+        Compute OLS with a user defined number of bootstraps on the data
+        and plot the evolution of the bias and variance as functions of
+        the polynomial degree.
 
         Parameters
         ----------
@@ -592,6 +594,12 @@ class Regression:
         
         data_dim : int, default: 2
             Dimension of the data the model is evaluated on.
+        
+        Warning
+        -------
+        As the data traffic can be very large, the number of samples 
+        used to perform the regression should not be too big, as this 
+        can lead to the program being killed before completing. 
         '''
         X_train, X_test, y_train, y_test = self.X_train, self.X_test, self.y_train, self.y_test
         
@@ -622,6 +630,9 @@ class Regression:
         bias = np.zeros_like(error)
         variance = np.zeros_like(error)
 
+        bias_var_dist = np.inf
+        tradeoff = 0
+
         j = 0
         print('\nBIAS VARIANCE TRADEOFF')
         print('----------------------')
@@ -643,6 +654,12 @@ class Regression:
             bias[j] = np.mean((y_test - np.mean(y_pred, axis=1, keepdims=keepdims))**2)
             variance[j] = np.mean(np.var(y_pred, axis=1, keepdims=keepdims))
 
+            dist = (bias[j] - variance[j])**2
+
+            if dist < bias_var_dist:
+                tradeoff = deg 
+                bias_var_dist = dist
+
             j += 1
 
             print(f'{deg / max_degree * 100:5.1f} %')
@@ -650,6 +667,7 @@ class Regression:
         t2 = perf_counter_ns()
         time = (t2 - t1) * 1e-9
         print(f'Completed in {time//60} min {time%60:.0f} sec.')
+        print(f'Trade-off happens at degree: {tradeoff}.')
 
         fig, ax = plt.subplots(figsize=set_size())
         ax.set_title(f'{n_bootstraps} bootstraps')
@@ -661,8 +679,8 @@ class Regression:
         ax.legend()
 
         fig.tight_layout()
-        fig.savefig('figures/' + self.figname + '.png')
-        fig.savefig('figures/' + self.figname + '.pdf')
+        fig.savefig('figures/' + filename + '.png')
+        fig.savefig('figures/' + filename + '.pdf')
 
     def cross_validation(self, n_kfolds):
         r'''
@@ -702,6 +720,76 @@ class Regression:
         est_MSE_Ridge_sklearn = np.zeros(n_lambda)
         est_MSE_Lasso_sklearn = np.zeros_like(est_MSE_Ridge_sklearn)
 
+        @njit
+        def _compute_OLS(X_train, X_test, y_train, y_test):
+            r'''
+            Helper function to compute the OLS with the no-python 
+            decorator.
+
+            Parameters
+            ----------
+            X_train : ndarray
+                Training part of the design matrix.
+            
+            X_test : ndarray
+                Testing part of the design matrix.
+            
+            y_train : ndarray
+                Train data.
+
+            y_test : ndarray
+                Test data.
+            
+            Returns
+            -------
+            float :
+                The MSE.
+            '''
+            beta = np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
+            y_pred = X_test @ beta
+
+            return np.sum((y_pred - y_test)**2) / y_pred.size
+        
+        @njit
+        def _compute_Ridge(X_train, X_test, y_train, y_test, lamb):
+            r'''
+            Helper function to compute the Ridge with the no-python 
+            decorator.
+
+            Parameters
+            ----------
+            X_train : ndarray
+                Training part of the design matrix.
+            
+            X_test : ndarray
+                Testing part of the design matrix.
+            
+            y_train : ndarray
+                Train data.
+
+            y_test : ndarray
+                Test data.
+            
+            lamb : float
+                The regularization parameter.
+            
+            Returns
+            -------
+            float :
+                The MSE.
+            '''
+            _singular = X_train.T @ X_train + lamb * np.eye(X_train.shape[1])
+            U, s, VT = np.linalg.svd(_singular)
+            D = np.zeros((len(U), len(VT)))
+            np.fill_diagonal(D, s)
+            _unsingular = U @ D @ VT 
+            inv = np.linalg.pinv(_unsingular)
+
+            beta = inv @ X_train.T @ y_train
+            y_pred = X_test @ beta
+
+            return np.sum((y_pred - y_test)**2) / y_pred.size
+
         print('\nCROSS VALIDATION')
         print('----------------')
         print('Finished:')
@@ -728,12 +816,10 @@ class Regression:
                 X_test = poly.fit_transform(x_test)
 
                 # OLS
-                beta_OLS = np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
-                y_pred_OLS = X_test @ beta_OLS 
-                scores_OLS[i, k] = np.sum((y_pred_OLS - y_test)**2) / np.size(y_pred_OLS)
+                scores_OLS[i, k] = _compute_OLS(X_train, X_test, y_train, y_test)
 
                 # Sklearn's OLS results
-                X_sklearn = poly.fit_transform(X)
+                X_sklearn = PolynomialFeatures(degree=deg).fit_transform(X)
                 lin = LinearRegression(fit_intercept=False)
                 MSE_OLS_sklearn = cross_val_score(lin, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_OLS_sklearn[i] = np.mean(-MSE_OLS_sklearn)
@@ -744,28 +830,18 @@ class Regression:
             X_test = poly.fit_transform(x_test)
             X_sklearn = poly.fit_transform(X)
 
-            for l in range(len(lambdas)):
-                _singular = X_train.T @ X_train + lambdas[l] * np.eye(X_train.shape[1])
-                U, s, VT = np.linalg.svd(_singular)
-                D = np.zeros((len(U), len(VT)))
-                np.fill_diagonal(D, s)
-                _unsingular = U @ D @ VT 
-                inv = np.linalg.pinv(_unsingular)
-
-                beta_Ridge = inv @ X_train.T @ y_train
-                y_pred_Ridge = X_test @ beta_Ridge
-                scores_Ridge[l, k] = np.sum((y_pred_Ridge - y_test)**2) / np.size(y_pred_Ridge)
+            for l, lamb in enumerate(lambdas):
+                scores_Ridge[l, k] = _compute_Ridge(X_train, X_test, y_train, y_test, lamb)
 
                 # Sklearn's Ridge results
-                ridge = Ridge(alpha=lambdas[l], fit_intercept=False)
+                ridge = Ridge(alpha=lamb, fit_intercept=False)
                 MSE_Ridge_sklearn = cross_val_score(ridge, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
                 # Sklearn' Lasso results
-                lasso = Lasso(lambdas[l], fit_intercept=False, tol=1e-2, max_iter=100000)
+                lasso = Lasso(lamb, fit_intercept=False, tol=1e-2, max_iter=100000)
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
-
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
             

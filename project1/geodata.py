@@ -24,15 +24,13 @@ xmesh, ymesh = np.meshgrid(n_x, n_y)
 terrain = _terrain[xmesh, ymesh]
 
 reg = Regression(xmesh.ravel(), ymesh.ravel(), terrain.ravel(), 'geodata')
-# _, __ = reg.OLS(21, store_beta=False)
-# reg.plot_evolution('OLS')
+_, __ = reg.OLS(21, store_beta=False)
+reg.plot_evolution('OLS')
 ridge_lasso_p, ridge_beta, lasso_beta = reg.ridge_and_lasso(-8, -2, 5, 100)
-# print(reg.OLS_results)
+print(reg.OLS_results)
 reg.plot_evolution('ridge')
-# reg.plot_evolution('lasso')
-plt.show()
-exit()
-reg.bias_variance_tradeoff(max_degree=31, n_bootstraps=100) # 100 samples
+reg.plot_evolution('lasso')
+reg.bias_variance_tradeoff(max_degree=35, n_bootstraps=100) # 100 samples
 reg.cross_validation(n_kfolds=10)
 
 compare_terrain(_terrain, ridge_lasso_p, ridge_beta, n_samples=n_samples, reg_model='Ridge')

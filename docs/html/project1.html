@@ -149,7 +149,7 @@ initialization, the figname has to be set  when calling <a class="reference inte
 <td><p>Ordinary least square regression method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a>(max_degree, n_bootstraps)</p></td>
-<td><p>Perform OLS on the data and plot the evolution of the bias and variance as functions of the polynomial degree.</p></td>
+<td><p>Compute OLS with a user defined number of bootstraps on the data and plot the evolution of the bias and variance as functions of the polynomial degree.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds)</p></td>
 <td><p>Calculate and plot the results from a k-fold cross validation.</p></td>
@@ -252,8 +252,9 @@ both models.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.bias_variance_tradeoff">
 <span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">bias_variance_tradeoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.bias_variance_tradeoff" title="Link to this definition"></a></dt>
-<dd><p>Perform OLS on the data and plot the evolution of the
-bias and variance as functions of the polynomial degree.</p>
+<dd><p>Compute OLS with a user defined number of bootstraps on the data
+and plot the evolution of the bias and variance as functions of
+the polynomial degree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -263,6 +264,12 @@ bias and variance as functions of the polynomial degree.</p>
 </ul>
 </dd>
 </dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>As the data traffic can be very large, the number of samples
+used to perform the regression should not be too big, as this
+can lead to the program being killed before completing.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -344,10 +351,10 @@ to the data.</p></li>
 <li><p><strong>full_terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
 <li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree that was used to create the <code class="docutils literal notranslate"><span class="pre">opt_param</span></code>.</p></li>
 <li><p><strong>opt_param</strong> (<em>array_like</em>) – The optimal parameters for the regression model.</p></li>
-<li><p><strong>model_points</strong> (<em>int</em>) – Number of elements along both <cite>x</cite> and <cite>y</cite> to create the
-meshgrid.</p></li>
 <li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples that was used to compute the model.</p></li>
 <li><p><strong>reg_model</strong> (<em>str</em>) – Regression model, used to set the figure title.</p></li>
+<li><p><strong>model_points</strong> (<em>int</em><em>, </em><em>default: 500</em>) – The number of elements between 0 and 1 to create the mesh grid
+that the model elevatioin figure will be plotted on.</p></li>
 </ul>
 </dd>
 </dl>
