@@ -14,42 +14,33 @@ _terrain = np.concatenate(np.array([terrain2, terrain1])).T * 1e-3
 np.random.seed(2023)
 
 tot_points = np.min(_terrain.shape)
-n_samples = 200
+n_samples = tot_points
 data_samples = np.random.randint(0, tot_points, size=(n_samples, 2))
 
-n_x = np.sort(data_samples[:, 0])
-n_y = np.sort(data_samples[:, 1])
+n_x = data_samples[:, 0]
+n_y = data_samples[:, 1]
+
+x = (n_x - np.min(n_x)) / (np.max(n_x) - np.min(n_x))
+y = (n_y - np.min(n_y)) / (np.max(n_y) - np.min(n_y))
 
 xmesh, ymesh = np.meshgrid(n_x, n_y)
 terrain = _terrain[xmesh, ymesh]
 
-reg = Regression(xmesh.ravel(), ymesh.ravel(), terrain.ravel(), 'geodata')
-_, __ = reg.OLS(21, store_beta=False)
+reg = Regression(x, y, _terrain[n_x, n_y], 'geodata')
+ols_p, ols_beta = reg.OLS(21, store_beta=False)
 reg.plot_evolution('OLS')
-ridge_lasso_p, ridge_beta, lasso_beta = reg.ridge_and_lasso(-8, -2, 5, 100)
+ridge_lasso_p, ridge_beta, lasso_beta = reg.ridge_and_lasso(-4, -1, 10, 100)
+ridge_lasso_p, ridge_beta, lasso_beta = reg.ridge_and_lasso(-7, 7, 6, 200)
 print(reg.OLS_results)
-reg.plot_evolution('ridge')
+reg.plot_evolution('ridge', add_zoom=True)
 reg.plot_evolution('lasso')
-reg.bias_variance_tradeoff(max_degree=35, n_bootstraps=100) # 100 samples
+reg.bias_variance_tradeoff(max_degree=35, n_bootstraps=100) 
 reg.cross_validation(n_kfolds=10)
 
+compare_terrain(_terrain, ols_p, ols_beta, n_samples=n_samples, reg_model='OLS')
 compare_terrain(_terrain, ridge_lasso_p, ridge_beta, n_samples=n_samples, reg_model='Ridge')
 compare_terrain(_terrain, ridge_lasso_p, lasso_beta, n_samples=n_samples, reg_model='Lasso')
 
-n_samples = 1500
-data_samples = np.random.randint(0, tot_points, size=(n_samples, 2))
-
-n_x = np.sort(data_samples[:, 0])
-n_y = np.sort(data_samples[:, 1])
-
-xmesh, ymesh = np.meshgrid(n_x, n_y)
-terrain = _terrain[xmesh, ymesh]
-
-reg = Regression(xmesh.ravel(), ymesh.ravel(), terrain.ravel(), 'geodata')
-ols_p, ols_beta = reg.OLS(22, store_beta=False)
-compare_terrain(_terrain, ols_p, ols_beta, n_samples=n_samples, reg_model='OLS')
-
-plt.show()
 
 # Show the terrain
 fig, ax = plt.subplots(figsize=set_size('text'))

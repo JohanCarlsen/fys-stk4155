@@ -108,13 +108,13 @@ class Regression:
             self.X = x_data
             self.y_data = y_data
             self.dim = 1
-            tot_data_points = len(x_data)
+            tot_data_points = len(y_data)
         
         else:
             self.X = np.column_stack((x_data, y_data))
             self.y_data = z_data 
             self.dim = 2
-            tot_data_points = len(self.X.ravel())
+            tot_data_points = len(z_data)
         
         print(f'\nLoaded with {tot_data_points} data points.')
         self.X_train_unscaled, self.X_test_unscaled, self.y_train, self.y_test = train_test_split(self.X, self.y_data, test_size=0.2)
@@ -324,7 +324,7 @@ class Regression:
                 beta_opt_ridge = beta_tilde
                 min_mse_ridge = mse_test
 
-            lasso_reg = Lasso(lambda_i, fit_intercept=False, max_iter=int(1e4))
+            lasso_reg = Lasso(lambda_i, fit_intercept=False, tol=0.1, max_iter=int(1e5))
             lasso_reg.fit(X_train, y_train)
 
             y_tilde_lasso = lasso_reg.predict(X_train)
@@ -378,7 +378,7 @@ class Regression:
 
         return self.ridge_lasso_poly_deg, beta_opt_ridge, beta_opt_lasso
 
-    def plot_evolution(self, model, figname=None, add_lasso=True):
+    def plot_evolution(self, model, figname=None, add_lasso=True, add_zoom=False):
         r'''
         Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
         values for the optimal parameters.
@@ -398,6 +398,10 @@ class Regression:
             Option to add the `lasso` model to the figure for `ridge`.
             If so, the figure will show only the MSE and R2 score for 
             both models. 
+        
+        add_zoom : bool, default: False
+            If ``True``, the lowest MSE value and highest R2 score will
+            be shown as zoomed in axis.
         '''
         if self.figname is None: 
             self.figname = figname
@@ -438,61 +442,91 @@ class Regression:
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
             ax[1].legend(ncol=2, loc='lower right')
 
-            if self.figname == 'geodata':
-                y_center = np.min(mse_test_lasso)
-                x_center_idx = np.argwhere(mse_test_lasso == y_center)[0]
-                x_center = x[x_center_idx]
+            has_min_mse = np.any(mse_test < mse_test[0] * 0.9)
+            has_min_mse_lasso = np.any(mse_test_lasso < mse_test_lasso[0] * 0.9)
+            has_max_r2 = np.any(r2_test > r2_test[0] * 0.9)
+            has_max_r2_lasso = np.any(r2_test_lasso > r2_test_lasso[0] * 0.9)
 
-                y_diff = 0.000003
-                x_diff = 1.5
+            mse_cond = [has_min_mse, has_min_mse_lasso]
+            r2_cond = [has_max_r2, has_max_r2_lasso]
 
-                x01 = x_center - x_diff
-                x02 = x_center + x_diff
-                y01 = y_center - y_diff
-                y02 = y_center + y_diff
+            if add_zoom:
+                x_diff = 0.5
 
-                axins0 = ax[0].inset_axes(
-                    [0.25, 0.45, 0.25, 0.3],
-                    # [x[0], 0.055, 4.5, 0.02],
-                    # transform=ax[0].transData,
-                    xlim=(x01, x02),
-                    ylim=(y01, y02)
-                )
+                if np.any(mse_cond):
+                    if np.min(mse_test_lasso) < np.min(mse_test):
+                        y_center = np.min(mse_test_lasso)
+                        best_model = mse_test_lasso
+                    
+                    else: 
+                        y_center = np.min(mse_test)
+                        best_model = mse_test
 
-                axins0.plot(x, mse_test, 'r')
-                axins0.plot(x, mse_test_lasso, 'b')
-                _, corners = ax[0].indicate_inset_zoom(axins0, ec='k')
-                corners[0].set_visible(True)
-                corners[1].set_visible(False)
-                corners[2].set_visible(True)
-                corners[3].set_visible(False)
+                    # y_center = min(np.min(mse_test_lasso), np.min(mse_test))
+                    x_center_idx = np.argwhere(best_model == y_center)[0]
+                    x_center = x[x_center_idx]
 
-                y_center = np.max(r2_test_lasso)
-                x_center_idx = np.argwhere(r2_test_lasso == y_center)[0]
-                x_center = x[x_center_idx]
+                    y_diff = 0.00005
 
-                y_diff = 0.00005
+                    x01 = x_center - x_diff
+                    x02 = x_center + x_diff
+                    y01 = y_center - y_diff
+                    y02 = y_center + y_diff
 
-                x11 = x_center - x_diff
-                x12 = x_center + x_diff
-                y11 = y_center - y_diff
-                y12 = y_center + y_diff
+                    axins0 = ax[0].inset_axes(
+                        [0.25, 0.45, 0.25, 0.3],
+                        # [x[0], 0.055, 4.5, 0.02],
+                        # transform=ax[0].transData,
+                        xlim=(x01, x02),
+                        ylim=(y01, y02)
+                    )
 
-                axins1 = ax[1].inset_axes(
-                    [0.25, 0.3, 0.25, 0.3],
-                    # [x[0], 0.32, 4.5, 0.175],
-                    # transform=ax[1].transData,
-                    xlim=(x11, x12),
-                    ylim=(y11, y12)
-                )
+                    axins0.plot(x, mse_test, 'r')
+                    axins0.plot(x, mse_test_lasso, 'b')
+                    _, corners = ax[0].indicate_inset_zoom(axins0, ec='k')
+                    corners[0].set_visible(True)
+                    corners[1].set_visible(False)
+                    corners[2].set_visible(True)
+                    corners[3].set_visible(False)
 
-                axins1.plot(x, r2_test, 'r')
-                axins1.plot(x, r2_test_lasso, 'b')
-                _, corners1 = ax[1].indicate_inset_zoom(axins1, ec='k')
-                corners1[0].set_visible(False)
-                corners1[1].set_visible(True)
-                corners1[2].set_visible(False)
-                corners1[3].set_visible(True)
+                if np.any(r2_cond):
+                    if np.max(r2_test_lasso) > np.max(r2_test):
+                        y_center = np.max(r2_test_lasso)
+                        best_model = r2_test_lasso
+                    
+                    else: 
+                        y_center = np.max(r2_test)
+                        best_model = r2_test
+
+                    # y_center = np.max(r2_test_lasso)
+                    x_center_idx = np.argwhere(best_model == y_center)[0]
+                    x_center = x[x_center_idx]
+
+                    y_diff = 0.0005
+
+                    x11 = x_center - x_diff
+                    x12 = x_center + x_diff
+                    y11 = y_center - y_diff
+                    y12 = y_center + y_diff
+
+                    axins1 = ax[1].inset_axes(
+                        [0.25, 0.3, 0.25, 0.3],
+                        # [x[0], 0.32, 4.5, 0.175],
+                        # transform=ax[1].transData,
+                        xlim=(x11, x12),
+                        ylim=(y11, y12)
+                    )
+
+                    axins1.plot(x, r2_test, 'r')
+                    axins1.plot(x, r2_test_lasso, 'b')
+                    _, corners1 = ax[1].indicate_inset_zoom(axins1, ec='k')
+                    corners1[0].set_visible(False)
+                    corners1[1].set_visible(True)
+                    corners1[2].set_visible(False)
+                    corners1[3].set_visible(True)
+
+                if not np.any([mse_cond, r2_cond]):
+                    print('\nRequested zoom but the best score is the first value.')
 
             fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
@@ -699,10 +733,10 @@ class Regression:
         KFold_sklearn = KFold(n_splits=n_kfolds, shuffle=True, random_state=2023)
 
         if self.figname == 'geodata':
-            n_poly = 20
-            poly_deg = 2
-            n_lambda = 100
-            lambdas = np.logspace(-1, 20, n_lambda)
+            n_poly = 17
+            poly_deg = 10
+            n_lambda = 50
+            lambdas = np.logspace(-4, 8, n_lambda)
         
         else:
             n_poly = 15
@@ -839,7 +873,7 @@ class Regression:
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
                 # Sklearn' Lasso results
-                lasso = Lasso(lamb, fit_intercept=False, tol=1e-2, max_iter=100000)
+                lasso = Lasso(lamb, fit_intercept=False, tol=0.1, max_iter=int(1e5))
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
@@ -862,7 +896,7 @@ class Regression:
         ax1.plot(degrees, est_MSE_OLS, color='k', label=r'OLS')
         ax1.plot(degrees, est_MSE_OLS_sklearn, 'k--')
         ax1.set_xlabel('Polynomial degree')
-        ax1.set_yscale('log')
+        # ax1.set_yscale('log')
         ax1.legend()
 
         ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'Lasso')
@@ -908,13 +942,13 @@ def frankes_function(x, y, add_noise=True):
     else:
         return res
     
-def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, model_points=500):
+def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_points=100):
     r'''
     Create a side-by-side comparison figure of model and terrain data.
 
     Parameters
     ----------
-    full_terrain : ndarray
+    terrain : ndarray
         An `NxN` matrix holding the terrain data.
     
     poly_deg : int
@@ -929,7 +963,7 @@ def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, mod
     reg_model : str
         Regression model, used to set the figure title.
     
-    model_points : int, default: 500
+    model_points : int, default: 100
         The number of elements between 0 and 1 to create the mesh grid
         that the model elevatioin figure will be plotted on. 
     '''
@@ -945,18 +979,55 @@ def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, mod
     feature = PolynomialFeatures(degree=poly_deg).fit_transform(data)
 
     model = (feature @ opt_param).reshape(n_points, n_points)
-    model += abs(np.min(model) - np.min(full_terrain))
+    model += abs(np.min(model) - np.min(terrain))
+    # model = np.rot90(model)
+    # model = np.rot90(model)
+    # model = np.rot90(model)
+    if reg_model == 'OLS':
+        model = np.rot90(model)
 
-    gspecs = {'wspace': 0.06}
-    fig, axes = plt.subplots(1, 2, figsize=set_size('text', scale=0.75))
-    ax1, ax2 = axes
+    model = (model - np.min(model)) / (np.max(model - np.min(model)))
+    terrain = (terrain - np.min(terrain)) / (np.max(terrain - np.min(terrain)))
 
-    title = f'{n_samples**2*2:.2e} samples, '
-    title += reg_model + f', poly deg. {poly_deg}'
-    fig.suptitle(title, fontsize=8)
+    fig = plt.figure(figsize=set_size('text', subplot=(2, 1), scale=0.65))
+    fig.subplots_adjust(wspace=0.3, hspace=0.4)
+    ax3 = fig.add_subplot(2, 2, 3, projection='3d')
+    ax3.plot_surface(X, Y, model, linewidth=0, antialiased=False, cmap='terrain')
+    ax3.view_init(azim=20)
+    # fig = plt.figure()
+    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+    x = np.arange(terrain.shape[0])
+    y = np.arange(terrain.shape[0])
+    X, Y = np.meshgrid(x, y)
+    ax4.plot_surface(
+        X, Y, terrain[X, Y],
+        linewidth=0,
+        antialiased=True,
+        cmap='terrain',
+        rcount=200,
+        ccount=200,
+        # rstride=25,
+        # cstride=25
+    )
+    ax4.view_init(azim=20)
+
+    # return
+
+    # gspecs = {'wspace': 0.06}
+    # fig, axes = plt.subplots(1, 2, figsize=set_size('text', scale=0.75))
+    # ax1, ax2 = axes
+        
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax2 = fig.add_subplot(2, 2, 2)
+
+    axes = (ax1, ax2)
+
+    title = f'{n_samples} samples, '
+    title += reg_model + f', polynomial degree {poly_deg}'
+    fig.suptitle(title, fontsize=10)
 
     im1 = ax1.imshow(model, cmap='terrain')
-    im2 = ax2.imshow(full_terrain, cmap='terrain')
+    im2 = ax2.imshow(terrain, cmap='terrain')
     ims = [im1, im2]
 
     label1 = ''
@@ -964,16 +1035,27 @@ def compare_terrain(full_terrain, poly_deg, opt_param, n_samples, reg_model, mod
     labels = [label1, label2]
 
     ax1.set_title('Model')
+    ax3.set_title('Model')
     ax1.set_xlabel(r'$x$')
     ax1.set_ylabel(r'$y$')    
+    ax3.set_xlabel(r'$x$')
+    ax3.set_ylabel(r'$y$')    
+    ax3.set_zlabel(r'$z$')
     ax2.set_title('Terrain data')
+    ax4.set_title('Terrain data')
     ax2.set_xlabel(r'$x$ [arcsec]')
     ax2.set_ylabel(r'$y$ [arcsec]')
+    ax4.set_xlabel(r'$x$ [arcsec]')
+    ax4.set_ylabel(r'$y$ [arcsec]')
+    ax4.set_zlabel(r'$z$')
 
-    for im, ax, lab in zip(ims, axes, labels):
-        fig.colorbar(im, pad=0.02, shrink=0.855, ax=ax, label=lab)
+    # for im, ax, lab in zip(ims, axes, labels):
+    #     fig.colorbar(im, pad=0.02, shrink=0.855, ax=ax, label=lab)
+    axes = [ax1, ax2, ax3, ax4]
+    fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[:2], label='Normalized elevation')
+    fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[2:], label='Normalized elevation')
 
-    fig.tight_layout()    
+    # fig.tight_layout()    
     fig.savefig(path + '.png')
     fig.savefig(path + '.pdf')
 
