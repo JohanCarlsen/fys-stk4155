@@ -154,7 +154,7 @@ initialization, the figname has to be set  when calling <a class="reference inte
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds)</p></td>
 <td><p>Calculate and plot the results from a k-fold cross validation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso, ...])</p></td>
 <td><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the values for the optimal parameters.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge_and_lasso" title="src.Regression.ridge_and_lasso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge_and_lasso</span></code></a>(lambda_min, lambda_max, ...)</p></td>
@@ -228,7 +228,7 @@ arrays. This parameter ensures the betas are not stored.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.plot_evolution">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
 <dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
 values for the optimal parameters.</p>
 <dl class="field-list simple">
@@ -244,6 +244,8 @@ values for the optimal parameters.</p>
 <li><p><strong>add_lasso</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
 If so, the figure will show only the MSE and R2 score for
 both models.</p></li>
+<li><p><strong>add_zoom</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the lowest MSE value and highest R2 score will
+be shown as zoomed in axis.</p></li>
 </ul>
 </dd>
 </dl>
@@ -343,17 +345,18 @@ to the data.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.compare_terrain">
-<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
 <dd><p>Create a side-by-side comparison figure of model and terrain data.</p>
+<p>The figure will display both the maps and the surfaces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>full_terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
+<li><p><strong>terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
 <li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree that was used to create the <code class="docutils literal notranslate"><span class="pre">opt_param</span></code>.</p></li>
 <li><p><strong>opt_param</strong> (<em>array_like</em>) – The optimal parameters for the regression model.</p></li>
 <li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples that was used to compute the model.</p></li>
 <li><p><strong>reg_model</strong> (<em>str</em>) – Regression model, used to set the figure title.</p></li>
-<li><p><strong>model_points</strong> (<em>int</em><em>, </em><em>default: 500</em>) – The number of elements between 0 and 1 to create the mesh grid
+<li><p><strong>model_points</strong> (<em>int</em><em>, </em><em>default: 100</em>) – The number of elements between 0 and 1 to create the mesh grid
 that the model elevatioin figure will be plotted on.</p></li>
 </ul>
 </dd>

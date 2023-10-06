@@ -946,6 +946,8 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
     r'''
     Create a side-by-side comparison figure of model and terrain data.
 
+    The figure will display both the maps and the surfaces.
+
     Parameters
     ----------
     terrain : ndarray
@@ -980,9 +982,7 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
 
     model = (feature @ opt_param).reshape(n_points, n_points)
     model += abs(np.min(model) - np.min(terrain))
-    # model = np.rot90(model)
-    # model = np.rot90(model)
-    # model = np.rot90(model)
+
     if reg_model == 'OLS':
         model = np.rot90(model)
 
@@ -991,10 +991,11 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
 
     fig = plt.figure(figsize=set_size('text', subplot=(2, 1), scale=0.65))
     fig.subplots_adjust(wspace=0.3, hspace=0.4)
+
     ax3 = fig.add_subplot(2, 2, 3, projection='3d')
     ax3.plot_surface(X, Y, model, linewidth=0, antialiased=False, cmap='terrain')
     ax3.view_init(azim=20)
-    # fig = plt.figure()
+
     ax4 = fig.add_subplot(2, 2, 4, projection='3d')
     x = np.arange(terrain.shape[0])
     y = np.arange(terrain.shape[0])
@@ -1005,17 +1006,10 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
         antialiased=True,
         cmap='terrain',
         rcount=200,
-        ccount=200,
-        # rstride=25,
-        # cstride=25
+        ccount=200
     )
+
     ax4.view_init(azim=20)
-
-    # return
-
-    # gspecs = {'wspace': 0.06}
-    # fig, axes = plt.subplots(1, 2, figsize=set_size('text', scale=0.75))
-    # ax1, ax2 = axes
         
     ax1 = fig.add_subplot(2, 2, 1)
     ax2 = fig.add_subplot(2, 2, 2)
@@ -1049,13 +1043,10 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
     ax4.set_ylabel(r'$y$ [arcsec]')
     ax4.set_zlabel(r'$z$')
 
-    # for im, ax, lab in zip(ims, axes, labels):
-    #     fig.colorbar(im, pad=0.02, shrink=0.855, ax=ax, label=lab)
     axes = [ax1, ax2, ax3, ax4]
     fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[:2], label='Normalized elevation')
     fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[2:], label='Normalized elevation')
 
-    # fig.tight_layout()    
     fig.savefig(path + '.png')
     fig.savefig(path + '.pdf')
 
