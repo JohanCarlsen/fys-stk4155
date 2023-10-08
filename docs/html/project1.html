@@ -151,7 +151,7 @@ initialization, the figname has to be set  when calling <a class="reference inte
 <tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a>(max_degree, n_bootstraps)</p></td>
 <td><p>Compute OLS with a user defined number of bootstraps on the data and plot the evolution of the bias and variance as functions of the polynomial degree.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds[, best_deg_ols, ...])</p></td>
 <td><p>Calculate and plot the results from a k-fold cross validation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso, ...])</p></td>
@@ -253,7 +253,7 @@ be shown as zoomed in axis.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.bias_variance_tradeoff">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">bias_variance_tradeoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.bias_variance_tradeoff" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">bias_variance_tradeoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.bias_variance_tradeoff" title="Link to this definition"></a></dt>
 <dd><p>Compute OLS with a user defined number of bootstraps on the data
 and plot the evolution of the bias and variance as functions of
 the polynomial degree.</p>
@@ -263,6 +263,9 @@ the polynomial degree.</p>
 <li><p><strong>max_degree</strong> (<em>int</em>) – Maximum polynomial degree to evalute the OLS for.</p></li>
 <li><p><strong>n_bootstraps</strong> (<em>int</em>) – The number of bootstrap resamples to perform.</p></li>
 <li><p><strong>data_dim</strong> (<em>int</em><em>, </em><em>default: 2</em>) – Dimension of the data the model is evaluated on.</p></li>
+<li><p><strong>beta_deg_ols</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – The optimal degree as computed by the <a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a> method.
+If not given, the degree is assumed to be computed from
+the same code run as the present one.</p></li>
 </ul>
 </dd>
 </dl>
@@ -276,11 +279,17 @@ can lead to the program being killed before completing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.cross_validation">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">cross_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_kfolds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.cross_validation" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">cross_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_kfolds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tradeoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.cross_validation" title="Link to this definition"></a></dt>
 <dd><p>Calculate and plot the results from a k-fold cross validation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>n_kfolds</strong> (<em>int</em>) – The number of k-folds to concider.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_kfolds</strong> (<em>int</em>) – The number of k-folds to concider.</p></li>
+<li><p><strong>best_deg_ols</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – See <a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a></p></li>
+<li><p><strong>tradeoff</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – The degree where the bias-variance trade-off happens. If
+not set, the method assumes the degree has been computed
+during the present run.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

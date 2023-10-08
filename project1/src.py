@@ -124,10 +124,6 @@ class Regression:
         self.X_train = scaler.transform(self.X_train_unscaled)
         self.X_test = scaler.transform(self.X_test_unscaled)
 
-        y_scaler = np.mean(self.y_train)
-        self.y_train = self.y_train - y_scaler
-        self.y_test = self.y_test - y_scaler
-
     def OLS(self, n_poly, identity_test=False, store_beta=True):
         r'''
         Ordinary least square regression method.
@@ -179,13 +175,13 @@ class Regression:
         self.r2_ols_test = np.zeros(n_poly)
         self.beta_ols = np.zeros((n_poly, max_polys))
 
+        # best_model = None 
         beta_opt = None 
         min_mse = np.inf
 
         t1 = perf_counter_ns()
         print('\nOLS REGRESSION')
         print('--------------')
-        print('Finished:')
 
         for i in range(len(self.poly_degs)):
             poly = PolynomialFeatures(degree=self.poly_degs[i])
@@ -208,6 +204,7 @@ class Regression:
             r2_test = R2(self.y_test, y_predict)
 
             if mse_test < min_mse:
+                # best_model = y_predict
                 beta_opt = beta 
                 min_mse = mse_test
 
@@ -216,27 +213,27 @@ class Regression:
             self.r2_ols_train[i] = r2_train
             self.r2_ols_test[i] = r2_test
 
-            print(f'{(i+1)/len(self.poly_degs)*100:5.1f} %')
-
         t2 = perf_counter_ns()
         time = (t2 - t1) * 1e-9
-        print(f'Completed in {time//60} min {time%60:.0f} sec.')
+
+        if time%60 > 1:
+            print(f'Completed in {time//60:.0f} min {time%60:.0f} sec.')
 
         min_ols = np.min(self.mse_ols_test)
         best_r2 = np.max(self.r2_ols_test)
 
-        opt_deg = self.poly_degs[self.mse_ols_test == min_ols][0]
+        self.opt_deg = self.poly_degs[self.mse_ols_test == min_ols][0]
         opt_deg_r2 = self.poly_degs[self.r2_ols_test == best_r2][0]
 
         OLS_results = '\nOLS results\n-----------\n'
         OLS_results += f'Highest R2 score: {best_r2:.3f} at degree: {opt_deg_r2}\n'
-        OLS_results += f'Lowest MSE: {min_ols:11.3f} at degree: {opt_deg}\n'
+        OLS_results += f'Lowest MSE: {min_ols:11.3f} at degree: {self.opt_deg}\n'
 
         print(OLS_results)
 
         self.OLS_results = OLS_results
 
-        return opt_deg, beta_opt
+        return self.opt_deg, beta_opt
     
     def ridge_and_lasso(self, lambda_min, lambda_max, poly_deg, n_lambda):
         r'''
@@ -297,6 +294,8 @@ class Regression:
         
         min_mse_lasso = np.inf
         min_mse_ridge = np.inf
+        # best_model_ridge = None 
+        # best_model_lasso = None
         beta_opt_lasso = None 
         beta_opt_ridge = None
 
@@ -321,10 +320,11 @@ class Regression:
             self.r2_ridge_test[i] = r2_test
 
             if mse_test < min_mse_ridge:
+                # best_model_ridge = y_predict
                 beta_opt_ridge = beta_tilde
                 min_mse_ridge = mse_test
 
-            lasso_reg = Lasso(lambda_i, fit_intercept=False, tol=0.1, max_iter=int(1e5))
+            lasso_reg = Lasso(lambda_i, fit_intercept=False, max_iter=int(1e5))
             lasso_reg.fit(X_train, y_train)
 
             y_tilde_lasso = lasso_reg.predict(X_train)
@@ -338,6 +338,7 @@ class Regression:
             r2_test_lasso = R2(y_test, y_predict_lasso)
 
             if mse_test_lasso < min_mse_lasso:
+                # best_model_lasso = y_predict_lasso
                 beta_opt_lasso = lasso_reg.coef_
                 min_mse_lasso = mse_test_lasso
 
@@ -442,10 +443,10 @@ class Regression:
             ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
             ax[1].legend(ncol=2, loc='lower right')
 
-            has_min_mse = np.any(mse_test < mse_test[0] * 0.9)
-            has_min_mse_lasso = np.any(mse_test_lasso < mse_test_lasso[0] * 0.9)
-            has_max_r2 = np.any(r2_test > r2_test[0] * 0.9)
-            has_max_r2_lasso = np.any(r2_test_lasso > r2_test_lasso[0] * 0.9)
+            has_min_mse = np.any(mse_test < mse_test[0])# * 0.99)
+            has_min_mse_lasso = np.any(mse_test_lasso < mse_test_lasso[0])# * 0.99)
+            has_max_r2 = np.any(r2_test > r2_test[0])# * 1.01)
+            has_max_r2_lasso = np.any(r2_test_lasso > r2_test_lasso[0])# * 1.01)
 
             mse_cond = [has_min_mse, has_min_mse_lasso]
             r2_cond = [has_max_r2, has_max_r2_lasso]
@@ -462,7 +463,6 @@ class Regression:
                         y_center = np.min(mse_test)
                         best_model = mse_test
 
-                    # y_center = min(np.min(mse_test_lasso), np.min(mse_test))
                     x_center_idx = np.argwhere(best_model == y_center)[0]
                     x_center = x[x_center_idx]
 
@@ -612,7 +612,7 @@ class Regression:
             fig.savefig('figures/' + model + '_' + self.figname + '.pdf')
             fig.savefig('figures/' + model + '_' + self.figname + '.png')
     
-    def bias_variance_tradeoff(self, max_degree, n_bootstraps, data_dim=2):
+    def bias_variance_tradeoff(self, max_degree, n_bootstraps, data_dim=2, best_deg_ols=None):
         r'''
         Compute OLS with a user defined number of bootstraps on the data
         and plot the evolution of the bias and variance as functions of
@@ -629,6 +629,11 @@ class Regression:
         data_dim : int, default: 2
             Dimension of the data the model is evaluated on.
         
+        beta_deg_ols : int or float, optional
+            The optimal degree as computed by the :any:`OLS` method.
+            If not given, the degree is assumed to be computed from 
+            the same code run as the present one.
+        
         Warning
         -------
         As the data traffic can be very large, the number of samples 
@@ -637,6 +642,8 @@ class Regression:
         '''
         X_train, X_test, y_train, y_test = self.X_train, self.X_test, self.y_train, self.y_test
         
+        ols_p = self.opt_deg if best_deg_ols is None else best_deg_ols
+
         if data_dim == 1:
             max_degree += 1
             degree = np.arange(max_degree)
@@ -702,21 +709,31 @@ class Regression:
         time = (t2 - t1) * 1e-9
         print(f'Completed in {time//60} min {time%60:.0f} sec.')
         print(f'Trade-off happens at degree: {tradeoff}.')
+        self.tradeoff = tradeoff
 
         fig, ax = plt.subplots(figsize=set_size())
         ax.set_title(f'{n_bootstraps} bootstraps')
         ax.plot(degree, error, 'r', label='Error')
         ax.plot(degree, bias, 'g--', label='Bias')
         ax.plot(degree, variance, 'b', label='Variance')
+
+        ymin, ymax = ax.get_ylim()
+
+        ax.plot([ols_p, ols_p], [ymin, ymax], 'k--')
+        ax.text(ols_p, ymax*1.01, 'OLS', ha='center')
+        ax.plot([tradeoff, tradeoff], [ymin, ymax], 'k--')
+        ax.text(tradeoff, ymax*1.01, 'Trade-off', ha='center')
         ax.set_xlabel('Polynomial degree')
         ax.set_yscale(scale)
+        ax.set_ylim(ymin, ymax*1.15)
+        ax.set_xticks(np.arange(np.ceil(max(degree)+1))[::2])
         ax.legend()
 
         fig.tight_layout()
         fig.savefig('figures/' + filename + '.png')
         fig.savefig('figures/' + filename + '.pdf')
 
-    def cross_validation(self, n_kfolds):
+    def cross_validation(self, n_kfolds, best_deg_ols=None, tradeoff=None):
         r'''
         Calculate and plot the results from a k-fold cross validation.
 
@@ -724,8 +741,21 @@ class Regression:
         ----------
         n_kfolds : int 
             The number of k-folds to concider.
+        
+        best_deg_ols : int or float, optional
+            See :any:`bias_variance_tradeoff`
+        
+        tradeoff : int or float, optional
+            The degree where the bias-variance trade-off happens. If 
+            not set, the method assumes the degree has been computed 
+            during the present run.
         '''
         X, y = self.X, self.y_data
+        X = StandardScaler().fit(X).transform(X)
+
+        ols_p = self.opt_deg if best_deg_ols is None else best_deg_ols
+        trade = self.tradeoff if tradeoff is None else tradeoff
+        
         n_data = X.shape[0]
         indices = np.arange(n_data)
         shuffled_inds = np.random.choice(indices, replace=False, size=n_data)
@@ -733,10 +763,10 @@ class Regression:
         KFold_sklearn = KFold(n_splits=n_kfolds, shuffle=True, random_state=2023)
 
         if self.figname == 'geodata':
-            n_poly = 17
-            poly_deg = 10
-            n_lambda = 50
-            lambdas = np.logspace(-4, 8, n_lambda)
+            n_poly = 20
+            poly_deg = 3
+            n_lambda = 100
+            lambdas = np.logspace(-3, 8, n_lambda)
         
         else:
             n_poly = 15
@@ -854,7 +884,7 @@ class Regression:
 
                 # Sklearn's OLS results
                 X_sklearn = PolynomialFeatures(degree=deg).fit_transform(X)
-                lin = LinearRegression(fit_intercept=False)
+                lin = LinearRegression(fit_intercept=True)
                 MSE_OLS_sklearn = cross_val_score(lin, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_OLS_sklearn[i] = np.mean(-MSE_OLS_sklearn)
 
@@ -873,13 +903,13 @@ class Regression:
                 est_MSE_Ridge_sklearn[l] = np.mean(-MSE_Ridge_sklearn)
 
                 # Sklearn' Lasso results
-                lasso = Lasso(lamb, fit_intercept=False, tol=0.1, max_iter=int(1e5))
+                lasso = Lasso(lamb, fit_intercept=False, max_iter=int(1e5))
                 y_pred_Lasso = lasso.fit(X_train, y_train).predict(X_test)
                 scores_Lasso[l, k] = np.sum((y_pred_Lasso - y_test)**2) / np.size(y_pred_Lasso)
                 MSE_Lasso_sklearn = cross_val_score(lasso, X_sklearn, y, scoring='neg_mean_squared_error', cv=KFold_sklearn)
                 est_MSE_Lasso_sklearn[l] = np.mean(-MSE_Lasso_sklearn)
             
-                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:5.2f} %')
+                print(f'{(count+1) / (len(lambdas) * n_kfolds) * 100:5.1f} %')
                 count += 1
 
         t2 = perf_counter_ns()
@@ -896,8 +926,15 @@ class Regression:
         ax1.plot(degrees, est_MSE_OLS, color='k', label=r'OLS')
         ax1.plot(degrees, est_MSE_OLS_sklearn, 'k--')
         ax1.set_xlabel('Polynomial degree')
-        # ax1.set_yscale('log')
         ax1.legend()
+
+        ymin, ymax = ax1.get_ylim()
+
+        ax1.plot([ols_p, ols_p], [ymin, ymax], 'k--')
+        ax1.text(ols_p, ymax*1.01, 'OLS', ha='center')
+        ax1.plot([trade, trade], [ymin, ymax], 'k--')
+        ax1.text(trade, ymax*1.01, 'Trade-off', ha='center')
+        ax1.set_ylim(ymin, ymax*1.15)
 
         ax2.plot(np.log10(lambdas), est_MSE_Lasso, color='b', label=r'Lasso')
         ax2.plot(np.log10(lambdas), est_MSE_Lasso_sklearn, 'b--')
@@ -983,7 +1020,7 @@ def compare_terrain(terrain, poly_deg, opt_param, n_samples, reg_model, model_po
     model = (feature @ opt_param).reshape(n_points, n_points)
     model += abs(np.min(model) - np.min(terrain))
 
-    if reg_model == 'OLS':
+    if not reg_model == 'Lasso':
         model = np.rot90(model)
 
     model = (model - np.min(model)) / (np.max(model - np.min(model)))
