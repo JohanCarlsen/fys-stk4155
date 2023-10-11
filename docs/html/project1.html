@@ -16,6 +16,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -45,9 +46,28 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Project 1</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#regression-class">Regression class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#regression-methods">Regression methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regression-class">Regression class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression"><code class="docutils literal notranslate"><span class="pre">Regression</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.Regression.z_data"><code class="docutils literal notranslate"><span class="pre">Regression.z_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.Regression.name"><code class="docutils literal notranslate"><span class="pre">Regression.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#regression-methods">Regression methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.OLS"><code class="docutils literal notranslate"><span class="pre">Regression.OLS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.ridge_and_lasso"><code class="docutils literal notranslate"><span class="pre">Regression.ridge_and_lasso()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.plot_evolution"><code class="docutils literal notranslate"><span class="pre">Regression.plot_evolution()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.bias_variance_tradeoff"><code class="docutils literal notranslate"><span class="pre">Regression.bias_variance_tradeoff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.Regression.cross_validation"><code class="docutils literal notranslate"><span class="pre">Regression.cross_validation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.set_size"><code class="docutils literal notranslate"><span class="pre">set_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.frankes_function"><code class="docutils literal notranslate"><span class="pre">frankes_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.compare_terrain"><code class="docutils literal notranslate"><span class="pre">compare_terrain()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html">Project 2</a></li>
@@ -82,12 +102,276 @@
 <h1>Project 1<a class="headerlink" href="#project-1" title="Link to this heading"></a></h1>
 <section id="regression-class">
 <h2>Regression class<a class="headerlink" href="#regression-class" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.Regression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">Regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression" title="Link to this definition"></a></dt>
+<dd><p>Regression class for Ordinary Least Square (<a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a>), Ridge,
+and Lasso (<a class="reference internal" href="#src.Regression.ridge_and_lasso" title="src.Regression.ridge_and_lasso"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ridge_and_lasso</span></code></a>) regression.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">x_data,</span> <span class="pre">y_data</span></span></dt>
+<dd><p>Data along the x and y axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.Regression.z_data">
+<span class="sig-name descname"><span class="pre">z_data</span></span><a class="headerlink" href="#src.Regression.z_data" title="Link to this definition"></a></dt>
+<dd><p>If the function describing the data is 2D, the z_data parameter describe
+the data along the z axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like, default: None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.Regression.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#src.Regression.name" title="Link to this definition"></a></dt>
+<dd><p>The name that will be the title of certain figures. If not set during
+initialization, the figname has to be set  when calling <a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">plot_evolution</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OLS</span></code></a>(n_poly[, identity_test, store_beta])</p></td>
+<td><p>Ordinary least square regression method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a>(max_degree, n_bootstraps)</p></td>
+<td><p>Compute OLS with a user defined number of bootstraps on the data and plot the evolution of the bias and variance as functions of the polynomial degree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.cross_validation" title="src.Regression.cross_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cross_validation</span></code></a>(n_kfolds[, best_deg_ols, ...])</p></td>
+<td><p>Calculate and plot the results from a k-fold cross validation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.Regression.plot_evolution" title="src.Regression.plot_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_evolution</span></code></a>(model[, figname, add_lasso, ...])</p></td>
+<td><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the values for the optimal parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.Regression.ridge_and_lasso" title="src.Regression.ridge_and_lasso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ridge_and_lasso</span></code></a>(lambda_min, lambda_max, ...)</p></td>
+<td><p>Perform Ridge and Lasso regression on the provided data.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </section>
 <section id="regression-methods">
 <h2>Regression methods<a class="headerlink" href="#regression-methods" title="Link to this heading"></a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.OLS">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">OLS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.OLS" title="Link to this definition"></a></dt>
+<dd><p>Ordinary least square regression method.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\tilde\beta &amp;= (X^TX)^{-1}X^Ty \\
+\tilde y &amp;= X\tilde\beta
+\end{align}\end{split}\]</div>
+<p>with a user-defined polynomial degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_poly</strong> (<em>int</em>) – Polynomial degree.</p></li>
+<li><p><strong>identity_test</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the method performs a test to see if the implementation is correct,
+ie. if the design matrix is the identity matrix, the mean square error should be 0.</p></li>
+<li><p><strong>store_beta</strong> (<em>bool</em><em>, </em><em>default: True</em>) – If the input data is large, there is a chance that the beta values will be large
+arrays. This parameter ensures the betas are not stored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>opt_deg</strong> (<em>int</em>) – The degree where the MSE of the test data is lowest.</p></li>
+<li><p><strong>beta_opt</strong> (<em>ndarray</em>) – The optimal parameters for the lowest MSE.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.ridge_and_lasso">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">ridge_and_lasso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.ridge_and_lasso" title="Link to this definition"></a></dt>
+<dd><p>Perform Ridge and Lasso regression on the provided data.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\hat\beta&amp;=(X^TX+\lambda\mathbb{I})^{-1}X^T y \\
+\tilde y&amp;=X\hat\beta
+\end{align}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lambda_min</strong> (<em>float</em>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>lambda_max</strong> (<em>float</em>) – Lowest/highest value for <span class="math notranslate nohighlight">\(\log_{10}\lambda\)</span>.</p></li>
+<li><p><strong>poly_deg</strong> (<em>int</em>) – Order of the polynomial to fit.</p></li>
+<li><p><strong>n_lambda</strong> (<em>int</em>) – Number of <span class="math notranslate nohighlight">\(\lambda\)</span>-elements to compute.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ridge_lasso_poly_deg</strong> (<em>int</em>) – The polynomial degree used for the regression.</p></li>
+<li><p><strong>beta_opt_ridge</strong> (<em>ndarray</em>) – The optimal parameter for the Ridge regression.</p></li>
+<li><p><strong>beta_opt_lasso</strong> (<em>ndarray</em>) – The optimal parameters for the Lasso regression.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.plot_evolution">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
+<dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
+values for the optimal parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>{'OLS'</em><em>, </em><em>'ridge'</em><em>, </em><em>'lasso'}</em>) – <p>Which model to use.</p>
+<ul>
+<li><p>’OLS’: The curves will be as functions of the polynomial degree.</p></li>
+<li><p>’ridge’ or ‘lasso’: The curves will be as functions of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>figname</strong> (<em>str</em>) – For saving the figure.</p></li>
+<li><p><strong>add_lasso</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Option to add the <cite>lasso</cite> model to the figure for <cite>ridge</cite>.
+If so, the figure will show only the MSE and R2 score for
+both models.</p></li>
+<li><p><strong>add_zoom</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the lowest MSE value and highest R2 score will
+be shown as zoomed in axis.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.bias_variance_tradeoff">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">bias_variance_tradeoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.bias_variance_tradeoff" title="Link to this definition"></a></dt>
+<dd><p>Compute OLS with a user defined number of bootstraps on the data
+and plot the evolution of the bias and variance as functions of
+the polynomial degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_degree</strong> (<em>int</em>) – Maximum polynomial degree to evalute the OLS for.</p></li>
+<li><p><strong>n_bootstraps</strong> (<em>int</em>) – The number of bootstrap resamples to perform.</p></li>
+<li><p><strong>data_dim</strong> (<em>int</em><em>, </em><em>default: 2</em>) – Dimension of the data the model is evaluated on.</p></li>
+<li><p><strong>beta_deg_ols</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – The optimal degree as computed by the <a class="reference internal" href="#src.Regression.OLS" title="src.Regression.OLS"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">OLS</span></code></a> method.
+If not given, the degree is assumed to be computed from
+the same code run as the present one.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>As the data traffic can be very large, the number of samples
+used to perform the regression should not be too big, as this
+can lead to the program being killed before completing.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.Regression.cross_validation">
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">cross_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_kfolds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tradeoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.cross_validation" title="Link to this definition"></a></dt>
+<dd><p>Calculate and plot the results from a k-fold cross validation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_kfolds</strong> (<em>int</em>) – The number of k-folds to concider.</p></li>
+<li><p><strong>best_deg_ols</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – See <a class="reference internal" href="#src.Regression.bias_variance_tradeoff" title="src.Regression.bias_variance_tradeoff"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">bias_variance_tradeoff</span></code></a></p></li>
+<li><p><strong>tradeoff</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – The degree where the bias-variance trade-off happens. If
+not set, the method assumes the degree has been computed
+during the present run.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.set_size">
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">set_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.set_size" title="Link to this definition"></a></dt>
+<dd><p>Set the size of a figure where the height/wifdth equals the golden ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>{'col'</em><em>, </em><em>'text'}</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – <p>Width of the figure in pt. Possible values:</p>
+<blockquote>
+<div><ul>
+<li><p>’col’ (default): 255.46837</p></li>
+<li><p>’text’ : 528.93675</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>default: 1.0</em>) – How to scale the height of the figure, ie. <code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale)</span></code></p></li>
+<li><p><strong>subplot</strong> (<em>tuple</em><em>, </em><em>default:</em><em> (</em><em>1</em><em>, </em><em>1</em><em>)</em>) – How to scale the figure size based on the number of subplots:
+<code class="docutils literal notranslate"><span class="pre">figsize=(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dimension of the figure, ie. <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height</span> <span class="pre">*</span> <span class="pre">scale</span> <span class="pre">*</span> <span class="pre">subplot[0]</span> <span class="pre">/</span> <span class="pre">subplot[1])</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The built-in values for <cite>width</cite> and <cite>height</cite> are the column width and text width
+in REVTeX document class. To obtain the appropriate values for your document,
+run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your dobument body.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.frankes_function">
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">frankes_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.frankes_function" title="Link to this definition"></a></dt>
+<dd><p>Franke’s function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array_like</em>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – The <cite>x</cite> and <cite>y</cite> values to evaluate the function on.</p></li>
+<li><p><strong>add_noise</strong> (<em>bool</em><em>, </em><em>default: True</em>) – Weather to add Gaussian noise <span class="math notranslate nohighlight">\(\epsilon\sim\mathcal N(+,\sigma^2)\)</span>
+to the data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resulting Franke’s function, with or without the noise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.compare_terrain">
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linspace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim_view_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
+<dd><p>Create a side-by-side comparison figure of model and terrain data.</p>
+<p>The figure will display both the maps and the surfaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
+<li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree that was used to create the <code class="docutils literal notranslate"><span class="pre">opt_param</span></code>.</p></li>
+<li><p><strong>opt_param</strong> (<em>array_like</em>) – The optimal parameters for the regression model.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples that was used to compute the model.</p></li>
+<li><p><strong>reg_model</strong> (<em>str</em>) – Regression model, used to set the figure title.</p></li>
+<li><p><strong>model_points</strong> (<em>int</em><em>, </em><em>default: 100</em>) – The number of elements between 0 and 1 to create the mesh grid
+that the model elevatioin figure will be plotted on.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 

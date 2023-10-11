@@ -8,6 +8,7 @@
 import sys 
 import os 
 sys.path.insert(0, os.path.abspath('../../project1')) # Add here any underlying folders!
+sys.path.insert(0, os.path.abspath('../../project1/props')) # Add here any underlying folders!
 project = 'FYS-STK4155'
 copyright = '2023, Johan Carlsen'
 author = 'Johan Carlsen'
