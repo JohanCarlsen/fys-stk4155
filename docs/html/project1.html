@@ -62,10 +62,21 @@
 <li class="toctree-l3"><a class="reference internal" href="#src.Regression.cross_validation"><code class="docutils literal notranslate"><span class="pre">Regression.cross_validation()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#calculation-module">Calculation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#calc.Calculate"><code class="docutils literal notranslate"><span class="pre">Calculate</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#calc.Calculate.R2_score"><code class="docutils literal notranslate"><span class="pre">Calculate.R2_score()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#calc.Calculate.Ridge"><code class="docutils literal notranslate"><span class="pre">Calculate.Ridge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#calc.Calculate.create_X"><code class="docutils literal notranslate"><span class="pre">Calculate.create_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#calc.Calculate.mean_sq_err"><code class="docutils literal notranslate"><span class="pre">Calculate.mean_sq_err()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#calc.Calculate.ord_least_sq"><code class="docutils literal notranslate"><span class="pre">Calculate.ord_least_sq()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#src.set_size"><code class="docutils literal notranslate"><span class="pre">set_size()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.frankes_function"><code class="docutils literal notranslate"><span class="pre">frankes_function()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.compare_terrain"><code class="docutils literal notranslate"><span class="pre">compare_terrain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.compare_surface"><code class="docutils literal notranslate"><span class="pre">compare_surface()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -279,7 +290,7 @@ can lead to the program being killed before completing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.cross_validation">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">cross_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_kfolds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tradeoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.cross_validation" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">cross_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_kfolds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_deg_ols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tradeoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.cross_validation" title="Link to this definition"></a></dt>
 <dd><p>Calculate and plot the results from a k-fold cross validation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -289,9 +300,147 @@ can lead to the program being killed before completing.</p>
 <li><p><strong>tradeoff</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – The degree where the bias-variance trade-off happens. If
 not set, the method assumes the degree has been computed
 during the present run.</p></li>
+<li><p><strong>add_zoom</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> , a zoomed in axis will display the location
+where the best model, i.e. eihter Lasso or Ridge has its
+lowest MSE.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="calculation-module">
+<h2>Calculation module<a class="headerlink" href="#calculation-module" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="calc.Calculate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">calc.</span></span><span class="sig-name descname"><span class="pre">Calculate</span></span><a class="headerlink" href="#calc.Calculate" title="Link to this definition"></a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#calc.Calculate.R2_score" title="calc.Calculate.R2_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">R2_score</span></code></a>(y, ytilde)</p></td>
+<td><p>R2 score.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#calc.Calculate.Ridge" title="calc.Calculate.Ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ridge</span></code></a>(X, y, lamb[, X_test])</p></td>
+<td><p>Ridge regression,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#calc.Calculate.create_X" title="calc.Calculate.create_X"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_X</span></code></a>(x, y, poly_deg[, include_ones])</p></td>
+<td><p>Create a design matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#calc.Calculate.mean_sq_err" title="calc.Calculate.mean_sq_err"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_sq_err</span></code></a>(y, ytilde)</p></td>
+<td><p>Mean squared error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#calc.Calculate.ord_least_sq" title="calc.Calculate.ord_least_sq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ord_least_sq</span></code></a>(X, y[, X_test])</p></td>
+<td><p>Ordinary least square method.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="calc.Calculate.R2_score">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">R2_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytilde</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.R2_score" title="Link to this definition"></a></dt>
+<dd><p>R2 score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>ndarray</em>) – See: <a class="reference internal" href="#calc.Calculate.mean_sq_err" title="calc.Calculate.mean_sq_err"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">mean_sq_err</span></code></a></p></li>
+<li><p><strong>ytilde</strong> (<em>ndarray</em>) – See: <a class="reference internal" href="#calc.Calculate.mean_sq_err" title="calc.Calculate.mean_sq_err"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">mean_sq_err</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>r2score</strong> – The R2 score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="calc.Calculate.Ridge">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.Ridge" title="Link to this definition"></a></dt>
+<dd><p>Ridge regression,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – See: <a class="reference internal" href="#calc.Calculate.ord_least_sq" title="calc.Calculate.ord_least_sq"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ord_least_sq</span></code></a></p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – See: <a class="reference internal" href="#calc.Calculate.ord_least_sq" title="calc.Calculate.ord_least_sq"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ord_least_sq</span></code></a></p></li>
+<li><p><strong>X_test</strong> (<em>ndarray</em>) – See: <a class="reference internal" href="#calc.Calculate.ord_least_sq" title="calc.Calculate.ord_least_sq"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ord_least_sq</span></code></a></p></li>
+<li><p><strong>lamb</strong> (<em>float</em>) – Regularization parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>beta, ytilde, ypred</strong> – See: <a class="reference internal" href="#calc.Calculate.ord_least_sq" title="calc.Calculate.ord_least_sq"><code class="xref any py py-meth docutils literal notranslate"><span class="pre">ord_least_sq</span></code></a></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="calc.Calculate.create_X">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_X</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ones</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.create_X" title="Link to this definition"></a></dt>
+<dd><p>Create a design matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Points along the x-axis.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – Points along the y-axis.</p></li>
+<li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>X</strong> – The created design matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="calc.Calculate.mean_sq_err">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean_sq_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytilde</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.mean_sq_err" title="Link to this definition"></a></dt>
+<dd><p>Mean squared error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>ndarray</em>) – Data points (observed).</p></li>
+<li><p><strong>ytilde</strong> (<em>ndarray</em>) – Data points (model).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The mean squared error.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="calc.Calculate.ord_least_sq">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ord_least_sq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.ord_least_sq" title="Link to this definition"></a></dt>
+<dd><p>Ordinary least square method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – Design matrix.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – Data points to use for OLS.</p></li>
+<li><p><strong>X_test</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – Test data to use the model on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>beta</strong> (<em>ndarray</em>) – The optimal parameters.</p></li>
+<li><p><strong>ytilde</strong> (<em>ndarray</em>) – The optimal data from the model.</p></li>
+<li><p><strong>ypred</strong> (<em>ndarray</em>) – If <code class="docutils literal notranslate"><span class="pre">X_test</span></code> is set, the model will be tested on the test
+data, and <code class="docutils literal notranslate"><span class="pre">ypred</span></code> will be returned.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -353,21 +502,31 @@ to the data.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.compare_terrain">
-<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_terrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linspace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terrain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim_view_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_terrain" title="Link to this definition"></a></dt>
-<dd><p>Create a side-by-side comparison figure of model and terrain data.</p>
+<dt class="sig sig-object py" id="src.compare_surface">
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linspace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim_view_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_surface" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Create a side-by-side comparison figure of model and surface data.</p>
 <p>The figure will display both the maps and the surfaces.</p>
-<dl class="field-list simple">
+</div></blockquote>
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>terrain</strong> (<em>ndarray</em>) – An <cite>NxN</cite> matrix holding the terrain data.</p></li>
-<li><p><strong>poly_deg</strong> (<em>int</em>) – Polynomial degree that was used to create the <code class="docutils literal notranslate"><span class="pre">opt_param</span></code>.</p></li>
-<li><p><strong>opt_param</strong> (<em>array_like</em>) – The optimal parameters for the regression model.</p></li>
-<li><p><strong>n_samples</strong> (<em>int</em>) – The number of samples that was used to compute the model.</p></li>
-<li><p><strong>reg_model</strong> (<em>str</em>) – Regression model, used to set the figure title.</p></li>
-<li><p><strong>model_points</strong> (<em>int</em><em>, </em><em>default: 100</em>) – The number of elements between 0 and 1 to create the mesh grid
-that the model elevatioin figure will be plotted on.</p></li>
-</ul>
+<dd class="field-odd"><dl>
+<dt><strong>linspace</strong><span class="classifier">ndarray</span></dt><dd><blockquote>
+<div><p>A <code class="docutils literal notranslate"><span class="pre">np.linspace</span></code> instance that will be used to create the mesh
+grid.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>poly_deg<span class="classifier">int</span></dt><dd><p>Polynomial degree to use for the regression.</p>
+</dd>
+<dt>surface<span class="classifier">array_like</span></dt><dd><p>The true surface.</p>
+</dd>
+<dt>reg_model<span class="classifier">{‘OLS’, ‘Ridge’}, str</span></dt><dd><p>Regression model to be used. Available are OLS and Ridge.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>azim_view_init</strong><span class="classifier">int, default: 45</span></dt><dd><p>The azimuthal angle to view the 3D surface from.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

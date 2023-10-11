@@ -739,7 +739,7 @@ class Regression:
         fig.savefig('figures/' + filename + '.png')
         fig.savefig('figures/' + filename + '.pdf')
 
-    def cross_validation(self, n_kfolds, best_deg_ols=None, tradeoff=None):
+    def cross_validation(self, n_kfolds, best_deg_ols=None, tradeoff=None, add_zoom=False):
         r'''
         Calculate and plot the results from a k-fold cross validation.
 
@@ -755,6 +755,11 @@ class Regression:
             The degree where the bias-variance trade-off happens. If 
             not set, the method assumes the degree has been computed 
             during the present run.
+        
+        add_zoom : bool, default: False
+            If ``True`` , a zoomed in axis will display the location
+            where the best model, i.e. eihter Lasso or Ridge has its 
+            lowest MSE. 
         '''
         X, y = self.X, self.y_data
         X = StandardScaler().fit(X).transform(X)
@@ -775,11 +780,11 @@ class Regression:
             lambdas = np.logspace(-3.5, -1.5, n_lambda)
         
         else:
-            n_poly = 20
+            n_poly = 16
             poly_deg = 17
             n_lambda = 100
-            lambdas = np.logspace(-2, 12, n_lambda)
-
+            lambdas = np.logspace(-2, 2, n_lambda)
+        poly_deg = tradeoff
         degrees = np.arange(1, n_poly+1)
 
         scores_OLS = np.zeros((n_poly, n_kfolds))
@@ -1026,32 +1031,29 @@ def frankes_function(x, y, add_noise=True):
     else:
         return res
     
-def compare_terrain(linspace, poly_deg, terrain, reg_model, azim_view_init=45):
+def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
     r'''
-    Create a side-by-side comparison figure of model and terrain data.
+    Create a side-by-side comparison figure of model and surface data.
 
     The figure will display both the maps and the surfaces.
 
     Parameters
     ----------
-    terrain : ndarray
-        An `NxN` matrix holding the terrain data.
+    linspace : ndarray
+        A ``np.linspace`` instance that will be used to create the mesh
+        grid.
     
     poly_deg : int
-        Polynomial degree that was used to create the ``opt_param``.
+        Polynomial degree to use for the regression.
     
-    opt_param : array_like
-        The optimal parameters for the regression model.
+    surface : array_like
+        The true surface.
     
-    n_samples : int
-        The number of samples that was used to compute the model.
+    reg_model : {'OLS', 'Ridge'}, str
+        Regression model to be used. Available are OLS and Ridge.
     
-    reg_model : str
-        Regression model, used to set the figure title.
-    
-    model_points : int, default: 100
-        The number of elements between 0 and 1 to create the mesh grid
-        that the model elevatioin figure will be plotted on. 
+   azim_view_init : int, default: 45
+        The azimuthal angle to view the 3D surface from. 
     '''
     name = reg_model + f'-compare-terrain-{poly_deg}'
     path = 'figures/' + name
@@ -1066,17 +1068,8 @@ def compare_terrain(linspace, poly_deg, terrain, reg_model, azim_view_init=45):
     X, Y = np.meshgrid(x, y)
 
     feature = Calculate.create_X(X, Y, poly_deg)
-    beta, ytilde, _ = mod(feature, terrain.ravel())
+    beta, ytilde, _ = mod(feature, surface.ravel())
     ytilde = ytilde.reshape(N, N)
-
-    # if reg_model == 'OLS':
-    #     model = np.rot90(model)
-    
-    # if reg_model == 'Ridge' and poly_deg > 6:
-    #     model = np.rot90(model)
-
-    # model = (model - np.min(model)) / (np.max(model - np.min(model)))
-    # terrain = (terrain - np.min(terrain)) / (np.max(terrain - np.min(terrain)))
 
     fig = plt.figure(figsize=set_size('text', subplot=(2, 1), scale=0.65))
     fig.subplots_adjust(wspace=0.3, hspace=0.4)
@@ -1092,7 +1085,7 @@ def compare_terrain(linspace, poly_deg, terrain, reg_model, azim_view_init=45):
 
     ax4 = fig.add_subplot(2, 2, 4, projection='3d')
     ax4.plot_surface(
-        X, Y, terrain,
+        X, Y, surface,
         linewidth=0,
         antialiased=False,
         cmap='terrain',
@@ -1109,7 +1102,7 @@ def compare_terrain(linspace, poly_deg, terrain, reg_model, azim_view_init=45):
     fig.suptitle(title, fontsize=10)
 
     im1 = ax1.imshow(ytilde, cmap='terrain')
-    im2 = ax2.imshow(terrain, cmap='terrain')
+    im2 = ax2.imshow(surface, cmap='terrain')
     ims = [im1, im2]
 
     label1 = ''

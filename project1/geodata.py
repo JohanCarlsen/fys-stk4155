@@ -3,7 +3,7 @@ from imageio import imread
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm, colors
-from src import Regression, set_size, compare_terrain
+from src import Regression, set_size, compare_surface
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 # Load the terrain
@@ -31,25 +31,11 @@ reg = Regression(x, y, terrain[x, y], 'geodata')
 # reg.plot_evolution('ridge')
 # reg.plot_evolution('lasso')
 # reg.bias_variance_tradeoff(max_degree=18, n_bootstraps=100)
-# reg.cross_validation(n_kfolds=10, tradeoff=15)
+# reg.cross_validation(n_kfolds=10, tradeoff=15, add_zoom=True)
 
-N = n_samples
-_x = np.linspace(0, 1, N)
-_y = np.linspace(0, 1, N)
-# X, Y = np.meshgrid(_x, _y)
+linspace = np.linspace(0, 1, n_samples)
 
-# feature = reg.calculate.create_X(X, Y, 15)
-
-# beta, ytilde, __ = reg.calculate.ord_least_sq(feature, terrain.ravel())
-# ytilde = ytilde.reshape(N, N)
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=set_size('text'), subplot_kw={'projection': '3d'})
-# ax1.plot_surface(X, Y, ytilde, linewidth=0, antialiased=False, cmap='terrain')
-# ax2.plot_surface(X, Y, terrain, linewidth=0, antialiased=False, cmap='terrain')
-
-compare_terrain(_x, 15, terrain, reg_model='OLS')
-# compare_terrain(terrain, ols_p, ols_beta, n_samples=n_samples, reg_model='OLS')
-# compare_terrain(terrain, ridge_lasso_p, ridge_beta, n_samples=n_samples, reg_model='Ridge')
-# compare_terrain(terrain, ridge_lasso_p, lasso_beta, n_samples=n_samples, reg_model='Lasso')
+compare_surface(linspace, 15, terrain, reg_model='OLS')
 
 
 # # Show the terrain

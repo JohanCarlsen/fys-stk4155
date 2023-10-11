@@ -19,6 +19,12 @@ Regression methods
 
 .. automethod:: src.Regression.cross_validation
 
+Calculation module
+------------------
+
+.. autoclass:: calc.Calculate
+    :members:
+
 Functions
 ---------
 
@@ -26,4 +32,4 @@ Functions
 
 .. autofunction:: src.frankes_function
 
-.. autofunction:: src.compare_terrain
+.. autofunction:: src.compare_surface
