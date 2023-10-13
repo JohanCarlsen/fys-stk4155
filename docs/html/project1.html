@@ -239,7 +239,7 @@ arrays. This parameter ensures the betas are not stored.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Regression.plot_evolution">
-<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Regression.</span></span><span class="sig-name descname"><span class="pre">plot_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lasso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.Regression.plot_evolution" title="Link to this definition"></a></dt>
 <dd><p>Plot the evolution of the Mean Squared Error (MSE), R2 score, and the
 values for the optimal parameters.</p>
 <dl class="field-list simple">
@@ -257,6 +257,9 @@ If so, the figure will show only the MSE and R2 score for
 both models.</p></li>
 <li><p><strong>add_zoom</strong> (<em>bool</em><em>, </em><em>default: False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the lowest MSE value and highest R2 score will
 be shown as zoomed in axis.</p></li>
+<li><p><strong>scale_down</strong> (<em>bool</em><em>, </em><em>default: False</em>) – The figure may be quite high relative to its width, so the
+setting this option to <code class="docutils literal notranslate"><span class="pre">True</span></code> will scale the height by
+75 percent.</p></li>
 </ul>
 </dd>
 </dl>
@@ -476,7 +479,7 @@ data, and <code class="docutils literal notranslate"><span class="pre">ypred</sp
 <p class="rubric">Notes</p>
 <p>The built-in values for <cite>width</cite> and <cite>height</cite> are the column width and text width
 in REVTeX document class. To obtain the appropriate values for your document,
-run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your dobument body.</p>
+run the commands <code class="docutils literal notranslate"><span class="pre">\the\columnwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">\the\textwidth</span></code> in your document body.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -503,7 +506,7 @@ to the data.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.compare_surface">
-<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linspace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim_view_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_surface" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.</span></span><span class="sig-name descname"><span class="pre">compare_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linspace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim_view_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'terrain'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.compare_surface" title="Link to this definition"></a></dt>
 <dd><blockquote>
 <div><p>Create a side-by-side comparison figure of model and surface data.</p>
 <p>The figure will display both the maps and the surfaces.</p>
@@ -524,7 +527,13 @@ grid.</p>
 </dd>
 </dl>
 </dd>
-<dt><strong>azim_view_init</strong><span class="classifier">int, default: 45</span></dt><dd><p>The azimuthal angle to view the 3D surface from.</p>
+<dt><strong>azim_view_init</strong><span class="classifier">int, default: 45</span></dt><dd><blockquote>
+<div><p>The azimuthal angle to view the 3D surface from.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>cmap<span class="classifier">str, default: ‘terrain’</span></dt><dd><p>Colormap to use when plotting.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd>

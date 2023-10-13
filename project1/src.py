@@ -3,7 +3,7 @@ sys.path.append('props')
 import numpy as np 
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+from matplotlib import cm, gridspec
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.metrics import mean_squared_error as MSE, r2_score as R2
@@ -66,7 +66,7 @@ def set_size(width='col', scale=1.0, subplot=(1, 1)):
     -----
         The built-in values for `width` and `height` are the column width and text width
         in REVTeX document class. To obtain the appropriate values for your document, 
-        run the commands ``\the\columnwidth`` and ``\the\textwidth`` in your dobument body.
+        run the commands ``\the\columnwidth`` and ``\the\textwidth`` in your document body.
     '''
     widths = {
         'col': 255.46837,
@@ -107,8 +107,11 @@ class Regression:
 
     def __init__(self, x_data, y_data, z_data=None, name=None):
         self.figname = name
+
+        # Setting the Calculate class as a property of Regression
         self.calculate = Calculate()
 
+        # Likely to be removed as data is 2D
         if z_data is None:
             self.X = x_data
             self.y_data = y_data
@@ -122,6 +125,9 @@ class Regression:
             tot_data_points = len(z_data)
         
         print(f'\nLoaded with {tot_data_points} data points.')
+
+        # Split the data into train and test, and scale by subtracting
+        # the mean and divide by the standard deviation.
         self.X_train_unscaled, self.X_test_unscaled, self.y_train, self.y_test = train_test_split(self.X, self.y_data, test_size=0.2)
 
         scaler = StandardScaler()
@@ -165,6 +171,7 @@ class Regression:
         max_polys = int((n_poly + 1) * (n_poly + 2) / 2)
         self.store_beta = store_beta
 
+        # Should return 0.
         if identity_test:
             X = np.eye(len(self.X))
             beta = np.linalg.inv(X.T @ X) @ X.T @ self.y_data
@@ -388,7 +395,7 @@ class Regression:
 
         return self.ridge_lasso_poly_deg, beta_opt_ridge, beta_opt_lasso
 
-    def plot_evolution(self, model, figname=None, add_lasso=True, add_zoom=False):
+    def plot_evolution(self, model, figname=None, add_lasso=True, add_zoom=False, scale_down=False):
         r'''
         Plot the evolution of the Mean Squared Error (MSE), R2 score, and the 
         values for the optimal parameters.
@@ -412,6 +419,11 @@ class Regression:
         add_zoom : bool, default: False
             If ``True``, the lowest MSE value and highest R2 score will
             be shown as zoomed in axis.
+        
+        scale_down : bool, default: False
+            The figure may be quite high relative to its width, so the
+            setting this option to ``True`` will scale the height by 
+            75 percent.
         '''
         if self.figname is None: 
             self.figname = figname
@@ -432,10 +444,11 @@ class Regression:
             r2_train_lasso, r2_test_lasso = self.r2_lasso_train, self.r2_lasso_test
             beta_lasso = self.beta_lasso
 
-            x_label = r'$\log_{10}\,\lambda$'
+            scale = 0.75 if scale_down else 1.0
 
-            fig, ax = plt.subplots(1, 2, figsize=set_size('text'))
-            fig.suptitle(f'Polynomial degree: {self.ridge_lasso_poly_deg}')
+            x_label = r'$\log_{10}\,\lambda$'
+            fig, ax = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1),scale=scale), sharex=True)
+            ax[0].set_title(f'Polynomial degree: {self.ridge_lasso_poly_deg}')
 
             ax[0].plot(x, mse_test, 'r', label='Ridge test')
             ax[0].plot(x, mse_train, 'r--', label='Ridge train')
@@ -448,14 +461,14 @@ class Regression:
             ax[1].plot(x, r2_train, 'r--', label='Ridge train')
             ax[1].plot(x, r2_test_lasso, 'b', label='Lasso test')
             ax[1].plot(x, r2_train_lasso, 'b--', label='Lasso train')
-            ax[1].text(1.15, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
-            ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
+            ax[1].set_ylabel('R2 score')
+            ax[1].set_xlabel(x_label)
             ax[1].legend(ncol=2, loc='lower left')
 
-            has_min_mse = np.any(mse_test < mse_test[0])# * 0.99)
-            has_min_mse_lasso = np.any(mse_test_lasso < mse_test_lasso[0])# * 0.99)
-            has_max_r2 = np.any(r2_test > r2_test[0])# * 1.01)
-            has_max_r2_lasso = np.any(r2_test_lasso > r2_test_lasso[0])# * 1.01)
+            has_min_mse = np.any(mse_test < mse_test[0])
+            has_min_mse_lasso = np.any(mse_test_lasso < mse_test_lasso[0])
+            has_max_r2 = np.any(r2_test > r2_test[0])
+            has_max_r2_lasso = np.any(r2_test_lasso > r2_test_lasso[0])
 
             mse_cond = [has_min_mse, has_min_mse_lasso]
             r2_cond = [has_max_r2, has_max_r2_lasso]
@@ -536,7 +549,6 @@ class Regression:
                 if not np.any([mse_cond, r2_cond]):
                     print('\nRequested zoom but the best score is the first value.')
 
-            fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
             fig.savefig('figures/' + model + '_lasso_' + self.figname + '.pdf')
             fig.savefig('figures/' + model + '_lasso_' + self.figname + '.png')
@@ -559,8 +571,7 @@ class Regression:
             title = f'Lasso, polynomial degree: {self.ridge_lasso_poly_deg}'
         
         if model == 'OLS' and not self.store_beta:
-            fig, ax = plt.subplots(1, 2, figsize=set_size())
-            fig.suptitle(title, fontsize=8)
+            fig, ax = plt.subplots(2, 1, figsize=set_size(subplot=(2, 1)), sharex=True)
 
             ax[0].plot(x, mse_test, 'r', label='Test')
             ax[0].plot(x, mse_train, 'r--', label='Train')
@@ -569,36 +580,35 @@ class Regression:
 
             ax[1].plot(x, r2_test, 'b', label='Test')
             ax[1].plot(x, r2_train, 'b--', label='Train')
-            ax[1].text(1.25, 0.5, 'R2 score', transform=ax[1].transAxes, rotation=270, va='center')
-            ax[1].yaxis.set_tick_params(which='both', left=False, labelleft=False, right=True, labelright=True)
+            ax[1].set_ylabel('R2 Score')
+            ax[1].set_xlabel(x_label)
             ax[1].legend()
 
-            fig.supxlabel(x_label, fontsize=8)
             fig.tight_layout()
             fig.savefig('figures/' + model + '_' + self.figname + '.pdf')
             fig.savefig('figures/' + model + '_' + self.figname + '.png')
 
         else:
-            grid_spec = dict(hspace=0, height_ratios=[1, 1, 0, 2])
-            fig, ax = plt.subplots(4, 1, figsize=set_size(subplot=(2, 1)), gridspec_kw=grid_spec)
-            ax[0].set_title(title)
+            grid_spec = dict(hspace=0.2, height_ratios=[0.5, 0.5, 0, 1])
+            fig, ax = plt.subplots(4, 1, figsize=set_size( subplot=(2, 1), scale=0.75), gridspec_kw=grid_spec)
 
             line1, = ax[0].plot(x, mse_test, color='red', label='Test')
             line2, = ax[0].plot(x, mse_train, color='black', label='Train')
             ax[0].set_ylabel('MSE')
-            ax[0].xaxis.set_tick_params(which='both', top=True, labeltop=True, bottom=True, labelbottom=False)
+            ax[0].xaxis.set_tick_params(which='both', top=False, labeltop=False, bottom=True, labelbottom=False)
 
             ax[1].plot(x, r2_test, color='red', label='Test')
             ax[1].plot(x, r2_train, color='black', label='Train')
             ax[1].set_ylabel('R2 score')
-            ax[1].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=False)
+            ax[1].xaxis.set_tick_params(top=False, labeltop=False, bottom=True, labelbottom=False)
 
             ax[2].set_visible(False)
 
             if model == 'OLS':
 
                 for i in range(len(beta[:, 0])):
-                    ax[3].scatter(x, beta[:, i], s=2, label=r'$\beta$' + f'$_{i+1}$')
+                    label = r'$\beta$' + f'$_{i+1}$'
+                    ax[3].scatter(x, beta[:, i], s=2, label=label)
                 
                 if not figname == 'test' and beta.shape[0] < 5:
                     ax[3].legend(ncol=2)
@@ -606,17 +616,14 @@ class Regression:
             elif model =='ridge' or model == 'lasso':
 
                 for i in range(len(beta[0, :])):
-                    ax[3].scatter(x, beta[:, i], s=2)
+                    label = r'$\beta$' + f'$_{i+1}$'
+                    ax[3].plot(x, beta[:, i], label=label)
 
             ax[3].set_ylabel(r'$\beta_i$ value')
-            ax[3].xaxis.set_tick_params(top=True, labeltop=False, bottom=True, labelbottom=True)
+            ax[3].xaxis.set_tick_params(top=False, labeltop=False, bottom=True, labelbottom=True)
             ax[3].set_xlabel(x_label)
 
-            # if not self.figname == 'geodata':
-            #     ax[3].set_ylim(-0.75, 1.25)
-
-            fig.legend(handles=[line1, line2], bbox_to_anchor=(0.75, 0.9))
-            fig.tight_layout()
+            fig.legend(handles=[line1, line2], bbox_to_anchor=(0.5, 0.81), loc='center')
             fig.savefig('figures/' + model + '_' + self.figname + '.pdf')
             fig.savefig('figures/' + model + '_' + self.figname + '.png')
     
@@ -775,15 +782,14 @@ class Regression:
 
         if self.figname == 'geodata':
             n_poly = 21
-            poly_deg = 15
             n_lambda = 75
             lambdas = np.logspace(-3.5, -1.5, n_lambda)
         
         else:
             n_poly = 16
-            poly_deg = 17
-            n_lambda = 100
-            lambdas = np.logspace(-2, 2, n_lambda)
+            n_lambda = 75
+            lambdas = np.logspace(-6, 3, n_lambda)
+
         poly_deg = tradeoff
         degrees = np.arange(1, n_poly+1)
 
@@ -1031,7 +1037,7 @@ def frankes_function(x, y, add_noise=True):
     else:
         return res
     
-def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
+def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45, cmap='terrain'):
     r'''
     Create a side-by-side comparison figure of model and surface data.
 
@@ -1054,15 +1060,30 @@ def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
     
    azim_view_init : int, default: 45
         The azimuthal angle to view the 3D surface from. 
+    
+    cmap : str, default: 'terrain'
+        Colormap to use when plotting.
     '''
-    name = reg_model + f'-compare-terrain-{poly_deg}'
-    path = 'figures/' + name
-    N = len(linspace)
-
     mods = {'OLS': Calculate.ord_least_sq,
             'Ridge': Calculate.Ridge
            }
-    mod = mods[reg_model]
+
+    path = 'figures/'
+
+    if len(reg_model.split(' ')) > 1:
+        figname, modname = reg_model.split(' ')
+        name = modname
+        mod = mods[modname]
+        path += figname
+    
+    else: 
+        name = reg_model
+        mod = mods[reg_model]
+
+    name += f'-compare-terrain-{poly_deg}'
+    path += name
+    N = len(linspace)
+
     x = linspace 
     y = linspace 
     X, Y = np.meshgrid(x, y)
@@ -1078,7 +1099,7 @@ def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
     ax3.plot_surface(X, Y, ytilde,
         linewidth=0,
         antialiased=False,
-        cmap='terrain'
+        cmap=cmap
     )
 
     ax3.view_init(azim=azim_view_init)
@@ -1088,21 +1109,19 @@ def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
         X, Y, surface,
         linewidth=0,
         antialiased=False,
-        cmap='terrain',
+        cmap=cmap,
     )
 
     ax4.view_init(azim=azim_view_init)
-        
+
     ax1 = fig.add_subplot(2, 2, 1)
     ax2 = fig.add_subplot(2, 2, 2)
-
-    axes = (ax1, ax2)
 
     title = reg_model + f', polynomial degree {poly_deg}'
     fig.suptitle(title, fontsize=10)
 
-    im1 = ax1.imshow(ytilde, cmap='terrain')
-    im2 = ax2.imshow(surface, cmap='terrain')
+    im1 = ax1.imshow(ytilde, cmap=cmap)
+    im2 = ax2.imshow(surface, cmap=cmap)
     ims = [im1, im2]
 
     label1 = ''
@@ -1110,58 +1129,21 @@ def compare_surface(linspace, poly_deg, surface, reg_model, azim_view_init=45):
     labels = [label1, label2]
 
     ax1.set_title('Model')
-    ax3.set_title('Model')
     ax1.set_xlabel(r'$x$')
-    ax1.set_ylabel(r'$y$')    
+    ax1.set_ylabel(r'$y$')
     ax3.set_xlabel(r'$x$')
     ax3.set_ylabel(r'$y$')    
     ax3.set_zlabel(r'$z$')
     ax2.set_title('Terrain data')
-    ax4.set_title('Terrain data')
-    ax2.set_xlabel(r'$x$ [arcsec]')
-    ax2.set_ylabel(r'$y$ [arcsec]')
-    ax4.set_xlabel(r'$x$ [arcsec]')
-    ax4.set_ylabel(r'$y$ [arcsec]')
+    ax2.set_xlabel(r'$x$')
+    ax2.set_ylabel(r'$y$')
+    ax4.set_xlabel(r'$x$')
+    ax4.set_ylabel(r'$y$')
     ax4.set_zlabel(r'$z$')
 
     axes = [ax1, ax2, ax3, ax4]
-    fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[:2], label='Normalized elevation')
-    fig.colorbar(im2, pad=0.075, shrink=1, aspect=25, ax=axes[2:], label='Normalized elevation')
+    fig.colorbar(im2, pad=0.05, aspect=25, ax=axes[:2], label='Normalized elevation')
+    fig.colorbar(im2, pad=0.05, aspect=25, ax=axes[2:], label='Normalized elevation')
 
     fig.savefig(path + '.png')
     fig.savefig(path + '.pdf')
-
-if __name__ == '__main__':
-    np.random.seed(2018)
-    n = 40
-    x = np.linspace(-3, 3, n).reshape(-1, 1)
-    y = np.exp(-x**2) + 1.5 * np.exp(-(x - 2)**2) + np.random.normal(0, 0.1, x.shape)
-
-    fit = Regression(x, y)
-    fit.OLS(20, identity_test=True)
-    fit.plot_evolution('OLS', 'test')
-    fit.bias_variance_tradeoff(max_degree=13, n_bootstraps=100, data_dim=1)
-    plt.show()
-
-    fig = plt.figure(figsize=set_size('text'))
-    ax = fig.add_subplot(projection="3d")
-
-    x = np.arange(0, 1, 0.05)
-    y = np.arange(0, 1, 0.05)
-    X, Y = np.meshgrid(x,y)
-    z = frankes_function(X, Y, add_noise=False)
-
-    # Plot the surface.
-    surf = ax.plot_surface(X, Y, z, cmap=cm.coolwarm,
-                        linewidth=0, antialiased=False)
-
-    # Customize the z axis.
-    ax.set_zlim(-0.10, 1.40)
-    ax.zaxis.set_major_locator(LinearLocator(10))
-    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-
-    # Add a color bar which maps values to colors.
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    fig.savefig('figures/franke-surface.png')
-    fig.savefig('figures/franke-surface.pdf')
-    plt.show()
