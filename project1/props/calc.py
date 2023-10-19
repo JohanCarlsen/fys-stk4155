@@ -2,7 +2,7 @@ import numpy as np
 
 class Calculate:
     @staticmethod
-    def create_X(x, y, poly_deg, include_ones=True):
+    def create_X(x, y=None, poly_deg=3, include_ones=True):
         r'''
         Create a design matrix.
 
@@ -22,21 +22,32 @@ class Calculate:
         X : ndarray
             The created design matrix.
         '''
-        if len(x.shape) > 1:
-            x = x.ravel()
-            y = y.ravel()
-        
         N = len(x)
         n = poly_deg
-        l = int((n+1) * (n+2) / 2)
-        X = np.ones((N, l))
 
-        for i in range(1, n+1):
-            q = int((i * (i+1) / 2))
-            for k in range(i+1):
-                X[:, q+k] = (x**(i-k) * y**k)
-        
-        return X if include_ones else X[:, 1:]
+
+        if y is None:
+
+            X = np.ones((N, n+1))
+            for i in range(1, n+1):
+                X[:, i] = (x**i).ravel()
+                
+            return X 
+
+        else:
+            if len(x.shape) > 1:
+                x = x.ravel()
+                y = y.ravel()
+            
+            l = int((n+1) * (n+2) / 2)
+            X = np.ones((N, l))
+
+            for i in range(1, n+1):
+                q = int((i * (i+1) / 2))
+                for k in range(i+1):
+                    X[:, q+k] = (x**(i-k) * y**k)
+            
+            return X if include_ones else X[:, 1:]
 
     @staticmethod
     def ord_least_sq(X, y, X_test=None):
