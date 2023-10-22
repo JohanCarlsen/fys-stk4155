@@ -7,6 +7,9 @@ from autograd import grad
 from numpy import random
 import matplotlib.pyplot as plt 
 import warnings
+from sklearn.model_selection import train_test_split
+from alive_progress import alive_bar
+import pandas as pd
 
 # import seaborn as sns 
 # sns.set_theme()
@@ -16,13 +19,16 @@ random.seed(2023)
 class RegressionAnalysis:
 
     def __init__(self, X, y):
-        self.X, self.y = X, y
+        self.split(X, y)
 
         self.n, self.p = X.shape
         self.calculate_mse = calc.mean_sq_err
 
         self.valid_optimizers = ['AdaGrad', 'RMSprop', 'ADAM']
         self.valid_grad_descents = ['GD', 'SGD']
+    
+    def split(self, X, y):
+        self.X, self.X_test, self.y, self.y_test = train_test_split(X, y, test_size=0.2)
         
     def set_gradient(self, autograd=False, **kwargs):
         def grad_ols(n, X, y, beta, *arg):
@@ -126,19 +132,23 @@ class RegressionAnalysis:
             while i < m:
                 self.iter += 1
                 gradient = self.grad_func(n, X, y, self.beta, lamb)
-                self.beta -= eta * gradient 
                 self.momentum(gradient, eta, momentum)
                 self.optimizer(gradient, eta)
 
-                ypred = self.X @ self.beta 
-                mse = self.calculate_mse(self.y, ypred)
+                ypred = self.X_test @ self.beta 
+                mse = self.calculate_mse(self.y_test, ypred)
                 
                 if mse < self.best_mse:
                     self.best_mse = mse
+                    self.best_beta = self.beta
                     self.params.update({'eta': eta})
                     self.ypred = ypred
                     self.params['n_iterations'] = n_iter
                     self.params['momentum'] = momentum
+                    self.counter = 0
+                
+                else:
+                    self.counter += 1
             
                 i += 1
                 n_iter += 1
@@ -152,6 +162,7 @@ class RegressionAnalysis:
                     self.first_moment = 0.0
                     self.second_moment = 0.0
                     self.iter = 0
+                    self.counter = 0
 
                     if self.params['gradient-descent'] == 'GD':
                         m = max_iter
@@ -164,25 +175,24 @@ class RegressionAnalysis:
 
                         for epoch in range(n_epochs):
                             descent(m, stochastic=True, M=M)
+                    
+                    if self.counter >= self.patience:
+                        break
         
         self.params.update({'mse': self.best_mse})
     
     def set_momentum(self):
-
-        if self.params.get('momentum') is None:
-            self.momentum = lambda x, y, z: None 
-        
-        else:
-            self.momentum = momentun()
-        
         def momentum(gradient, eta, momentum):
             new_change = eta * gradient + momentum * self.change
             self.beta -= new_change
             self.change = new_change
+
+        self.momentum = momentum        
     
-    def set_params(self, method, gradient_descent, optimizer=None, **params):
+    def set_params(self, method, gradient_descent, patience=1000, optimizer=None, **params):
         self.best_mse = np.inf
         self.solver = self.gradient_descent
+        self.patience = patience
 
         self.params = {'method': method,
                        'gradient-descent': gradient_descent,
@@ -201,6 +211,9 @@ class RegressionAnalysis:
         
         if momentum is None:
             self.mom = [0]
+        
+        elif isinstance(momentum, float):
+            self.mom = [momentum]
         
         else:
             self.mom = momentum
@@ -236,49 +249,96 @@ n = int(1e2)
 x = np.linspace(-4, 4, n)[:, np.newaxis]
 y_true = test_func(x)
 y = y_true + random.normal(0, 1, x.shape)
-
 X = calc.create_X(x, poly_deg=3)
+mean = np.mean(X, axis=0)
+std = np.std(X, axis=0)
+X = ((X - mean) / std)[:, 1:]
+
 optimizer = 'ADAM'
-title = f'Optimizer: {optimizer}\n'
-fig = plt.figure(figsize=(8,6))
-plt.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
-plt.plot(x, y_true, color='blue', ls='dotted', label='True')
+
+grads = ['GD', 'SGD']
+etas = np.logspace(-5, -2, 4)
+moms = np.arange(0, 1, 0.1)
+epochs = np.logspace(2, 4, 4, dtype=np.int32)
+batch_sizes = np.arange(5, n+1, 5)
+tot = len(epochs) * len(batch_sizes) * len(grads)
+
+df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate'])
+df_sgd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
+                               'Epoch', 'Batch-size'])
 
 reg = RegressionAnalysis(X, y)
-reg.set_params(method='OLS', gradient_descent='GD', optimizer=optimizer, max_iter=int(1e4))
 
-eta = np.logspace(-5, -2, 4)
-mom = [None] + list(np.linspace(0.1, 0.9, 9))
+with alive_bar(tot, title='Processing...', length=20) as bar:
+    for grad in grads:
+        for epoch in epochs:
+            for batch in batch_sizes:
+                reg.set_params(method=grad, gradient_descent=grad,
+                               optimizer='ADAM', n_epochs=epoch,
+                               minibatch_size=batch,
+                               max_iter=epoch)
+                
+                reg.set_hyper_params(learning_rate=etas, momentum=moms)
+                reg.run()
+                beta = reg.best_beta
+                ypred = X @ beta 
+                mse = reg.calculate_mse(y, ypred)
+                momentum = reg.params['momentum']
+                eta = reg.params['eta']
 
-reg.set_hyper_params(learning_rate=1e-3, momentum=mom)
-reg.run()
-print(reg.params)
-title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
-plt.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
+                if grad == 'OLS':
+                    df_gd = df_gd.update({'MSE': mse, 'Momentum': momentum,
+                                          'Learning-rate': eta},
+                                          ignore_index=True)
+                
+                else:
+                    epoch = reg.params['n_iterations']
+                    df_sgd = df_sgd.update({'MSE': mse, 'Momentum': momentum,
+                                            'Learning-rate': eta, 'Epoch': epoch,
+                                            'Batch-size': batch},
+                                            ignore_index=True)
+                bar()
 
-reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
-reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-reg.run()
-print(reg.params)
-title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
-plt.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
+df_gd.to_csv('OLS-GD.csv', index=False)
+df_sgd.to_csv('OLS-SGD.csv', index=False)
 
-reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-reg.set_hyper_params(learning_rate=eta, momentum=mom)
-reg.run()
-plt.plot(x, reg.ypred, color='magenta', label='OLS SGD')
-print(reg.params)
-title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
+# title = f'Optimizer: {optimizer}\n'
+# fig, ax = plt.subplots()
+# ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
+# ax.plot(x, y_true, color='blue', ls='dotted', label='True')
 
-reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-reg.run()
-plt.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
-print(reg.params)
-title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
+# reg = RegressionAnalysis(X, y)
+# reg.set_params(method='OLS', gradient_descent='GD', optimizer=optimizer, max_iter=int(1e4))
 
-fig.tight_layout()
-plt.xlabel(r'$x$')
-plt.ylabel(r'$y$')
-plt.legend()
+# reg.set_hyper_params(learning_rate=1e-3, momentum=mom)
+# reg.run()
+# print(reg.params)
+# title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
+# ax.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
+
+# reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
+# reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
+# reg.run()
+# print(reg.params)
+# title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
+# ax.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
+
+# reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+# reg.set_hyper_params(learning_rate=eta, momentum=mom)
+# reg.run()
+# ax.plot(x, reg.ypred, color='magenta', label='OLS SGD')
+# print(reg.params)
+# title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
+
+# reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+# reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
+# reg.run()
+# ax.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
+# print(reg.params)
+# title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
+
+# fig.tight_layout()
+# ax.set_xlabel(r'$x$')
+# ax.set_ylabel(r'$y$')
+# ax.legend()
 plt.show()

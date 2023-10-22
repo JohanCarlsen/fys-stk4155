@@ -69,24 +69,42 @@ class NeuralNetwork:
         
     def create_biases_and_weights(self, random_weights):
         def Xavier_weights(size_in, size_out):
+            r'''
+            Xavier/Glorot weights initialization. Helps aviod the 
+            vanishing gradient problem. Suited for sigmoid and 
+            hyperbolic activation functions.
+            '''
             std = np.sqrt(2 / (size_in + size_out))
             weights = random.normal(0, std, size=(size_in, size_out))
 
             return weights
         
         def He_weights(size_in, size_out):
+            r'''
+            He weights initialization. Helps avoid dead nodes and 
+            exploding gradients in deep networks. Suited for ReLU 
+            activation functions.
+            '''
             std = np.sqrt(2 / size_in)
             weights = random.normal(0, std, size=(size_in, size_out))
 
             return weights 
         
         def LeCun_weights(size_in, size_out):
+            r'''
+            LeCun weights initialization. Good for activation functions 
+            with varying slopes. Suited for Leaky ReLU activation 
+            functions.
+            '''
             std = np.sqrt(1 / size_in)
             weights = random.normal(0, std, size=(size_in, size_out))
 
             return weights
         
         def rand_weights(size_in, size_out):
+            r'''
+            Randomized weights initialization. 
+            '''
             return random.randn(size_in, size_out)
         
         weight_funcs = {'sigmoid': Xavier_weights,
