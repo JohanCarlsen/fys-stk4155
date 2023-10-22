@@ -3,11 +3,15 @@ import os
 sys.path.insert(0, '../project1/props')
 from calc import Calculate as calc
 import autograd.numpy as np 
+from autograd import grad
+from numpy import random
 import matplotlib.pyplot as plt 
-import seaborn as sns 
-sns.set_theme()
+import warnings
 
-np.random.seed(2023)
+# import seaborn as sns 
+# sns.set_theme()
+warnings.filterwarnings('ignore')
+random.seed(2023)
 
 class RegressionAnalysis:
 
@@ -20,18 +24,34 @@ class RegressionAnalysis:
         self.valid_optimizers = ['AdaGrad', 'RMSprop', 'ADAM']
         self.valid_grad_descents = ['GD', 'SGD']
         
-    def set_gradient(self):
-        def grad_ols(n, X, y, *arg):
-            return (2 / n) * X.T @ (X @ self.beta - y)
+    def set_gradient(self, autograd=False, **kwargs):
+        def grad_ols(n, X, y, beta, *arg):
+            return (2 / n) * X.T @ (X @ beta - y)
         
-        def grad_ridge(n, X, y, lamb):
-            return 2 * (X.T @ (X @ self.beta - y) + lamb * self.beta)
+        def grad_ridge(n, X, y, beta, lamb):
+            return 2 * (X.T @ (X @ beta - y) + lamb * beta)
+        
+        def cost_ols(n, X, y, beta, *arg):
+            return (1.0 / n) * np.sum((y - X @ beta)**2)
+        
+        def cost_ridge(n, X, y, beta, lamb):
+            return (1.0 / n) * np.sum((y - X @ beta)**2) + lamb * np.sum(np.abs(beta))
 
         if self.params.get('method') == 'OLS':
-            self.grad_func = grad_ols
+            if autograd:
+                autograd_ols = grad(cost_ols, 3)
+                self.grad_func = autograd_ols
+            
+            else:                
+                self.grad_func = grad_ols
         
         else: 
-            self.grad_func = grad_ridge
+            if autograd:
+                autograd_ridge = grad(cost_ridge, 3)
+                self.grad_func = autograd_ridge
+            
+            else:
+                self.grad_func = grad_ridge
     
     def set_optimizer(self):
 
@@ -97,7 +117,7 @@ class RegressionAnalysis:
                 n_iter = i
             
             else:
-                rand_ind = np.random.randint(m)
+                rand_ind = random.randint(m)
                 X = self.X[rand_ind:rand_ind + M]
                 y = self.y[rand_ind:rand_ind + M]
                 n = M
@@ -105,7 +125,7 @@ class RegressionAnalysis:
 
             while i < m:
                 self.iter += 1
-                gradient = self.grad_func(n, X, y, lamb)
+                gradient = self.grad_func(n, X, y, self.beta, lamb)
                 self.beta -= eta * gradient 
                 self.momentum(gradient, eta, momentum)
                 self.optimizer(gradient, eta)
@@ -128,7 +148,7 @@ class RegressionAnalysis:
                 for eta in self.eta:
                     self.change = 0.0
                     self.G_outer = np.zeros((self.p, self.p))
-                    self.beta = np.random.randn(self.p, 1)
+                    self.beta = random.randn(self.p, 1)
                     self.first_moment = 0.0
                     self.second_moment = 0.0
                     self.iter = 0
@@ -144,9 +164,6 @@ class RegressionAnalysis:
 
                         for epoch in range(n_epochs):
                             descent(m, stochastic=True, M=M)
-
-                    if self.params['n_iterations'] == 0:
-                        self.params['n_iterations'] = i
         
         self.params.update({'mse': self.best_mse})
     
@@ -172,7 +189,7 @@ class RegressionAnalysis:
                        'optimizer': optimizer}
         
         self.params.update(params)
-        self.set_gradient()
+        self.set_gradient(**params)
         self.set_optimizer()
     
     def set_hyper_params(self, learning_rate, momentum=None, **hyperparams):
@@ -218,7 +235,7 @@ def test_func(x):
 n = int(1e2)
 x = np.linspace(-4, 4, n)[:, np.newaxis]
 y_true = test_func(x)
-y = y_true + np.random.normal(0, 1, x.shape)
+y = y_true + random.normal(0, 1, x.shape)
 
 X = calc.create_X(x, poly_deg=3)
 optimizer = 'ADAM'
@@ -240,28 +257,27 @@ title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
 plt.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
 
 reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
-reg.set_hyper_params(learning_rate=eta, lamb=1e-3)
+reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
 reg.run()
 print(reg.params)
 title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
 plt.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
 
-reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(1e4), minibatch_size=10)
-reg.set_hyper_params(learning_rate=eta)
+reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+reg.set_hyper_params(learning_rate=eta, momentum=mom)
 reg.run()
 plt.plot(x, reg.ypred, color='magenta', label='OLS SGD')
 print(reg.params)
 title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
 
-reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(1e3), minibatch_size=10)
-reg.set_hyper_params(learning_rate=eta, lamb=1e-3)
+reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
 reg.run()
 plt.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
 print(reg.params)
 title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
 
 fig.tight_layout()
-plt.title(title)
 plt.xlabel(r'$x$')
 plt.ylabel(r'$y$')
 plt.legend()
