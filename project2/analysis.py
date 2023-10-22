@@ -10,6 +10,7 @@ import warnings
 from sklearn.model_selection import train_test_split
 from alive_progress import alive_bar
 import pandas as pd
+from itertools import product
 
 # import seaborn as sns 
 # sns.set_theme()
@@ -144,7 +145,7 @@ class RegressionAnalysis:
                     self.params.update({'eta': eta})
                     self.ypred = ypred
                     self.params['n_iterations'] = n_iter
-                    self.params['momentum'] = momentum
+                    self.params.update({'momentum': momentum})
                     self.counter = 0
                 
                 else:
@@ -261,43 +262,48 @@ etas = np.logspace(-5, -2, 4)
 moms = np.arange(0, 1, 0.1)
 epochs = np.logspace(2, 4, 4, dtype=np.int32)
 batch_sizes = np.arange(5, n+1, 5)
+
+params = product(grads, epochs, batch_sizes)
 tot = len(epochs) * len(batch_sizes) * len(grads)
 
-df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate'])
+df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
+                              'Iterations'])
 df_sgd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
-                               'Epoch', 'Batch-size'])
+                               'Iterations', 'Epoch', 'Batch-size'])
 
 reg = RegressionAnalysis(X, y)
 
 with alive_bar(tot, title='Processing...', length=20) as bar:
-    for grad in grads:
-        for epoch in epochs:
-            for batch in batch_sizes:
-                reg.set_params(method=grad, gradient_descent=grad,
-                               optimizer='ADAM', n_epochs=epoch,
-                               minibatch_size=batch,
-                               max_iter=epoch)
-                
-                reg.set_hyper_params(learning_rate=etas, momentum=moms)
-                reg.run()
-                beta = reg.best_beta
-                ypred = X @ beta 
-                mse = reg.calculate_mse(y, ypred)
-                momentum = reg.params['momentum']
-                eta = reg.params['eta']
+    for grad, epoch, batch in params:
 
-                if grad == 'OLS':
-                    df_gd = df_gd.update({'MSE': mse, 'Momentum': momentum,
-                                          'Learning-rate': eta},
-                                          ignore_index=True)
+        reg.set_params(method='OLS', gradient_descent=grad,
+                        optimizer='ADAM', n_epochs=epoch,
+                        minibatch_size=batch,
+                        max_iter=epoch)
                 
-                else:
-                    epoch = reg.params['n_iterations']
-                    df_sgd = df_sgd.update({'MSE': mse, 'Momentum': momentum,
-                                            'Learning-rate': eta, 'Epoch': epoch,
-                                            'Batch-size': batch},
-                                            ignore_index=True)
-                bar()
+        reg.set_hyper_params(learning_rate=etas, momentum=moms)
+        reg.run()
+        beta = reg.best_beta
+        ypred = X @ beta 
+        mse = reg.calculate_mse(y, ypred)
+        iters = reg.params.get('n_iterations')
+        mom = reg.params.get('momentum')
+        eta = reg.params.get('eta')
+
+
+        if grad == 'GD':
+            df_gd = df_gd.append({'MSE': mse, 'Momentum': mom,
+                                  'Learning-rate': eta,
+                                  'Iterations': iters},
+                                  ignore_index=True)
+        
+        else:
+            df_sgd = df_sgd.append({'MSE': mse, 'Momentum': mom,
+                                    'Learning-rate': eta,
+                                    'Iterations': iters, 'Epoch': epoch,
+                                    'Batch-size': batch},
+                                    ignore_index=True)
+        bar()
 
 df_gd.to_csv('OLS-GD.csv', index=False)
 df_sgd.to_csv('OLS-SGD.csv', index=False)

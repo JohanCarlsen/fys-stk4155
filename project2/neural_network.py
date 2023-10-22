@@ -321,8 +321,8 @@ def test_func(x):
     a_1 = 2
     a_2 = -5
     a_3 = 3
-    # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
-    f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
+    f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
+    # f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
 
     return f
 
@@ -338,12 +338,12 @@ activation=['sigmoid', 'relu', 'lrelu']
 NN = NeuralNetwork(X_train, y_train, X_val=X_test, y_val=y_test,
                 n_epochs=int(1e4), batch_size=5, n_hidden_layers=2,
                 n_hidden_neurons=15, centered_data=False,
-                activation='tanh', learning_rate=1e-4, lamb=1e-3)
-NN2 = NeuralNetwork(X_train, y_train, X_val=X_test, y_val=y_test,
-                n_epochs=int(1e4), batch_size=5, n_hidden_layers=2,
-                n_hidden_neurons=15, centered_data=False,
-                activation='tanh', learning_rate=1e-4, lamb=1e-3,
-                random_weights=True)
+                activation='lrelu', learning_rate=1e-5, lamb=1e-2)
+# NN2 = NeuralNetwork(X_train, y_train, X_val=X_test, y_val=y_test,
+#                 n_epochs=int(1e4), batch_size=5, n_hidden_layers=2,
+#                 n_hidden_neurons=15, centered_data=False,
+#                 activation='tanh', learning_rate=1e-4, lamb=1e-3,
+#                 random_weights=True)
 # fig, axes = plt.subplots(3, 1, figsize=(8,7), sharex=True)
 # fig.suptitle('Batch size: 5 | Hidden: 2 | Neurons: 15')
 # axes[2].set_xlabel(r'$x$')
@@ -369,20 +369,21 @@ NN2 = NeuralNetwork(X_train, y_train, X_val=X_test, y_val=y_test,
 # ypred = NN.predict(X_test)
 # print(mse)
 NN.train()
-NN2.train()
+# NN2.train()
 ypred = NN.predict(X)
 mse = np.mean((ypred - y)**2)
 
 fig, ax = plt.subplots()
 # ax.set_title(f'FFNN MSE: {mse:.3f}, activation: lrelu')
-ax.set_title('Relative error')
-# ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
-# ax.plot(x, y_true, color='black', ls='dotted', label='True')
-abserr = np.abs(y_true - ypred) / np.abs(y_true)
-ax.plot(x, abserr, color='red', ls='solid', label='FFNN Xavier/Golorot weights')
-ypred = NN2.predict(X)
-abserr = np.abs(y_true - ypred) / np.abs(y_true)
-ax.plot(x, abserr, color='blue', ls='dashed', label='FFNN Random weights')
+# ax.set_title('Relative error')
+ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
+ax.plot(x, ypred, color='red', ls='dashdot', label='FNN')
+ax.plot(x, y_true, color='black', ls='dotted', label='True')
+# abserr = np.abs(y_true - ypred) / np.abs(y_true)
+# ax.plot(x, abserr, color='red', ls='solid', label='FFNN Xavier/Golorot weights')
+# ypred = NN2.predict(X)
+# abserr = np.abs(y_true - ypred) / np.abs(y_true)
+# ax.plot(x, abserr, color='blue', ls='dashed', label='FFNN Random weights')
 ax.set_xlabel(r'$x$')
 ax.set_ylabel(r'$y$')
 ax.legend()
