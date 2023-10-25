@@ -32,7 +32,7 @@ class Calculate:
             for i in range(1, n+1):
                 X[:, i] = (x**i).ravel()
                 
-            return X 
+            # return X
 
         else:
             if len(x.shape) > 1:
@@ -47,7 +47,7 @@ class Calculate:
                 for k in range(i+1):
                     X[:, q+k] = (x**(i-k) * y**k)
             
-            return X if include_ones else X[:, 1:]
+        return X if include_ones else X[:, 1:]
 
     @staticmethod
     def ord_least_sq(X, y, X_test=None):
