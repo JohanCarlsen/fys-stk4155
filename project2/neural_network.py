@@ -1,289 +1,327 @@
+import autograd.numpy as np 
+from autograd import grad, elementwise_grad
+from sklearn.model_selection import train_test_split
+from copy import copy
+import matplotlib.pyplot as plt 
+from alive_progress import alive_bar
+import seaborn as sns 
 import sys
 import os 
 sys.path.insert(0, '../project1/props')
 from calc import Calculate as calc
-import autograd.numpy as np 
-from autograd import grad
-# from numpy import random
-import matplotlib.pyplot as plt 
-import warnings
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPRegressor 
-import seaborn as sns 
-from alive_progress import alive_bar
-from itertools import product
-from matplotlib.ticker import FormatStrFormatter
 
 sns.set_theme()
-# warnings.filterwarnings('ignore')
 np.random.seed(2023)
 
-class NeuralNetwork:
+class Solvers:
+    def __init__(self, eta):
+        self.eta = eta 
+    
+    def update_change(self, gradient):
+        raise NotImplementedError
+    
+    def reset(self):
+        pass 
 
-    def __init__(self, input_size, hidden_sizes=[1], output_size=1, 
-                 activation='sigmoid', epochs=int(1e4),
-                 batch_size=80,  eta=1e-4, alpha=1e-3,
-                 random_weights=False, cost='mse',
-                 output_activation='linear', **kwargs):
+class Constant(Solvers):
+    def __init__(self, eta):
+        super().__init__(eta)
+
+    def update_change(self, gradient):
+        return self.eta * gradient 
+    
+    def reset(self):
+        pass 
+
+class ADAM(Solvers):
+
+    def __init__(self, eta, rho1=0.9, rho2=0.999):
+        super().__init__(eta)
+        self.rho1 = rho1 
+        self.rho2 = rho2
+        self.moment = 0
+        self.second = 0
+        self.n_epochs = 1
+
+    def update_change(self, gradient):
+        delta = 1e-8
+
+        self.moment = self.rho1 * self.moment \
+                    + (1 - self.rho1) * gradient 
         
-        self.input_size = input_size
+        self.second = self.rho2 * self.second \
+                    + (1 - self.rho2) * gradient * gradient 
+        
+        moment_corrected = self.moment / (1 - self.rho1**self.n_epochs)
+        second_corrected = self.second / (1 - self.rho2**self.n_epochs)
+
+        return self.eta * moment_corrected / (np.sqrt(second_corrected + delta))
+    
+    def reset(self):
+        self.n_epochs += 1
+        self.moment = 0 
+        self.second = 0
+
+class CostFunctions:
+    def __init__(self):
+        pass 
+
+    def loss(self, y_true, y_pred):
+        raise NotImplementedError
+    
+    def gradient(self, y_true, y_pred):
+        raise NotImplementedError
+    
+class MeanSquaredError(CostFunctions):
+    def loss(y_true, y_pred):
+        return 0.5 * np.mean((y_true - y_pred)**2)
+    
+    def gradient(y_true, y_pred):
+        return y_pred - y_true
+
+class CrossEntropy(CostFunctions):
+    def loss(y_true, y_pred):
+        delta = 1e-10
+        return -np.mean(y_true * np.log(y_pred + delta))
+    
+    def gradien(y_true, y_pred):
+        delta = 1e-10
+        return -y_true / (y_pred + delta)
+
+class Activations:
+    def __init__(self):
+        pass
+
+    def function(self, x):
+        raise NotImplementedError
+
+    def derivative(self, x):
+        raise NotImplementedError
+
+class Linear(Activations):
+    def function(x):
+        return x
+
+    def derivative(x):
+        return 1
+
+class Sigmoid(Activations):
+    def function(x):
+        return 1 / (1 + np.exp(-x))
+
+    def derivative(x):
+        return Sigmoid.function(x) * (1 - Sigmoid.function(x))
+
+class ReLU(Activations):
+    def function(x):
+        return np.maximum(0, x)
+
+    def derivative(x):
+        return np.where(x > 0, 1, 0)
+
+class LeakyReLU(Activations):
+    def function(x):
+        alpha = 0.01  
+        return np.where(x > 0, x, alpha * x)
+
+    def derivative(x):
+        alpha = 0.01
+        return np.where(x > 0, 1, alpha)
+
+class Softmax(Activations):
+    def function(x):
+        exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+        return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+
+    def derivative(x):
+        # The derivative of Softmax is a bit more complex and involves Jacobian matrix
+        raise NotImplementedError  # You may need to implement this specifically
+
+class WeightInitializers:
+    def __init__(self):
+        pass
+
+    def initialize(self, size_in, size_out):
+        raise NotImplementedError
+
+class XavierInitializer(WeightInitializers):
+    def initialize(size_in, size_out):
+        std = np.sqrt(2 / (size_in + size_out))
+        weights = np.random.normal(0, std, size=(size_in, size_out))
+        return weights
+
+class HeInitializer(WeightInitializers):
+    def initialize(size_in, size_out):
+        std = np.sqrt(2 / size_in)
+        weights = np.random.normal(0, std, size=(size_in, size_out))
+        return weights
+
+class LeCunInitializer(WeightInitializers):
+    def initialize(size_in, size_out):
+        std = np.sqrt(1 / size_in)
+        weights = np.random.normal(0, std, size=(size_in, size_out))
+        return weights
+
+class RandomInitializer(WeightInitializers):
+    def initialize(size_in, size_out):
+        return np.random.randn(size_in, size_out)
+    
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_sizes, output_size, eta, alpha,
+                 hidden_activation, output_activation, cost_function,
+                 epochs, batch_size, solver, random_weights=False):
+        
         self.layer_sizes = [input_size] + hidden_sizes + [output_size]
-        self.output_size = output_size
+        self.eta = eta 
+        self.alpha = alpha 
         self.epochs = epochs
         self.batch_size = batch_size
-        self.eta = eta
-        self.alpha = alpha
-        self.kwargs = kwargs
 
-        self.set_activation(activation, output_activation)
-        self.set_weights(activation, random_weights)
-        self.set_cost(cost)
+        if hidden_activation == 'sigmoid':
+            self.hidden_func = Sigmoid
+            self.weight_func = XavierInitializer
+        
+        elif hidden_activation == 'relu':
+            self.hidden_func = ReLU
+            self.weight_func = HeInitializer
 
-        self.optimal_weights = None
+        elif hidden_activation == 'lrelu':
+            self.hidden_func = LeakyReLU
+            self.weight_func = LeCunInitializer
 
-    def set_activation(self, activation, output_activation):
-        def sigmoid(x):
-            return 1 / (1 + np.exp(-x))
-    
-        def sigmoid_derivative(x):
-            return x * (1 - x)
-        
-        def ReLU(x):
-            f = np.where(x > 0, x, np.zeros(x.shape))
-            return f
-        
-        def ReLU_derivative(x):
-            f = np.where(x > 0, np.ones(x.shape), np.zeros(x.shape))
-            return f
-        
-        def leaky_ReLU(x):
-            f = np.where(x > 0, x, 1e-4 * x)
-            return f
-        
-        def leaky_ReLU_derivative(x):
-            f = np.where(x > 0, np.ones(x.shape), 1e-4 * np.ones(x.shape))
-            return f
-
-        def tanh(x):
-            return np.tanh(x)
-        
-        def tanh_derivative(x):
-            return 1 - np.tanh(x)**2
-        
-        activations = {'sigmoid': (sigmoid, sigmoid_derivative),
-                    'relu': (ReLU, ReLU_derivative),
-                    'lrelu': (leaky_ReLU, leaky_ReLU_derivative),
-                    'tanh': (tanh, tanh_derivative)}
-        
-        msg = f'Valid activation functions are {list(activations.keys())}'
-        assert activation in activations, msg
-
-        self.activation, self.activation_diff = activations[activation]
+        if random_weights:
+            self.weight_func = RandomInitializer
 
         if output_activation == 'linear':
-            self.output_activation = lambda x: x
-            self.output_activation_diff = lambda x: 1
-    
-    def set_weights(self, activation, random_weights=False):
-        def Xavier_weights(size_in, size_out):
-            r'''
-            Xavier/Glorot weights initialization. Helps aviod the 
-            vanishing gradient problem. Suited for sigmoid and 
-            hyperbolic activation functions.
-            '''
-            std = np.sqrt(2 / (size_in + size_out))
-            weights = np.random.normal(0, std, size=(size_in, size_out))
+            self.output_func = Linear
 
-            return weights
-        
-        def He_weights(size_in, size_out):
-            r'''
-            He weights initialization. Helps avoid dead nodes and 
-            exploding gradients in deep networks. Suited for ReLU 
-            activation functions.
-            '''
-            std = np.sqrt(2 / size_in)
-            weights = np.random.normal(0, std, size=(size_in, size_out))
+        if cost_function == 'mse':
+            self.cost_func = MeanSquaredError
 
-            return weights 
-        
-        def LeCun_weights(size_in, size_out):
-            r'''
-            LeCun weights initialization. Good for activation functions 
-            with varying slopes. Suited for Leaky ReLU activation 
-            functions.
-            '''
-            std = np.sqrt(1 / size_in)
-            weights = np.random.normal(0, std, size=(size_in, size_out))
+        if solver == 'adam':
+            self.solver = ADAM(self.eta)
 
-            return weights
-        
-        def rand_weights(size_in, size_out):
-            r'''
-            Randomized weights initialization. 
-            '''
-            return np.random.randn(size_in, size_out)
-        
-        weight_funcs = {'sigmoid': Xavier_weights,
-                       'tanh': Xavier_weights,
-                       'relu': He_weights,
-                       'lrelu': LeCun_weights}
-        
-        if random_weights:
-            init_weights = rand_weights
-        
-        else:
-            init_weights = weight_funcs[activation]
-        
+        self.create_weights_and_bias()
+
+    def create_weights_and_bias(self):
         self.weights = []
         self.bias = []
+
         for i in range(len(self.layer_sizes) - 1):
             input_size = self.layer_sizes[i]
             output_size = self.layer_sizes[i+1]
-            
-            weights = init_weights(input_size, output_size)
+
+            weights = self.weight_func.initialize(input_size, output_size)
             bias = np.ones((1, output_size)) * 0.01
+
             self.weights.append(weights)
             self.bias.append(bias)
-
-    def set_cost(self, cost):
-        def CostOLS(target):
-
-            def func(X):
-                return (1.0 / target.shape[0]) * np.sum((target - X)**2)
-            
-            return func
-    
-        if cost == 'mse': 
-            self.cost_func = CostOLS
-   
-    def feed_forward(self, X):
-        self.a = []
-        self.z = []
-
-        input_layer = X
-        self.a.append(input_layer)
-        self.z.append(input_layer)
+        
+        self.w_solver = []
+        self.b_solver = []
 
         for i in range(len(self.weights)):
-            if i < len(self.weights) - 1:
-                z = input_layer @ self.weights[i] + self.bias[i]
-                a = self.activation(z)
+            self.w_solver.append(copy(self.solver))
+            self.b_solver.append(copy(self.solver))
 
-                self.z.append(z)
-                self.a.append(a)
+    def _feed_forward(self, X):
+        self.a = [X]
+        self.z = [X]
+
+        input_layer = X 
+        for i in range(len(self.weights)):
+            z = (input_layer @ self.weights[i]) + self.bias[i]
+
+            if i < len(self.weights) - 1:
+                a = self.hidden_func.function(z)
             
             else:
-                try:
-                    z = input_layer @ self.weights[i]
-                    a = self.output_activation(z)
-                    self.z.append(z)
-                    self.a.append(a)
+                a = self.output_func.function(z)
 
-                except Exception as OverflowError:
-                    print('Overflow in fit()')
-            
+            self.z.append(z)
+            self.a.append(a)
             input_layer = a
-        
-        return input_layer
+
+        return a 
     
-    def backpropagate(self, X):
-        dOut = self.output_activation_diff
-        dHidden = self.activation_diff
+    def _backpropagate(self, X, y):
+        y_pred = self._feed_forward(X)
+        dOut = self.output_func.derivative
+        dCost = self.cost_func.gradient
+        dHidden = self.hidden_func.derivative
 
         for i in range(len(self.weights) - 1, -1, -1):
             if i == len(self.weights) - 1:
-                dCost = grad(self.cost_func(self.y_data))
-                delta = dOut(self.z[i+1]) * dCost(self.a[i+1])
+                delta = dOut(self.a[-1]) * dCost(y, y_pred)
 
             else:
-                delta = (self.weights[i+1] @ delta.T).T \
-                      * dHidden(self.z[i+1])
+                # print(dHidden(self.a[i+1]).shape)
+                delta = (delta @ self.weights[i+1].T) * dHidden(self.a[i+1])
 
-            w_grad = self.a[i].T @ delta
+            
+            w_grad = (self.a[i].T @ delta) + self.weights[i] * self.alpha
             b_grad = np.sum(delta, axis=0)
 
-            w_grad += self.weights[i] * self.alpha
+            w_change = self.w_solver[i].update_change(w_grad)
+            b_change = self.b_solver[i].update_change(b_grad)
 
-            self.weights[i] -= self.eta * w_grad
-            self.bias[i] -= self.eta * b_grad
-    
-    def fit(self, X, y, X_val=None, y_val=None, centered=False,
-            patience=200):
-        
-        if not centered:
-            mean = np.mean(X, axis=0)
-            std = np.std(X, axis=0)
+            self.weights[i] -= w_change
+            self.bias[i] -= b_change
 
-            self.X_data_full = (X - mean) / std
+    def predict(self, X):
+        y_pred = self._feed_forward(X)
 
-            has_validation = False
-            if not X_val is None and not y_val is None:
-                mean_val = np.mean(X_val, axis=0)
-                std_val = np.mean(X_val, axis=0)
+        return y_pred
 
-                self.X_val = (X_val - mean_val) / std_val
-                self.y_val = y_val
-                has_validation = True
-        
-        else:
-            self.X_data_full = X 
-            if not X_val is None and not y_val is None:
-                self.X_val = X_val 
-                self.y_val = y_val 
-                has_validation = True
-        
-        self.y_data_full = y
-
-        n = len(self.X_data_full)
+    def fit(self, X, y, X_val, y_val, tol=1e-4, patience=1000):
+        n = len(X)
         n_batches = int(np.ceil(n / self.batch_size))
         indices = np.arange(n)
         shuffled_inds = np.random.choice(indices, size=n, replace=False)
+        rand_inds = np.array_split(shuffled_inds, n_batches)
 
-        rand_inds = []
-        for idx in range(n_batches):
-            start = idx * self.batch_size
-            stop = (idx + 1) * self.batch_size
-            inds = shuffled_inds[start:stop]
-            rand_inds.append(inds)
-
-        best_mse = np.inf
+        best_loss = np.inf
+        best_weights = None 
+        best_bias = None
         counter = 0
 
         for i in range(self.epochs):
-            for inds in rand_inds:                
-                self.X_data = self.X_data_full[inds]
-                self.y_data = self.y_data_full[inds]
+            for inds in rand_inds:
+                xi = X[inds]
+                yi = y[inds]
 
-                self.feed_forward(self.X_data)
-                self.backpropagate(self.X_data)
+                self._backpropagate(xi, yi)
+                y_pred = self.predict(X_val)
+                loss = self.cost_func.loss(y_val, y_pred)
 
-                if has_validation:
-                    ypred = self.predict(self.X_val)
-                    mse = np.mean((self.y_val - ypred)**2)
-                    # print(mse)
-
-                else:
-                    mse = np.mean((self.y_data - self.z_o)**2)
-
-                if mse < best_mse:
-                    best_mse = mse 
-                    self.optimal_weights = self.weights
+                if loss < best_loss:
                     counter = 0
+                    if abs(loss - best_loss) <= tol:
+                        break
+
+                    # print(loss)
+
+                    best_loss = loss
+                    best_weights = self.weights
+                    best_bias = self.bias 
 
                 else:
                     counter += 1
                 
+            for w_solver, b_solver in zip(self.w_solver, self.b_solver):
+                w_solver.reset()
+                b_solver.reset()
+
             if counter >= patience:
-                self.weights = self.optimal_weights
-                print(f'Early stopping at epoch {i} with MSE: {best_mse:.3f}')
-                break 
-        
-        self.weights = self.optimal_weights
-                    
-    
-    def predict(self, X):
-        return self.feed_forward(X)
+                print(f'Early stopping at epoch {i} with loss: {best_loss}')
+                break            
+
+        if best_loss < np.inf:
+            self.weights = best_weights
+            self.bias = best_bias
+
+        else:
+            print('Loss did not improve.')
 
 
 def test_func(x):
@@ -291,22 +329,25 @@ def test_func(x):
     a_1 = 0.09
     a_2 = -0.3
     a_3 = 0.1
-    # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
-    f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
+    f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
+    # f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
 
     return f
 
-n = int(2e2)
+n = int(1e2)
 x = np.linspace(-4, 4, n)[:, np.newaxis]
 y_true = test_func(x)
-y = y_true + np.random.normal(0, 1, x.shape)
+# y_true = np.sin(x)
+y_true = (y_true - np.min(y_true)) / (np.max(y_true) - np.min(y_true))
+y = y_true + 0.1 * np.random.normal(0, 1, x.shape)
 
-X = calc.create_X(x, y, poly_deg=1, include_ones=False)
+X = calc.create_X(x, poly_deg=1, include_ones=False)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+X_train = (X_train - np.mean(X_train, axis=0)) / np.std(X_train, axis=0)
+X_test = (X_test - np.mean(X_test, axis=0)) / np.std(X_test, axis=0)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-alphas = np.logspace(-8, -5, 4)
-etas = np.logspace(-8, -5, 4)
+alphas = np.logspace(-5, -2, 4)
+etas = np.logspace(-6, -3, 4)
 alpha_labels = [f'{alphas[i]:.1e}' for i in range(len(alphas))]
 eta_labels = [f'{etas[i]:.1e}' for i in range(len(etas))]
 
@@ -324,11 +365,10 @@ with alive_bar(tot, length=20, title='Processing...') as bar:
             alpha = alphas[i]
             eta = etas[j]
 
-            NN = NeuralNetwork(2, [50], activation='relu', eta=eta,
-                               alpha=alpha, batch_size=60)
+            NN = NeuralNetwork(1, [50, 50], 1, eta, alpha, 'relu', 'linear', 'mse', int(1e4), 80, 'adam')
             NN.fit(X_train, y_train, X_test, y_test)
-            _ypred = NN.predict(X)
-            mse = np.mean((y - _ypred)**2)
+            _ypred = NN.predict(X_test)
+            mse = MeanSquaredError.loss(y_test, _ypred)
             if mse < best_mse:
                 best_mse = mse
                 best_alpha = alpha 
@@ -336,35 +376,31 @@ with alive_bar(tot, length=20, title='Processing...') as bar:
                 ypred = _ypred
 
             MSEs[i, j] = mse 
-
             bar()
-print(best_alpha, best_eta)
 
 fig, ax = plt.subplots()
-sns.heatmap(MSEs, annot=True, ax=ax, cmap='viridis', xticklabels=eta_labels,
-            yticklabels=alpha_labels)
+sns.heatmap(MSEs, annot=True, ax=ax, cmap='viridis', cbar_kws={'label': 'MSE'},
+            xticklabels=eta_labels, yticklabels=alpha_labels)
+
+ax.set_title('Test MSEs')
 ax.set_xlabel(r'$\eta$')
 ax.set_ylabel(r'$\alpha$')
-fig.tight_layout()
 
-# NN = NeuralNetwork(2, [100], activation='relu', eta=1e-8, alpha=1e-10)
-# NN.fit(X_train, y_train, X_test, y_test)
+NN = NeuralNetwork(1, [100, 100], 1, best_eta, best_alpha, 'relu', 'linear', 'mse', int(1e4), 80, 'adam')
+NN.fit(X_train, y_train, X_test, y_test)
+ypred = NN.predict(X)
+mse = MeanSquaredError.loss(y, ypred)
 
-# ypred = NN.predict(X)
-mse = np.mean((y - ypred)**2)
-print(mse)
-scikit = MLPRegressor(hidden_layer_sizes=(50), activation='relu', solver='sgd',
-                      alpha=1e-7, batch_size=60, learning_rate_init=1e-5, momentum=0)
-scikit.fit(X_train, y_train.ravel())
-ypred_scikit = scikit.predict(X)
-mse_scikit = np.mean((y - ypred_scikit)**2)
 fig, ax = plt.subplots()
-ax.set_title(f'MSE own: {mse:.2f} | MSE SciKit: {mse_scikit:.2f}')
-ax.scatter(x, y, color='black', s=1, label='Data', alpha=0.75)
+ax.set_title(f'MSE own: {mse:.2f}')
+# ax.scatter(x, y, color='black', s=2, label='Data', alpha=0.75)
 ax.plot(x, ypred, color='red', label='FNN')
-ax.plot(x, y_true, color='black', ls='dashdot', label='True')
-ax.plot(x, ypred_scikit, color='blue', ls='dashed', label='MPLSciKit')
+ax.plot(x, y_true, color='black', ls='dashed', label='Target')
 ax.set_xlabel(r'$x$')
 ax.set_ylabel(r'$y$')
 ax.legend()
 plt.show()
+
+
+    
+
