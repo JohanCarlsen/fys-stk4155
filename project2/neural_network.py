@@ -74,6 +74,7 @@ class CostFunctions:
     
 class MeanSquaredError(CostFunctions):
     def loss(y_true, y_pred):
+        # return 0.5 * np.sum((y_true - y_pred)**2)
         return 0.5 * np.mean((y_true - y_pred)**2)
     
     def gradient(y_true, y_pred):
@@ -212,7 +213,7 @@ class NeuralNetwork:
             output_size = self.layer_sizes[i+1]
 
             weights = self.weight_func.initialize(input_size, output_size)
-            bias = np.ones((1, output_size)) * 0.01
+            bias = np.zeros((1, output_size))
 
             self.weights.append(weights)
             self.bias.append(bias)
@@ -273,7 +274,7 @@ class NeuralNetwork:
 
         return y_pred
 
-    def fit(self, X, y, X_val, y_val, tol=1e-4, patience=1000):
+    def fit(self, X, y, X_val, y_val, tol=1e-4, patience=500):
         n = len(X)
         n_batches = int(np.ceil(n / self.batch_size))
         indices = np.arange(n)
@@ -329,8 +330,8 @@ def test_func(x):
     a_1 = 0.09
     a_2 = -0.3
     a_3 = 0.1
-    f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
-    # f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
+    # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
+    f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
 
     return f
 
@@ -341,10 +342,11 @@ y_true = test_func(x)
 y_true = (y_true - np.min(y_true)) / (np.max(y_true) - np.min(y_true))
 y = y_true + 0.1 * np.random.normal(0, 1, x.shape)
 
-X = calc.create_X(x, poly_deg=1, include_ones=False)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+X = x.copy()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 X_train = (X_train - np.mean(X_train, axis=0)) / np.std(X_train, axis=0)
 X_test = (X_test - np.mean(X_test, axis=0)) / np.std(X_test, axis=0)
+X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
 alphas = np.logspace(-5, -2, 4)
 etas = np.logspace(-6, -3, 4)
@@ -365,7 +367,7 @@ with alive_bar(tot, length=20, title='Processing...') as bar:
             alpha = alphas[i]
             eta = etas[j]
 
-            NN = NeuralNetwork(1, [50, 50], 1, eta, alpha, 'relu', 'linear', 'mse', int(1e4), 80, 'adam')
+            NN = NeuralNetwork(1, [100, 100], 1, eta, alpha, 'relu', 'linear', 'mse', int(1e4), 50, 'adam')
             NN.fit(X_train, y_train, X_test, y_test)
             _ypred = NN.predict(X_test)
             mse = MeanSquaredError.loss(y_test, _ypred)
@@ -386,14 +388,14 @@ ax.set_title('Test MSEs')
 ax.set_xlabel(r'$\eta$')
 ax.set_ylabel(r'$\alpha$')
 
-NN = NeuralNetwork(1, [100, 100], 1, best_eta, best_alpha, 'relu', 'linear', 'mse', int(1e4), 80, 'adam')
-NN.fit(X_train, y_train, X_test, y_test)
+# NN = NeuralNetwork(1, [100, 100], 1, best_eta, best_alpha, 'relu', 'linear', 'mse', int(1e4), 80, 'adam')
+# NN.fit(X_train, y_train, X_test, y_test)
 ypred = NN.predict(X)
 mse = MeanSquaredError.loss(y, ypred)
 
 fig, ax = plt.subplots()
-ax.set_title(f'MSE own: {mse:.2f}')
-# ax.scatter(x, y, color='black', s=2, label='Data', alpha=0.75)
+ax.set_title(f'MSE own: {mse:.2e}')
+ax.scatter(x, y, color='black', s=2, label='Data', alpha=0.75)
 ax.plot(x, ypred, color='red', label='FNN')
 ax.plot(x, y_true, color='black', ls='dashed', label='Target')
 ax.set_xlabel(r'$x$')
