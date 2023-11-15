@@ -82,6 +82,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html">Project 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project3.html">Project 3</a></li>
 </ul>
 
@@ -326,7 +327,7 @@ lowest MSE.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#calc.Calculate.Ridge" title="calc.Calculate.Ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ridge</span></code></a>(X, y, lamb[, X_test])</p></td>
 <td><p>Ridge regression,</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#calc.Calculate.create_X" title="calc.Calculate.create_X"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_X</span></code></a>(x, y, poly_deg[, include_ones])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#calc.Calculate.create_X" title="calc.Calculate.create_X"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_X</span></code></a>(x[, y, poly_deg, include_ones])</p></td>
 <td><p>Create a design matrix.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#calc.Calculate.mean_sq_err" title="calc.Calculate.mean_sq_err"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_sq_err</span></code></a>(y, ytilde)</p></td>
@@ -381,7 +382,7 @@ lowest MSE.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="calc.Calculate.create_X">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_X</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ones</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.create_X" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_X</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ones</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#calc.Calculate.create_X" title="Link to this definition"></a></dt>
 <dd><p>Create a design matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

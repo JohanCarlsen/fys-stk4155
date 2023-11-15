@@ -9,7 +9,7 @@ class NeuralNetwork:
     r'''
     Artificial neural network class for regression and classification.
 
-    Attributes
+    Parameters
     ----------
     input_size : int
         Nodes in the input layer.
@@ -40,7 +40,7 @@ class NeuralNetwork:
         Activation function for the output layer. If other than `linear`,
         classification is assumed.
 
-    cost_function : {'mse', 'cross', 'log'}
+    cost_function : {'mse', 'cross', 'log'}, str
         Cost or loss function. 
 
             * 'mse' : Mean squared error.
@@ -54,7 +54,7 @@ class NeuralNetwork:
         Minibatch size to use for stochastic gradient descent. If
         ``batch_size == n_datapoints``, regular gradient descent is used.
 
-    solver : {'adam', 'constant'}
+    solver : {'adam', 'constant'}, str
         Which optimizer to use. ADAM is the best. 
 
     random_weights : boolean, optional
@@ -95,9 +95,12 @@ class NeuralNetwork:
         if random_weights:
             self.weight_func = RandomInitializer
 
-        self.create_weights_and_bias()
+        self._create_weights_and_bias()
 
-    def create_weights_and_bias(self):
+    def _create_weights_and_bias(self):
+        r'''
+        Initialize the weights and biases for the layers. 
+        '''
         self.weights = []
         self.bias = []
 
@@ -119,6 +122,26 @@ class NeuralNetwork:
             self.b_solver.append(copy(self.solver))
 
     def _feed_forward(self, X):
+        r'''
+        Perform a feed-forward pass through the network.
+
+        Parameters
+        ----------
+        X : array_like 
+            Feature matrix. Must have shape ``(n_datapoints, input_size)``.
+
+        Returns
+        -------
+        a : array_like
+            The activation of the output layer.
+
+            .. math::
+                \begin{align}
+                    a^L=f(z^L),
+                \end{align}
+
+            where :math:`z^L` is the output of the last hidden layer.
+        '''
         self.a = [X]
         self.z = [X]
 
@@ -139,6 +162,21 @@ class NeuralNetwork:
         return a
     
     def _backpropagate(self, X, y):
+        r'''
+        Calculate the back-propagated error from a forward pass through
+        the network.
+
+        During training, the weights and biases are updated using their
+        respective gradients.
+
+        Parameters
+        ----------
+        X : array_like
+            The feature matrix.
+
+        y : array_like
+            Target values. 
+        '''
         y_pred = self._feed_forward(X)
         dOut = self.output_func.derivative
         dCost = grad(self.cost_func.loss, 1)
@@ -161,6 +199,26 @@ class NeuralNetwork:
             self.bias[i] -= b_change
 
     def predict(self, X, tol=0.5):
+        r'''
+        Predict the output of a given dataset.
+
+        Parameters
+        ----------
+        X : array_like
+            Feature matrix.
+
+        tol : float, optional
+            For (hard) classification, if any of the predicted values
+            are higher than `tol` (default: 0.5), return 1. Otherwise
+            return 0.
+
+        Returns
+        -------
+        array_like :
+            For regression problems, the predicted values are returned. 
+            For classification problems, 1 is returned for any values 
+            larger than `tol`, and 0 otherwise.
+        '''
         y_pred = self._feed_forward(X)
 
         if self.output_func == Linear:
@@ -171,6 +229,31 @@ class NeuralNetwork:
 
     def fit(self, X, y, X_val=None, y_val=None, tol=1e-4, patience=100,
             verbose=True):
+        r'''
+        Train the network with features and targets.
+
+        Parameters
+        ----------
+        X : array_like
+            Feature matrix.
+
+        y : array_like
+            Targets.
+
+        X_val, y_val : array_like, optional
+            If provided, the network will use them to test the score
+            after each iteration.
+
+        tol : float, optional
+            Tolerance of how much the score improves between iterations.
+
+        patience : int, optional
+            Controls how many iterations the network will perform with 
+            no improvement of the score.
+
+        verbose : boolean, optional
+            If ``True`` (default), outputs information during training.
+        '''
         
         has_val = False
 
@@ -231,6 +314,26 @@ class NeuralNetwork:
             print('Loss did not improve.')
 
     def calculate_score(self, y_true, y_pred):
+        r'''
+        Score metrics. R2 score for regression, accuracy
+        for classification.
+
+        Parameters
+        ----------
+        y_true : array_like
+            Target values.
+
+        y_pred : array_like
+            Predicted values.
+
+        Returns
+        -------
+        r2score : float
+            For regression.
+
+        accuracy : float
+            For classification.
+        '''
         if self.output_func == Linear:
             ymean = np.mean(y_true)
             total_SOS= np.sum((y_true - ymean)**2)
