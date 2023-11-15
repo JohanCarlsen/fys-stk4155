@@ -20,8 +20,8 @@ def test_func(x):
     a_1 = 0.09
     a_2 = -0.3
     a_3 = 0.1
-    # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
-    f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
+    f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
+    # f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
 
     return f
 
@@ -36,17 +36,25 @@ X_train = center(X_train)
 X_test = center(X_test)
 X = center(X)
 
-alphas = np.logspace(-5, -2, 4)
-etas = np.logspace(-6, -3, 4)
-alpha_labels = [f'{alphas[i]:.1e}' for i in range(len(alphas))]
-eta_labels = [f'{etas[i]:.1e}' for i in range(len(etas))]
+alpha_start = 5
+alpha_stop = 2
+alpha_n = int(alpha_start - alpha_stop + 1)
+
+eta_start = 6
+eta_stop = 3
+eta_n = int(eta_start - eta_stop + 1)
+
+alphas = np.logspace(-alpha_start, -alpha_stop, alpha_n)
+etas = np.logspace(-eta_start, -eta_stop, eta_n)
+alpha_labels = [r'$10^-$' + f'$^{i}$' for i in range(alpha_start, alpha_stop-1, -1)]
+eta_labels = [r'$10^-$' + f'$^{i}$' for i in range(eta_start, eta_stop-1, -1)]
 
 MSEs = np.zeros((len(alphas), len(etas)))
-layer_struct = [10, 5, 20]
+layer_struct = [100]
 
 params = {'input_size': 1, 'hidden_sizes': layer_struct, 'output_size': 1,
-          'hidden_activation': 'relu', 'output_activation': 'linear',
-          'cost_function': 'mse', 'epochs': int(1e4), 'batch_size': 100,
+          'hidden_activation': 'lrelu', 'output_activation': 'linear',
+          'cost_function': 'mse', 'epochs': int(5e2), 'batch_size': 100,
           'solver': 'adam'}
 
 tot = len(alphas) * len(etas)
@@ -74,6 +82,7 @@ with alive_bar(tot, length=20, title='Processing...') as bar:
             bar()
 
 fig, ax = plt.subplots()
+
 sns.heatmap(MSEs, annot=True, ax=ax, cmap='viridis',
             cbar_kws={'label': 'MSE'}, xticklabels=eta_labels,
             yticklabels=alpha_labels)

@@ -15,14 +15,14 @@ class Linear(Activations):
         return x
 
     def derivative(x):
-        return 1
+        return np.ones(x.shape)
 
 class Sigmoid(Activations):
     def function(x):
         return 1 / (1 + np.exp(-x))
 
     def derivative(x):
-        return Sigmoid.function(x) * (1 - Sigmoid.function(x))
+        return x * (1 - x)
 
 class ReLU(Activations):
     def function(x):
@@ -42,7 +42,7 @@ class LeakyReLU(Activations):
 
 class Softmax(Activations):
     def function(x):
-        exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+        exp_x = np.exp(x)
         return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
     def derivative(x):
