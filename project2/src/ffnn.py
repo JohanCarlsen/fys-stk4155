@@ -40,7 +40,7 @@ class NeuralNetwork:
         Activation function for the output layer. If other than `linear`,
         classification is assumed.
 
-    cost_function : {'mse', 'cross', 'log'}, str
+    cost_function : {'mse', 'cross', 'log'}
         Cost or loss function. 
 
             * 'mse' : Mean squared error.
