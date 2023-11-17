@@ -16,6 +16,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -56,9 +57,44 @@
 <li class="toctree-l2"><a class="reference internal" href="#ffnn.NeuralNetwork.calculate_score"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.calculate_score()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#regression-analysis-class">Regression analysis class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#analysis.RegressionAnalysis"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis.X"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.X</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis.y"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.y</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#regression-analysis-methods">Regression analysis methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#analysis.RegressionAnalysis.set_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_params()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis.RegressionAnalysis.set_hyper_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_hyper_params()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis.RegressionAnalysis.run"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.run()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logreg.LogisticRegression"><code class="docutils literal notranslate"><span class="pre">LogisticRegression</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#logistic-regression-methods">Logistic regression methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#logreg.LogisticRegression.fit"><code class="docutils literal notranslate"><span class="pre">LogisticRegression.fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logreg.LogisticRegression.predict"><code class="docutils literal notranslate"><span class="pre">LogisticRegression.predict()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="#preprocessing-of-data">Preprocessing of data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#preprocess.center"><code class="docutils literal notranslate"><span class="pre">center()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#preprocess.norm_data_zero_one"><code class="docutils literal notranslate"><span class="pre">norm_data_zero_one()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#cost-functions">Cost functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cost_funcs.MeanSquaredError"><code class="docutils literal notranslate"><span class="pre">MeanSquaredError</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cost_funcs.MeanSquaredError.loss"><code class="docutils literal notranslate"><span class="pre">MeanSquaredError.loss()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cost_funcs.CrossEntropy"><code class="docutils literal notranslate"><span class="pre">CrossEntropy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cost_funcs.CrossEntropy.loss"><code class="docutils literal notranslate"><span class="pre">CrossEntropy.loss()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cost_funcs.LogLoss"><code class="docutils literal notranslate"><span class="pre">LogLoss</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cost_funcs.LogLoss.loss"><code class="docutils literal notranslate"><span class="pre">LogLoss.loss()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="project3.html">Project 3</a></li>
@@ -227,6 +263,164 @@ for classification.</p>
 </dd></dl>
 
 </section>
+<section id="regression-analysis-class">
+<h1>Regression analysis class<a class="headerlink" href="#regression-analysis-class" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis.</span></span><span class="sig-name descname"><span class="pre">RegressionAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#analysis.RegressionAnalysis" title="Link to this definition"></a></dt>
+<dd><p>Regression class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#analysis.RegressionAnalysis.X" title="Link to this definition"></a></dt>
+<dd><p>Feature matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#analysis.RegressionAnalysis.y" title="Link to this definition"></a></dt>
+<dd><p>Target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.run" title="analysis.RegressionAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Run the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.set_hyper_params" title="analysis.RegressionAnalysis.set_hyper_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyper_params</span></code></a>(learning_rate[, momentum])</p></td>
+<td><p>Set the hyper parameters to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.set_params" title="analysis.RegressionAnalysis.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(method, gradient_descent[, ...])</p></td>
+<td><p>Set the parameters to use for the problem.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+<section id="regression-analysis-methods">
+<h1>Regression analysis methods<a class="headerlink" href="#regression-analysis-methods" title="Link to this heading"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis.set_params">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_descent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#analysis.RegressionAnalysis.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set the parameters to use for the problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>{'OLS'</em><em>, </em><em>'Ridge'}</em><em>, </em><em>str</em>) – Which method to use. This also sets the cost function.</p></li>
+<li><p><strong>gradient_descent</strong> (<em>{'GD'</em><em>, </em><em>'SGD'}</em><em>, </em><em>str</em>) – Weather to use plain gradiend descent or stochastic gradient
+descent.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis.set_hyper_params">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_hyper_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">hyperparams</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#analysis.RegressionAnalysis.set_hyper_params" title="Link to this definition"></a></dt>
+<dd><p>Set the hyper parameters to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<em>float</em>) – Learning rate (step size) to use.</p></li>
+<li><p><strong>momentum</strong> (<em>float</em><em>, </em><em>optional</em>) – Momentum for the solver.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="analysis.RegressionAnalysis.run">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#analysis.RegressionAnalysis.run" title="Link to this definition"></a></dt>
+<dd><p>Run the model.</p>
+</dd></dl>
+
+<p>Logistic regression class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="logreg.LogisticRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">logreg.</span></span><span class="sig-name descname"><span class="pre">LogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#logreg.LogisticRegression" title="Link to this definition"></a></dt>
+<dd><p>Logistic regression class for binary classification.</p>
+<p>The sigmoid function is used on the predicted outcome:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    \tilde y &amp;= \mathbf X^T \mathbf\beta\\
+    \sigma(\tilde y) &amp;= \frac{1}{1+e^{-\tilde y}}
+\end{align}\end{split}\]</div>
+<p>The cost function is given by the log-loss:</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+    C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log(\tilde y_n+\delta)+(1-\tilde y_n)\log(1-\tilde y_n+\delta)\right]
+\end{align}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eta</strong> (<em>float</em>) – Learning rate (step size).</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – L2 regularization parameter.</p></li>
+<li><p><strong>n_epochs</strong> (<em>int</em>) – Number of epochs (iterations) to perform.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tolerance of how equal the gradients are between runs
+(default: 10^-4).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#logreg.LogisticRegression.fit" title="logreg.LogisticRegression.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X, y[, X_val, y_val, verbose, patience])</p></td>
+<td><p>Fit the model to the data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#logreg.LogisticRegression.predict" title="logreg.LogisticRegression.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<td><p>Predict the outcome of the model on data.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+<section id="logistic-regression-methods">
+<h1>Logistic regression methods<a class="headerlink" href="#logistic-regression-methods" title="Link to this heading"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="logreg.LogisticRegression.fit">
+<span class="sig-prename descclassname"><span class="pre">LogisticRegression.</span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#logreg.LogisticRegression.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the model to the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array_like</em>) – The feature matrix.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – The target values.</p></li>
+<li><p><strong>X_val</strong> (<em>array_like</em><em>, </em><em>optional</em>) – Validation sets used to check performance during training.</p></li>
+<li><p><strong>y_val</strong> (<em>array_like</em><em>, </em><em>optional</em>) – Validation sets used to check performance during training.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, outputs information during testing.</p></li>
+<li><p><strong>patience</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 500</em><em>)</em>) – How many epochs to run without improvement before stopping.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="logreg.LogisticRegression.predict">
+<span class="sig-prename descclassname"><span class="pre">LogisticRegression.</span></span><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#logreg.LogisticRegression.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict the outcome of the model on data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array_like</em>) – Feature matrix.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If the model has not been fitted to data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="preprocessing-of-data">
 <h1>Preprocessing of data<a class="headerlink" href="#preprocessing-of-data" title="Link to this heading"></a></h1>
 <dl class="py function">
@@ -267,6 +461,117 @@ the data being centered along the columns.</p></li>
 <dd class="field-odd"><p>array_like</p>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="cost-functions">
+<h1>Cost functions<a class="headerlink" href="#cost-functions" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cost_funcs.MeanSquaredError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cost_funcs.</span></span><span class="sig-name descname"><span class="pre">MeanSquaredError</span></span><a class="headerlink" href="#cost_funcs.MeanSquaredError" title="Link to this definition"></a></dt>
+<dd><p>Mean squared error (MSE) cost function.</p>
+<div class="math notranslate nohighlight">
+\[C(\beta)=\frac{1}{n}\sum_n(\tilde y_n-y_n)^2\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.MeanSquaredError.loss" title="cost_funcs.MeanSquaredError.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<td><p>Return the MSE.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="cost_funcs.MeanSquaredError.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.MeanSquaredError.loss" title="Link to this definition"></a></dt>
+<dd><p>Return the MSE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array_like</em>) – Target values.</p></li>
+<li><p><strong>y_pred</strong> (<em>array_like</em>) – Predicted values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MSE between target and predicted values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cost_funcs.CrossEntropy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cost_funcs.</span></span><span class="sig-name descname"><span class="pre">CrossEntropy</span></span><a class="headerlink" href="#cost_funcs.CrossEntropy" title="Link to this definition"></a></dt>
+<dd><p>Cross entropy cost function.</p>
+<div class="math notranslate nohighlight">
+\[C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y+\delta)\right]\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.CrossEntropy.loss" title="cost_funcs.CrossEntropy.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<td><p>Return the cross entropy.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="cost_funcs.CrossEntropy.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.CrossEntropy.loss" title="Link to this definition"></a></dt>
+<dd><p>Return the cross entropy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array_like</em>) – Target values.</p></li>
+<li><p><strong>y_pred</strong> (<em>array_like</em>) – Predicted values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cross entropy between target and predicted values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cost_funcs.LogLoss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cost_funcs.</span></span><span class="sig-name descname"><span class="pre">LogLoss</span></span><a class="headerlink" href="#cost_funcs.LogLoss" title="Link to this definition"></a></dt>
+<dd><p>Log-loss cost function.</p>
+<div class="math notranslate nohighlight">
+\[C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log(\tilde y_n+\delta)+(1-\tilde y_n)\log(1-\tilde y_n+\delta)\right]\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.LogLoss.loss" title="cost_funcs.LogLoss.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<td><p>Return the log-loss.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="cost_funcs.LogLoss.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.LogLoss.loss" title="Link to this definition"></a></dt>
+<dd><p>Return the log-loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array_like</em>) – Target values.</p></li>
+<li><p><strong>y_pred</strong> (<em>array_like</em>) – Predicted values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log-loss between target and predicted values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

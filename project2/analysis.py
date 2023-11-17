@@ -18,9 +18,19 @@ warnings.filterwarnings('ignore')
 random.seed(2023)
 
 class RegressionAnalysis:
+    r'''
+    Regression class.
 
+    Attributes
+    ----------
+    X : array_like
+        Feature matrix.
+
+    y : array_like
+        Target values.
+    '''
     def __init__(self, X, y):
-        self.split(X, y)
+        self._split(X, y)
 
         self.n, self.p = X.shape
         self.calculate_mse = calc.mean_sq_err
@@ -28,10 +38,30 @@ class RegressionAnalysis:
         self.valid_optimizers = ['AdaGrad', 'RMSprop', 'ADAM']
         self.valid_grad_descents = ['GD', 'SGD']
     
-    def split(self, X, y):
+    def _split(self, X, y):
+        r'''
+        Split the data into training (80%) and test (20%) datasets.
+
+        Parameters
+        ----------
+        X : array_like
+            Feature matrix.
+
+        y : array_like
+            Target values.
+        '''
         self.X, self.X_test, self.y, self.y_test = train_test_split(X, y, test_size=0.2)
         
-    def set_gradient(self, autograd=False, **kwargs):
+    def _set_gradient(self, autograd=False, **kwargs):
+        r'''
+        Set the gradient for the problem from the cost function.
+
+        Parameters
+        ----------
+        autograd : boolean, optional
+            If ``True``, uses the ``autograd`` package to calculate 
+            the gradient. 
+        '''
         def grad_ols(n, X, y, beta, *arg):
             return (2 / n) * X.T @ (X @ beta - y)
         
@@ -60,8 +90,10 @@ class RegressionAnalysis:
             else:
                 self.grad_func = grad_ridge
     
-    def set_optimizer(self):
-
+    def _set_optimizer(self):
+        r'''
+        Set the optimizer to use with the solver. 
+        '''
         def AdaGrad(gradient, eta, **kwargs):
             delta = 1e-8
             self.G_outer += gradient @ gradient.T
@@ -112,7 +144,15 @@ class RegressionAnalysis:
         else:
             self.optimizer = ADAM
     
-    def gradient_descent(self, max_iter=int(1e5), **kwargs):
+    def _gradient_descent(self, max_iter=int(1e5), **kwargs):
+        r'''
+        Gradient descent solver method.
+
+        Parameters
+        ----------
+        max_iter : int, optional
+            Maximum numbers of iterations to perform (defaul: 10^5).
+        '''
         self.params.update({'n_iterations': 0})
 
         def descent(m, stochastic=False, **kwargs):
@@ -182,7 +222,10 @@ class RegressionAnalysis:
         
         self.params.update({'mse': self.best_mse})
     
-    def set_momentum(self):
+    def _set_momentum(self):
+        r'''
+        Set the momentum for the solver.
+        '''
         def momentum(gradient, eta, momentum):
             new_change = eta * gradient + momentum * self.change
             self.beta -= new_change
@@ -191,8 +234,20 @@ class RegressionAnalysis:
         self.momentum = momentum        
     
     def set_params(self, method, gradient_descent, patience=1000, optimizer=None, **params):
+        r'''
+        Set the parameters to use for the problem.
+
+        Parameters
+        ----------
+        method : {'OLS', 'Ridge'}, str
+            Which method to use. This also sets the cost function.
+
+        gradient_descent : {'GD', 'SGD'}, str
+            Weather to use plain gradiend descent or stochastic gradient
+            descent.
+        '''
         self.best_mse = np.inf
-        self.solver = self.gradient_descent
+        self.solver = self._gradient_descent
         self.patience = patience
 
         self.params = {'method': method,
@@ -200,10 +255,21 @@ class RegressionAnalysis:
                        'optimizer': optimizer}
         
         self.params.update(params)
-        self.set_gradient(**params)
-        self.set_optimizer()
+        self._set_gradient(**params)
+        self._set_optimizer()
     
     def set_hyper_params(self, learning_rate, momentum=None, **hyperparams):
+        r'''
+        Set the hyper parameters to use.
+
+        Parameters
+        ----------
+        learning_rate : float
+            Learning rate (step size) to use.
+
+        momentum : float, optional
+            Momentum for the solver. 
+        '''
         if isinstance(learning_rate, float):
             self.eta = np.array([learning_rate])
         
@@ -230,121 +296,124 @@ class RegressionAnalysis:
         else:
             self.lamb = [0]
 
-        self.set_momentum()
+        self._set_momentum()
     
     def run(self):
+        r'''
+        Run the model. 
+        '''
         self.solver(**self.params)
 
+if __name__ == '__main__':
+    def test_func(x):
+        a_0 = 1
+        a_1 = 2
+        a_2 = -5
+        a_3 = 3
+        # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
+        f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
 
-def test_func(x):
-    a_0 = 1
-    a_1 = 2
-    a_2 = -5
-    a_3 = 3
-    # f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3
-    f = 2 * np.sin(2 * x) + - 0.5 * np.cos(3 * x) + 0.3 * x**3
+        return f
 
-    return f
+    n = int(1e2)
+    x = np.linspace(-4, 4, n)[:, np.newaxis]
+    y_true = test_func(x)
+    y = y_true + random.normal(0, 1, x.shape)
+    X = calc.create_X(x, poly_deg=3)
+    mean = np.mean(X, axis=0)
+    std = np.std(X, axis=0)
+    X = ((X - mean) / std)[:, 1:]
 
-n = int(1e2)
-x = np.linspace(-4, 4, n)[:, np.newaxis]
-y_true = test_func(x)
-y = y_true + random.normal(0, 1, x.shape)
-X = calc.create_X(x, poly_deg=3)
-mean = np.mean(X, axis=0)
-std = np.std(X, axis=0)
-X = ((X - mean) / std)[:, 1:]
+    optimizer = 'ADAM'
 
-optimizer = 'ADAM'
+    grads = ['GD', 'SGD']
+    etas = np.logspace(-5, -2, 4)
+    moms = np.arange(0, 1, 0.1)
+    epochs = np.logspace(2, 4, 4, dtype=np.int32)
+    batch_sizes = np.arange(5, n+1, 5)
 
-grads = ['GD', 'SGD']
-etas = np.logspace(-5, -2, 4)
-moms = np.arange(0, 1, 0.1)
-epochs = np.logspace(2, 4, 4, dtype=np.int32)
-batch_sizes = np.arange(5, n+1, 5)
+    params = product(grads, epochs, batch_sizes)
+    tot = len(epochs) * len(batch_sizes) * len(grads)
 
-params = product(grads, epochs, batch_sizes)
-tot = len(epochs) * len(batch_sizes) * len(grads)
+    df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
+                                'Iterations'])
+    df_sgd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
+                                'Iterations', 'Epoch', 'Batch-size'])
 
-df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
-                              'Iterations'])
-df_sgd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
-                               'Iterations', 'Epoch', 'Batch-size'])
+    reg = RegressionAnalysis(X, y)
 
-reg = RegressionAnalysis(X, y)
+    with alive_bar(tot, title='Processing...', length=20) as bar:
+        for grad, epoch, batch in params:
 
-with alive_bar(tot, title='Processing...', length=20) as bar:
-    for grad, epoch, batch in params:
-
-        reg.set_params(method='OLS', gradient_descent=grad,
-                        optimizer='ADAM', n_epochs=epoch,
-                        minibatch_size=batch,
-                        max_iter=epoch)
-                
-        reg.set_hyper_params(learning_rate=etas, momentum=moms)
-        reg.run()
-        beta = reg.best_beta
-        ypred = X @ beta 
-        mse = reg.calculate_mse(y, ypred)
-        iters = reg.params.get('n_iterations')
-        mom = reg.params.get('momentum')
-        eta = reg.params.get('eta')
+            reg.set_params(method='OLS', gradient_descent=grad,
+                            optimizer='ADAM', n_epochs=epoch,
+                            minibatch_size=batch,
+                            max_iter=epoch)
+                    
+            reg.set_hyper_params(learning_rate=etas, momentum=moms)
+            reg.run()
+            beta = reg.best_beta
+            ypred = X @ beta 
+            mse = reg.calculate_mse(y, ypred)
+            iters = reg.params.get('n_iterations')
+            mom = reg.params.get('momentum')
+            eta = reg.params.get('eta')
 
 
-        if grad == 'GD':
-            df_gd = df_gd.append({'MSE': mse, 'Momentum': mom,
-                                  'Learning-rate': eta,
-                                  'Iterations': iters},
-                                  ignore_index=True)
-        
-        else:
-            df_sgd = df_sgd.append({'MSE': mse, 'Momentum': mom,
+            if grad == 'GD':
+                df_gd = df_gd.append({'MSE': mse, 'Momentum': mom,
                                     'Learning-rate': eta,
-                                    'Iterations': iters, 'Epoch': epoch,
-                                    'Batch-size': batch},
+                                    'Iterations': iters},
                                     ignore_index=True)
-        bar()
+            
+            else:
+                df_sgd = df_sgd.append({'MSE': mse, 'Momentum': mom,
+                                        'Learning-rate': eta,
+                                        'Iterations': iters, 'Epoch': epoch,
+                                        'Batch-size': batch},
+                                        ignore_index=True)
+            bar()
 
-df_gd.to_csv('OLS-GD.csv', index=False)
-df_sgd.to_csv('OLS-SGD.csv', index=False)
+    df_gd.to_csv('OLS-GD.csv', index=False)
+    df_sgd.to_csv('OLS-SGD.csv', index=False)
 
-# title = f'Optimizer: {optimizer}\n'
-# fig, ax = plt.subplots()
-# ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
-# ax.plot(x, y_true, color='blue', ls='dotted', label='True')
+    # title = f'Optimizer: {optimizer}\n'
+    # fig, ax = plt.subplots()
+    # ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
+    # ax.plot(x, y_true, color='blue', ls='dotted', label='True')
 
-# reg = RegressionAnalysis(X, y)
-# reg.set_params(method='OLS', gradient_descent='GD', optimizer=optimizer, max_iter=int(1e4))
+    # reg = RegressionAnalysis(X, y)
+    # reg.set_params(method='OLS', gradient_descent='GD', optimizer=optimizer, max_iter=int(1e4))
 
-# reg.set_hyper_params(learning_rate=1e-3, momentum=mom)
-# reg.run()
-# print(reg.params)
-# title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
-# ax.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
+    # reg.set_hyper_params(learning_rate=1e-3, momentum=mom)
+    # reg.run()
+    # print(reg.params)
+    # title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
+    # ax.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
 
-# reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
-# reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-# reg.run()
-# print(reg.params)
-# title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
-# ax.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
+    # reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
+    # reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
+    # reg.run()
+    # print(reg.params)
+    # title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
+    # ax.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
 
-# reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-# reg.set_hyper_params(learning_rate=eta, momentum=mom)
-# reg.run()
-# ax.plot(x, reg.ypred, color='magenta', label='OLS SGD')
-# print(reg.params)
-# title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
+    # reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+    # reg.set_hyper_params(learning_rate=eta, momentum=mom)
+    # reg.run()
+    # ax.plot(x, reg.ypred, color='magenta', label='OLS SGD')
+    # print(reg.params)
+    # title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
 
-# reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-# reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-# reg.run()
-# ax.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
-# print(reg.params)
-# title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
+    # reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
+    # reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
+    # reg.run()
+    # ax.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
+    # print(reg.params)
+    # title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
 
-# fig.tight_layout()
-# ax.set_xlabel(r'$x$')
-# ax.set_ylabel(r'$y$')
-# ax.legend()
-plt.show()
+    # fig.tight_layout()
+    # ax.set_xlabel(r'$x$')
+    # ax.set_ylabel(r'$y$')
+    # ax.legend()
+    plt.show()
