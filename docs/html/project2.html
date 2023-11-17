@@ -97,6 +97,19 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#activation-functions">Activation functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#activations.Linear"><code class="docutils literal notranslate"><span class="pre">Linear</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activations.Linear.derivative"><code class="docutils literal notranslate"><span class="pre">Linear.derivative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activations.Linear.function"><code class="docutils literal notranslate"><span class="pre">Linear.function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#activations.Sigmoid"><code class="docutils literal notranslate"><span class="pre">Sigmoid</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activations.Sigmoid.derivative"><code class="docutils literal notranslate"><span class="pre">Sigmoid.derivative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activations.Sigmoid.function"><code class="docutils literal notranslate"><span class="pre">Sigmoid.function()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="project3.html">Project 3</a></li>
 </ul>
 
@@ -475,14 +488,14 @@ the data being centered along the columns.</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.MeanSquaredError.loss" title="cost_funcs.MeanSquaredError.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.MeanSquaredError.loss" title="cost_funcs.MeanSquaredError.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_true, y_pred)</p></td>
 <td><p>Return the MSE.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="cost_funcs.MeanSquaredError.loss">
-<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.MeanSquaredError.loss" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.MeanSquaredError.loss" title="Link to this definition"></a></dt>
 <dd><p>Return the MSE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -511,14 +524,14 @@ the data being centered along the columns.</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.CrossEntropy.loss" title="cost_funcs.CrossEntropy.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.CrossEntropy.loss" title="cost_funcs.CrossEntropy.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_true, y_pred)</p></td>
 <td><p>Return the cross entropy.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="cost_funcs.CrossEntropy.loss">
-<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.CrossEntropy.loss" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.CrossEntropy.loss" title="Link to this definition"></a></dt>
 <dd><p>Return the cross entropy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -547,14 +560,14 @@ the data being centered along the columns.</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.LogLoss.loss" title="cost_funcs.LogLoss.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_pred)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cost_funcs.LogLoss.loss" title="cost_funcs.LogLoss.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loss</span></code></a>(y_true, y_pred)</p></td>
 <td><p>Return the log-loss.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="cost_funcs.LogLoss.loss">
-<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.LogLoss.loss" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cost_funcs.LogLoss.loss" title="Link to this definition"></a></dt>
 <dd><p>Return the log-loss.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -565,6 +578,119 @@ the data being centered along the columns.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Log-loss between target and predicted values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="activation-functions">
+<h1>Activation functions<a class="headerlink" href="#activation-functions" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="activations.Linear">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">activations.</span></span><span class="sig-name descname"><span class="pre">Linear</span></span><a class="headerlink" href="#activations.Linear" title="Link to this definition"></a></dt>
+<dd><p>Linear activation function.</p>
+<div class="math notranslate nohighlight">
+\[f(x)=x\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#activations.Linear.derivative" title="activations.Linear.derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">derivative</span></code></a>(x)</p></td>
+<td><p>Derivative of the activation function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#activations.Linear.function" title="activations.Linear.function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">function</span></code></a>(x)</p></td>
+<td><p>Activation function.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.Linear.derivative">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#activations.Linear.derivative" title="Link to this definition"></a></dt>
+<dd><p>Derivative of the activation function.</p>
+<div class="math notranslate nohighlight">
+\[f'(x)=1\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns an array of the same shape as <code class="docutils literal notranslate"><span class="pre">x</span></code> filled with ones.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.Linear.function">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#activations.Linear.function" title="Link to this definition"></a></dt>
+<dd><p>Activation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>x</strong> – Linear relation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="activations.Sigmoid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">activations.</span></span><span class="sig-name descname"><span class="pre">Sigmoid</span></span><a class="headerlink" href="#activations.Sigmoid" title="Link to this definition"></a></dt>
+<dd><p>Sigmoid activation function.</p>
+<div class="math notranslate nohighlight">
+\[\sigma(x)=\frac{1}{1+e^{-x}}\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#activations.Sigmoid.derivative" title="activations.Sigmoid.derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">derivative</span></code></a>(x)</p></td>
+<td><p>Derivative of activation function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#activations.Sigmoid.function" title="activations.Sigmoid.function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">function</span></code></a>(x)</p></td>
+<td><p>Activation function.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.Sigmoid.derivative">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#activations.Sigmoid.derivative" title="Link to this definition"></a></dt>
+<dd><p>Derivative of activation function.</p>
+<div class="math notranslate nohighlight">
+\[\sigma'(x)=\sigma(x)[1-\sigma(x)]\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The derivative of the Sigmoid function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.Sigmoid.function">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#activations.Sigmoid.function" title="Link to this definition"></a></dt>
+<dd><p>Activation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Sigmoid function <span class="math notranslate nohighlight">\(\sigma(x)\)</span>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array_like</p>

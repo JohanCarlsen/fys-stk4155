@@ -57,3 +57,12 @@ Cost functions
 
 .. autoclass:: cost_funcs.LogLoss
     :members:
+
+Activation functions
+====================
+
+.. autoclass:: activations.Linear
+    :members:
+
+.. autoclass:: activations.Sigmoid
+    :members:

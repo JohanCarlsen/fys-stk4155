@@ -1,6 +1,6 @@
 import sys
 import os 
-sys.path.insert(0, '../project1/props')
+sys.path.insert(0, '../../project1/props')
 from calc import Calculate as calc
 import autograd.numpy as np 
 from autograd import grad

@@ -16,6 +16,7 @@ class MeanSquaredError(CostFunctions):
 
     .. math:: C(\beta)=\frac{1}{n}\sum_n(\tilde y_n-y_n)^2
     '''
+    @staticmethod
     def loss(y_true, y_pred):
         r'''
         Return the MSE.
@@ -43,6 +44,7 @@ class CrossEntropy(CostFunctions):
 
     .. math:: C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y+\delta)\right]
     '''
+    @staticmethod
     def loss(y_true, y_pred):
         r'''
         Return the cross entropy.
@@ -72,6 +74,7 @@ class LogLoss(CostFunctions):
     .. math::
         C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log(\tilde y_n+\delta)+(1-\tilde y_n)\log(1-\tilde y_n+\delta)\right]
     '''
+    @staticmethod
     def loss(y_true, y_pred):
         r'''
         Return the log-loss.
