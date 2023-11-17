@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.abspath('../../project1')) # Add here any underlying 
 sys.path.insert(0, os.path.abspath('../../project1/props')) # Add here any underlying folders!
 sys.path.insert(0, os.path.abspath('../../project2')) # Add here any underlying folders!
 sys.path.insert(0, os.path.abspath('../../project2/src')) # Add here any underlying folders!
+
 project = 'FYS-STK4155'
 copyright = '2023, Johan Carlsen'
 author = 'Johan Carlsen'
@@ -24,9 +25,9 @@ extensions = [
     'numpydoc', 
     'sphinx.ext.autosummary',
     'sphinx_autodoc_typehints',
-    'sphinx.ext.linkcode'
+    'sphinx.ext.viewcode'
 ]
-# autosummary_generate = True
+autosummary_generate = True
 autosummary_imported_members = True
 templates_path = ['_templates']
 exclude_patterns = []
@@ -36,7 +37,7 @@ def linkcode_resolve(domain, info):
         return None
     if not info['module']:
         return None
-    filename = info['module'].replace('.', '/')
+    filename = (info['module'].replace('.', '/'))
     return "https://github.com/JohanCarlsen/fys-stk4155/%s.py" % filename
 
 # -- Options for HTML output -------------------------------------------------

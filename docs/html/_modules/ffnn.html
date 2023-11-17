@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ffnn &mdash; FYS-STK4155  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            FYS-STK4155
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../project1.html">Project 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html">Project 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-methods">Artificial neural network methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-class">Regression analysis class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-methods">Regression analysis methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#logistic-regression-methods">Logistic regression methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#preprocessing-of-data">Preprocessing of data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#cost-functions">Cost functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html#activation-functions">Activation functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project3.html">Project 3</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FYS-STK4155</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ffnn</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ffnn</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">grad</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">cost_funcs</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">solvers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">activations</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="NeuralNetwork">
+<a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork">[docs]</a>
+<span class="k">class</span> <span class="nc">NeuralNetwork</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Artificial neural network class for regression and classification.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_size : int</span>
+<span class="sd">        Nodes in the input layer.</span>
+<span class="sd">    </span>
+<span class="sd">    hidden_sizes : list of ints</span>
+<span class="sd">        Structure of the hidden layers. E.g. ``[10, 20, 10]`` will</span>
+<span class="sd">        create 3 hidden layers consisting of 10, 20, and 10 hidden</span>
+<span class="sd">        neurons, respectively.</span>
+
+<span class="sd">    output_size : int </span>
+<span class="sd">        Nodes in the output layer.</span>
+
+<span class="sd">    eta : float</span>
+<span class="sd">        Learning rate.</span>
+
+<span class="sd">    alpha : float </span>
+<span class="sd">        L2 regularization parameter.</span>
+
+<span class="sd">    hidden_activation : {&#39;sigmoid, relu, lrelu&#39;}</span>
+<span class="sd">        Activation function for the hidden layers. Note that the weights</span>
+<span class="sd">        are initialized depending on the activation function as:</span>
+
+<span class="sd">            * &#39;sigmoid&#39; : ``XavierInitializer``.</span>
+<span class="sd">            * &#39;relu&#39; : ``HeInitializer``.</span>
+<span class="sd">            * &#39;lrelu&#39; : ``LeCunInitializer``.</span>
+<span class="sd">    </span>
+<span class="sd">    output_activation : {&#39;sigmoid&#39;, &#39;relu&#39;, &#39;lrelu&#39;, &#39;linear&#39;}</span>
+<span class="sd">        Activation function for the output layer. If other than `linear`,</span>
+<span class="sd">        classification is assumed.</span>
+
+<span class="sd">    cost_function : {&#39;mse&#39;, &#39;cross&#39;, &#39;log&#39;}</span>
+<span class="sd">        Cost or loss function. </span>
+
+<span class="sd">            * &#39;mse&#39; : Mean squared error.</span>
+<span class="sd">            * &#39;cross&#39; : Cross entropy.</span>
+<span class="sd">            * &#39;log&#39; : Log-loss.</span>
+
+<span class="sd">    epochs : int</span>
+<span class="sd">        Number of iterations to perform.</span>
+
+<span class="sd">    batch_size : int </span>
+<span class="sd">        Minibatch size to use for stochastic gradient descent. If</span>
+<span class="sd">        ``batch_size == n_datapoints``, regular gradient descent is used.</span>
+
+<span class="sd">    solver : {&#39;adam&#39;, &#39;constant&#39;}, str</span>
+<span class="sd">        Which optimizer to use. ADAM is the best. </span>
+
+<span class="sd">    random_weights : boolean, optional</span>
+<span class="sd">        Weather to overwrite the weight initialization. If ``True``, the </span>
+<span class="sd">        weights will be initialized from the normal distribution. If</span>
+<span class="sd">        ``False`` (default), the activation of the hidden layers controls</span>
+<span class="sd">        this.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_sizes</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span>
+                 <span class="n">hidden_activation</span><span class="p">,</span> <span class="n">output_activation</span><span class="p">,</span> <span class="n">cost_function</span><span class="p">,</span>
+                 <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">solver</span><span class="p">,</span> <span class="n">random_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">hidden_sizes</span> <span class="o">+</span> <span class="p">[</span><span class="n">output_size</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+        <span class="n">activs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Sigmoid</span><span class="p">,</span> <span class="n">XavierInitializer</span><span class="p">],</span>
+                  <span class="s1">&#39;relu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">ReLU</span><span class="p">,</span> <span class="n">HeInitializer</span><span class="p">],</span>
+                  <span class="s1">&#39;lrelu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">LeakyReLU</span><span class="p">,</span> <span class="n">LeCunInitializer</span><span class="p">]}</span>
+        
+        <span class="n">out_activs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">Sigmoid</span><span class="p">,</span> <span class="s1">&#39;relu&#39;</span><span class="p">:</span> <span class="n">ReLU</span><span class="p">,</span>
+                      <span class="s1">&#39;lreu&#39;</span><span class="p">:</span> <span class="n">LeakyReLU</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">Linear</span><span class="p">}</span>
+        
+        <span class="n">costs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">MeanSquaredError</span><span class="p">,</span>
+                 <span class="s1">&#39;cross&#39;</span><span class="p">:</span> <span class="n">CrossEntropy</span><span class="p">,</span>
+                 <span class="s1">&#39;log&#39;</span><span class="p">:</span> <span class="n">LogLoss</span><span class="p">}</span>
+        
+        <span class="n">solvers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;adam&#39;</span><span class="p">:</span> <span class="n">ADAM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">),</span>
+                   <span class="s1">&#39;constant&#39;</span><span class="p">:</span> <span class="n">Constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">)}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_func</span> <span class="o">=</span> <span class="n">activs</span><span class="p">[</span><span class="n">hidden_activation</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">=</span> <span class="n">out_activs</span><span class="p">[</span><span class="n">output_activation</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span> <span class="o">=</span> <span class="n">costs</span><span class="p">[</span><span class="n">cost_function</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solvers</span><span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">random_weights</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weight_func</span> <span class="o">=</span> <span class="n">RandomInitializer</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_weights_and_bias</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_create_weights_and_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the weights and biases for the layers. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">output_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_func</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+            <span class="n">bias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_size</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-2</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bias</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_feed_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Perform a feed-forward pass through the network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like </span>
+<span class="sd">            Feature matrix. Must have shape ``(n_datapoints, input_size)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        a : array_like</span>
+<span class="sd">            The activation of the output layer.</span>
+
+<span class="sd">            .. math::</span>
+<span class="sd">                \begin{align}</span>
+<span class="sd">                    a^L=f(z^L),</span>
+<span class="sd">                \end{align}</span>
+
+<span class="sd">            where :math:`z^L` is the output of the last hidden layer.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span>
+
+        <span class="n">input_layer</span> <span class="o">=</span> <span class="n">X</span> 
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_layer</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_func</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">input_layer</span> <span class="o">=</span> <span class="n">a</span>
+
+        <span class="k">return</span> <span class="n">a</span>
+    
+    <span class="k">def</span> <span class="nf">_backpropagate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Calculate the back-propagated error from a forward pass through</span>
+<span class="sd">        the network.</span>
+
+<span class="sd">        During training, the weights and biases are updated using their</span>
+<span class="sd">        respective gradients.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like</span>
+<span class="sd">            The feature matrix.</span>
+
+<span class="sd">        y : array_like</span>
+<span class="sd">            Target values. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feed_forward</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">dOut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span><span class="o">.</span><span class="n">derivative</span>
+        <span class="n">dCost</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dHidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_func</span><span class="o">.</span><span class="n">derivative</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">delta</span> <span class="o">=</span> <span class="n">dOut</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">dCost</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">delta</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">dHidden</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            
+            <span class="n">w_grad</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">delta</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span>
+            <span class="n">b_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">w_change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update_change</span><span class="p">(</span><span class="n">w_grad</span><span class="p">)</span>
+            <span class="n">b_change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update_change</span><span class="p">(</span><span class="n">b_grad</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="n">w_change</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="n">b_change</span>
+
+<div class="viewcode-block" id="NeuralNetwork.predict">
+<a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork.predict">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Predict the output of a given dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like</span>
+<span class="sd">            Feature matrix.</span>
+
+<span class="sd">        tol : float, optional</span>
+<span class="sd">            For (hard) classification, if any of the predicted values</span>
+<span class="sd">            are higher than `tol` (default: 0.5), return 1. Otherwise</span>
+<span class="sd">            return 0.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array_like :</span>
+<span class="sd">            For regression problems, the predicted values are returned. </span>
+<span class="sd">            For classification problems, 1 is returned for any values </span>
+<span class="sd">            larger than `tol`, and 0 otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feed_forward</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">==</span> <span class="n">Linear</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">y_pred</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NeuralNetwork.fit">
+<a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Train the network with features and targets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like</span>
+<span class="sd">            Feature matrix.</span>
+
+<span class="sd">        y : array_like</span>
+<span class="sd">            Targets.</span>
+
+<span class="sd">        X_val, y_val : array_like, optional</span>
+<span class="sd">            If provided, the network will use them to test the score</span>
+<span class="sd">            after each iteration.</span>
+
+<span class="sd">        tol : float, optional</span>
+<span class="sd">            Tolerance of how much the score improves between iterations.</span>
+
+<span class="sd">        patience : int, optional</span>
+<span class="sd">            Controls how many iterations the network will perform with </span>
+<span class="sd">            no improvement of the score.</span>
+
+<span class="sd">        verbose : boolean, optional</span>
+<span class="sd">            If ``True`` (default), outputs information during training.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">has_val</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">X_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">has_val</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">n_batches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">shuffled_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">rand_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">shuffled_inds</span><span class="p">,</span> <span class="n">n_batches</span><span class="p">)</span>
+
+        <span class="n">best_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">best_weights</span> <span class="o">=</span> <span class="kc">None</span> 
+        <span class="n">best_bias</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">inds</span> <span class="ow">in</span> <span class="n">rand_inds</span><span class="p">:</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_backpropagate</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">has_val</span><span class="p">:</span>
+                    <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="n">best_loss</span><span class="p">:</span>
+                        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">loss</span> <span class="o">-</span> <span class="n">best_loss</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+                            <span class="k">break</span>
+
+                        <span class="n">best_loss</span> <span class="o">=</span> <span class="n">loss</span>
+                        <span class="n">best_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span>
+                        <span class="n">best_bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> 
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+            <span class="k">for</span> <span class="n">w_solver</span><span class="p">,</span> <span class="n">b_solver</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="p">):</span>
+                <span class="n">w_solver</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="n">b_solver</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;=</span> <span class="n">patience</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Early stopping at epoch </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> with loss: </span><span class="si">{</span><span class="n">best_loss</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="k">break</span>            
+
+        <span class="k">if</span> <span class="n">best_loss</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">best_weights</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">best_bias</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loss did not improve.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NeuralNetwork.calculate_score">
+<a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork.calculate_score">[docs]</a>
+    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Score metrics. R2 score for regression, accuracy</span>
+<span class="sd">        for classification.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y_true : array_like</span>
+<span class="sd">            Target values.</span>
+
+<span class="sd">        y_pred : array_like</span>
+<span class="sd">            Predicted values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        r2score : float</span>
+<span class="sd">            For regression.</span>
+
+<span class="sd">        accuracy : float</span>
+<span class="sd">            For classification.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">==</span> <span class="n">Linear</span><span class="p">:</span>
+            <span class="n">ymean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+            <span class="n">total_SOS</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">ymean</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">residual_SOS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">r2score</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">residual_SOS</span> <span class="o">/</span> <span class="n">total_SOS</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">r2score</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_true</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="k">return</span> <span class="n">accuracy</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Johan Carlsen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
