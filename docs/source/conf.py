@@ -25,7 +25,8 @@ extensions = [
     'numpydoc', 
     'sphinx.ext.autosummary',
     'sphinx_autodoc_typehints',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'sphinx_design'
 ]
 autosummary_generate = True
 autosummary_imported_members = True
@@ -47,3 +48,10 @@ html_theme = 'sphinx_rtd_theme'
 # viewcode_enable_epub = True
 # html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
+# html_theme_options = {
+#     'github_url': 'https://github.com/JohanCarlsen/fys-stk4155',
+#     'collapse_navigation': True,
+#     'header_links_before_dropdown': 2
+# }
+html_context = {'default': 'light'}
+

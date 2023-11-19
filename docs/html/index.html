@@ -7,6 +7,7 @@
   <title>FYS-STK4155, Applied Data Analysis and Machine Learning &mdash; FYS-STK4155  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,6 +17,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/design-tabs.js?v=36754332"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -52,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="project2.html#logistic-regression-methods">Logistic regression methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#preprocessing-of-data">Preprocessing of data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#cost-functions">Cost functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project2.html#solver-optimizers">Solver optimizers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#activation-functions">Activation functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project3.html">Project 3</a></li>
 </ul>
@@ -163,6 +166,21 @@ in the course FYS-STK4155 at the University of Oslo.</p>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="project2.html#solver-optimizers">Solver optimizers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project2.html#solvers.Constant"><code class="docutils literal notranslate"><span class="pre">Constant</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.Constant.eta"><code class="docutils literal notranslate"><span class="pre">Constant.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.Constant.reset"><code class="docutils literal notranslate"><span class="pre">Constant.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.Constant.update_change"><code class="docutils literal notranslate"><span class="pre">Constant.update_change()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project2.html#solvers.ADAM"><code class="docutils literal notranslate"><span class="pre">ADAM</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.ADAM.eta"><code class="docutils literal notranslate"><span class="pre">ADAM.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.ADAM.reset"><code class="docutils literal notranslate"><span class="pre">ADAM.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#solvers.ADAM.update_change"><code class="docutils literal notranslate"><span class="pre">ADAM.update_change()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#activation-functions">Activation functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project2.html#activations.Linear"><code class="docutils literal notranslate"><span class="pre">Linear</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="project2.html#activations.Linear.derivative"><code class="docutils literal notranslate"><span class="pre">Linear.derivative()</span></code></a></li>
@@ -172,6 +190,11 @@ in the course FYS-STK4155 at the University of Oslo.</p>
 <li class="toctree-l2"><a class="reference internal" href="project2.html#activations.Sigmoid"><code class="docutils literal notranslate"><span class="pre">Sigmoid</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="project2.html#activations.Sigmoid.derivative"><code class="docutils literal notranslate"><span class="pre">Sigmoid.derivative()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="project2.html#activations.Sigmoid.function"><code class="docutils literal notranslate"><span class="pre">Sigmoid.function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project2.html#activations.ReLU"><code class="docutils literal notranslate"><span class="pre">ReLU</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#activations.ReLU.derivative"><code class="docutils literal notranslate"><span class="pre">ReLU.derivative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="project2.html#activations.ReLU.function"><code class="docutils literal notranslate"><span class="pre">ReLU.function()</span></code></a></li>
 </ul>
 </li>
 </ul>

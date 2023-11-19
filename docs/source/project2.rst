@@ -58,6 +58,16 @@ Cost functions
 .. autoclass:: cost_funcs.LogLoss
     :members:
 
+Solver optimizers
+=================
+
+.. autoclass:: solvers.Constant
+    :members:
+
+.. autoclass:: solvers.ADAM
+    :members:
+
+
 Activation functions
 ====================
 
@@ -65,4 +75,7 @@ Activation functions
     :members:
 
 .. autoclass:: activations.Sigmoid
+    :members:
+
+.. autoclass:: activations.ReLU
     :members:

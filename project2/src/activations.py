@@ -104,10 +104,36 @@ class ReLU(Activations):
     '''
     @staticmethod
     def function(x):
+        r'''
+        Activation function.
+
+        Parameters
+        ----------
+        x : array_like
+            Input variable.
+
+        Returns
+        -------
+        array_like :
+            The maximum value of ``x`` and 0.
+        '''
         return np.maximum(0, x)
 
     @staticmethod
     def derivative(x):
+        r'''
+        Derivative of the ReLU activation function.
+
+        Parameters
+        ----------
+        x : array_like
+            Input variable.
+
+        Returns
+        -------
+        array_like :
+            1 if ``x > 0``, else 0.
+        '''
         return np.where(x > 0, 1, 0)
 
 class LeakyReLU(Activations):

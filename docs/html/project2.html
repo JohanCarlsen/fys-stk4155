@@ -7,6 +7,7 @@
   <title>Project 2 &mdash; FYS-STK4155  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,6 +17,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/design-tabs.js?v=36754332"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -97,6 +99,21 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#solver-optimizers">Solver optimizers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#solvers.Constant"><code class="docutils literal notranslate"><span class="pre">Constant</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.Constant.eta"><code class="docutils literal notranslate"><span class="pre">Constant.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.Constant.reset"><code class="docutils literal notranslate"><span class="pre">Constant.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.Constant.update_change"><code class="docutils literal notranslate"><span class="pre">Constant.update_change()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#solvers.ADAM"><code class="docutils literal notranslate"><span class="pre">ADAM</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.ADAM.eta"><code class="docutils literal notranslate"><span class="pre">ADAM.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.ADAM.reset"><code class="docutils literal notranslate"><span class="pre">ADAM.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solvers.ADAM.update_change"><code class="docutils literal notranslate"><span class="pre">ADAM.update_change()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="#activation-functions">Activation functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#activations.Linear"><code class="docutils literal notranslate"><span class="pre">Linear</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#activations.Linear.derivative"><code class="docutils literal notranslate"><span class="pre">Linear.derivative()</span></code></a></li>
@@ -106,6 +123,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#activations.Sigmoid"><code class="docutils literal notranslate"><span class="pre">Sigmoid</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#activations.Sigmoid.derivative"><code class="docutils literal notranslate"><span class="pre">Sigmoid.derivative()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#activations.Sigmoid.function"><code class="docutils literal notranslate"><span class="pre">Sigmoid.function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#activations.ReLU"><code class="docutils literal notranslate"><span class="pre">ReLU</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activations.ReLU.derivative"><code class="docutils literal notranslate"><span class="pre">ReLU.derivative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activations.ReLU.function"><code class="docutils literal notranslate"><span class="pre">ReLU.function()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -588,6 +610,124 @@ the data being centered along the columns.</p></li>
 </dd></dl>
 
 </section>
+<section id="solver-optimizers">
+<h1>Solver optimizers<a class="headerlink" href="#solver-optimizers" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="solvers.Constant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">solvers.</span></span><span class="sig-name descname"><span class="pre">Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#Constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.Constant" title="Link to this definition"></a></dt>
+<dd><p>Constant learning rate.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="solvers.Constant.eta">
+<span class="sig-name descname"><span class="pre">eta</span></span><a class="headerlink" href="#solvers.Constant.eta" title="Link to this definition"></a></dt>
+<dd><p>Learning rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#solvers.Constant.reset" title="solvers.Constant.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
+<td><p>Not used for this solver.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#solvers.Constant.update_change" title="solvers.Constant.update_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_change</span></code></a>(gradient)</p></td>
+<td><p>Update the change using the gradient.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="solvers.Constant.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#Constant.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.Constant.reset" title="Link to this definition"></a></dt>
+<dd><p>Not used for this solver.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="solvers.Constant.update_change">
+<span class="sig-name descname"><span class="pre">update_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradient</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#Constant.update_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.Constant.update_change" title="Link to this definition"></a></dt>
+<dd><p>Update the change using the gradient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gradient</strong> (<em>array_like</em>) – Gradient used to update the change.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The update <span class="math notranslate nohighlight">\(\eta\nabla\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="solvers.ADAM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">solvers.</span></span><span class="sig-name descname"><span class="pre">ADAM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#ADAM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.ADAM" title="Link to this definition"></a></dt>
+<dd><p>The ADAM solver optimizer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="solvers.ADAM.eta">
+<span class="sig-name descname"><span class="pre">eta</span></span><a class="headerlink" href="#solvers.ADAM.eta" title="Link to this definition"></a></dt>
+<dd><p>Learning rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">rho1,</span> <span class="pre">rho2</span></span></dt>
+<dd><p>Parameters used to calculate the momentum. <code class="docutils literal notranslate"><span class="pre">rho1</span></code> (default=0.9)
+is used for the first moment, and <code class="docutils literal notranslate"><span class="pre">rho2</span></code> (default=0.999) is
+used for the second moment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#solvers.ADAM.reset" title="solvers.ADAM.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
+<td><p>Resets the solver.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#solvers.ADAM.update_change" title="solvers.ADAM.update_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_change</span></code></a>(gradient)</p></td>
+<td><p>Update the change using the gradient.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="solvers.ADAM.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#ADAM.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.ADAM.reset" title="Link to this definition"></a></dt>
+<dd><p>Resets the solver.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="solvers.ADAM.update_change">
+<span class="sig-name descname"><span class="pre">update_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradient</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/solvers.html#ADAM.update_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#solvers.ADAM.update_change" title="Link to this definition"></a></dt>
+<dd><p>Update the change using the gradient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gradient</strong> (<em>array_like</em>) – Gradient used to update the change.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The update.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="activation-functions">
 <h1>Activation functions<a class="headerlink" href="#activation-functions" title="Link to this heading"></a></h1>
 <dl class="py class">
@@ -691,6 +831,57 @@ the data being centered along the columns.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The Sigmoid function <span class="math notranslate nohighlight">\(\sigma(x)\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="activations.ReLU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">activations.</span></span><span class="sig-name descname"><span class="pre">ReLU</span></span><a class="reference internal" href="_modules/activations.html#ReLU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#activations.ReLU" title="Link to this definition"></a></dt>
+<dd><p>Rectified Linear Unit activation function.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#activations.ReLU.derivative" title="activations.ReLU.derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">derivative</span></code></a>(x)</p></td>
+<td><p>Derivative of the ReLU activation function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#activations.ReLU.function" title="activations.ReLU.function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">function</span></code></a>(x)</p></td>
+<td><p>Activation function.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.ReLU.derivative">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/activations.html#ReLU.derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#activations.ReLU.derivative" title="Link to this definition"></a></dt>
+<dd><p>Derivative of the ReLU activation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>1 if <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>, else 0.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="activations.ReLU.function">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/activations.html#ReLU.function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#activations.ReLU.function" title="Link to this definition"></a></dt>
+<dd><p>Activation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – Input variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The maximum value of <code class="docutils literal notranslate"><span class="pre">x</span></code> and 0.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array_like</p>

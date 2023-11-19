@@ -6,6 +6,7 @@
   <title>Index &mdash; FYS-STK4155  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/design-tabs.js?v=36754332"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -50,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="project2.html#logistic-regression-methods">Logistic regression methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#preprocessing-of-data">Preprocessing of data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#cost-functions">Cost functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project2.html#solver-optimizers">Solver optimizers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html#activation-functions">Activation functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project3.html">Project 3</a></li>
 </ul>
@@ -81,9 +84,11 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#B"><strong>B</strong></a>
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -92,11 +97,20 @@
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#X"><strong>X</strong></a>
  | <a href="#Y"><strong>Y</strong></a>
  | <a href="#Z"><strong>Z</strong></a>
  
 </div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project2.html#solvers.ADAM">ADAM (class in solvers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -114,9 +128,11 @@
 </li>
       <li><a href="project2.html#preprocess.center">center() (in module preprocess)</a>
 </li>
+      <li><a href="project1.html#src.compare_surface">compare_surface() (in module src)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project1.html#src.compare_surface">compare_surface() (in module src)</a>
+      <li><a href="project2.html#solvers.Constant">Constant (class in solvers)</a>
 </li>
       <li><a href="project1.html#calc.Calculate.create_X">create_X() (calc.Calculate static method)</a>
 </li>
@@ -133,7 +149,21 @@
       <li><a href="project2.html#activations.Linear.derivative">derivative() (activations.Linear static method)</a>
 
       <ul>
+        <li><a href="project2.html#activations.ReLU.derivative">(activations.ReLU static method)</a>
+</li>
         <li><a href="project2.html#activations.Sigmoid.derivative">(activations.Sigmoid static method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project2.html#solvers.ADAM.eta">eta (solvers.ADAM attribute)</a>
+
+      <ul>
+        <li><a href="project2.html#solvers.Constant.eta">(solvers.Constant attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -148,13 +178,15 @@
         <li><a href="project2.html#logreg.LogisticRegression.fit">(logreg.LogisticRegression method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project1.html#src.frankes_function">frankes_function() (in module src)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project2.html#activations.Linear.function">function() (activations.Linear static method)</a>
 
       <ul>
+        <li><a href="project2.html#activations.ReLU.function">(activations.ReLU static method)</a>
+</li>
         <li><a href="project2.html#activations.Sigmoid.function">(activations.Sigmoid static method)</a>
 </li>
       </ul></li>
@@ -246,8 +278,16 @@
 </li>
       <li><a href="project2.html#analysis.RegressionAnalysis">RegressionAnalysis (class in analysis)</a>
 </li>
+      <li><a href="project2.html#activations.ReLU">ReLU (class in activations)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project2.html#solvers.ADAM.reset">reset() (solvers.ADAM method)</a>
+
+      <ul>
+        <li><a href="project2.html#solvers.Constant.reset">(solvers.Constant method)</a>
+</li>
+      </ul></li>
       <li><a href="project1.html#calc.Calculate.Ridge">Ridge() (calc.Calculate static method)</a>
 </li>
       <li><a href="project1.html#src.Regression.ridge_and_lasso">ridge_and_lasso() (src.Regression method)</a>
@@ -270,6 +310,18 @@
 </li>
       <li><a href="project2.html#activations.Sigmoid">Sigmoid (class in activations)</a>
 </li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project2.html#solvers.ADAM.update_change">update_change() (solvers.ADAM method)</a>
+
+      <ul>
+        <li><a href="project2.html#solvers.Constant.update_change">(solvers.Constant method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
