@@ -45,15 +45,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../project1.html">Project 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project2.html">Project 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-methods">Artificial neural network methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-class">Regression analysis class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-methods">Regression analysis methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#logistic-regression-methods">Logistic regression methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#preprocessing-of-data">Preprocessing of data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#cost-functions">Cost functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#solver-optimizers">Solver optimizers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#activation-functions">Activation functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project3.html">Project 3</a></li>
 </ul>
 
@@ -205,6 +196,65 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">=</span> <span class="mi">0</span></div>
 </div>
 
+
+<span class="k">class</span> <span class="nc">Adagrad</span><span class="p">(</span><span class="n">Solvers</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eta</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">update_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>  <span class="c1"># avoid division ny zero</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">+=</span> <span class="n">gradient</span> <span class="o">@</span> <span class="n">gradient</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">G_t_inverse</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">delta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_t</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">*</span> <span class="n">G_t_inverse</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span> <span class="nc">AdagradMomentum</span><span class="p">(</span><span class="n">Solvers</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">momentum</span> <span class="o">=</span> <span class="n">momentum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">update_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>  <span class="c1"># avoid division ny zero</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">+=</span> <span class="n">gradient</span> <span class="o">@</span> <span class="n">gradient</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">G_t_inverse</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">delta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_t</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">momentum</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">*</span> <span class="n">G_t_inverse</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">change</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_t</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span> <span class="nc">RMS_prop</span><span class="p">(</span><span class="n">Solvers</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">def</span> <span class="nf">update_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>  <span class="c1"># avoid division ny zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">*</span> <span class="n">gradient</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">delta</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second</span> <span class="o">=</span> <span class="mf">0.0</span>
 </pre></div>
 
            </div>

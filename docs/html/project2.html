@@ -57,20 +57,22 @@
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.fit"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.fit()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.predict"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.predict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.calculate_score"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.calculate_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.get_score_evolution"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.get_score_evolution()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#regression-analysis-class">Regression analysis class</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#analysis.RegressionAnalysis.X"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.X</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#analysis.RegressionAnalysis.y"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.y</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linreg.RegressionAnalysis"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#linreg.RegressionAnalysis.X"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.X</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#linreg.RegressionAnalysis.y"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.y</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#regression-analysis-methods">Regression analysis methods</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis.set_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis.set_hyper_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_hyper_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#analysis.RegressionAnalysis.run"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linreg.RegressionAnalysis.set_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linreg.RegressionAnalysis.set_hyper_params"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.set_hyper_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linreg.RegressionAnalysis.run"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linreg.RegressionAnalysis.get_score_evol"><code class="docutils literal notranslate"><span class="pre">RegressionAnalysis.get_score_evol()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#logistic-regression-class">Logistic regression class</a><ul>
@@ -170,7 +172,7 @@
 <h2>Artificial neural network class<a class="headerlink" href="#artificial-neural-network-class" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ffnn.NeuralNetwork">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffnn.</span></span><span class="sig-name descname"><span class="pre">NeuralNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ffnn.html#NeuralNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffnn.NeuralNetwork" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffnn.</span></span><span class="sig-name descname"><span class="pre">NeuralNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ffnn.html#NeuralNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffnn.NeuralNetwork" title="Link to this definition"></a></dt>
 <dd><p>Artificial neural network class for regression and classification.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -211,6 +213,8 @@ classification is assumed.</p></li>
 weights will be initialized from the normal distribution. If
 <code class="docutils literal notranslate"><span class="pre">False</span></code> (default), the activation of the hidden layers controls
 this.</p></li>
+<li><p><strong>variable_eta</strong> (<em>boolearn</em><em>, </em><em>optional</em>) – Used with <cite>constant</cite> solver. If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), the learning
+rate will be set by a scheduler.</p></li>
 </ul>
 </dd>
 </dl>
@@ -223,7 +227,10 @@ this.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.fit" title="ffnn.NeuralNetwork.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X, y[, X_val, y_val, tol, patience, verbose])</p></td>
 <td><p>Train the network with features and targets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.predict" title="ffnn.NeuralNetwork.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X[, tol])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.get_score_evolution" title="ffnn.NeuralNetwork.get_score_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_evolution</span></code></a>([limit])</p></td>
+<td><p>Get the evolution of the score.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.predict" title="ffnn.NeuralNetwork.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X[, tol])</p></td>
 <td><p>Predict the output of a given dataset.</p></td>
 </tr>
 </tbody>
@@ -301,16 +308,33 @@ for classification.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="ffnn.NeuralNetwork.get_score_evolution">
+<span class="sig-prename descclassname"><span class="pre">NeuralNetwork.</span></span><span class="sig-name descname"><span class="pre">get_score_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ffnn.html#NeuralNetwork.get_score_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffnn.NeuralNetwork.get_score_evolution" title="Link to this definition"></a></dt>
+<dd><p>Get the evolution of the score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>limit</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Wether to slice the array to only contain improving values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>convergence</strong> – Convergence array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="regression-analysis-class">
 <h2>Regression analysis class<a class="headerlink" href="#regression-analysis-class" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis.</span></span><span class="sig-name descname"><span class="pre">RegressionAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis.html#RegressionAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis.RegressionAnalysis" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">linreg.</span></span><span class="sig-name descname"><span class="pre">RegressionAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linreg.html#RegressionAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#linreg.RegressionAnalysis" title="Link to this definition"></a></dt>
 <dd><p>Regression class.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis.X">
-<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#analysis.RegressionAnalysis.X" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.X">
+<span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#linreg.RegressionAnalysis.X" title="Link to this definition"></a></dt>
 <dd><p>Feature matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -320,8 +344,8 @@ for classification.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis.y">
-<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#analysis.RegressionAnalysis.y" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#linreg.RegressionAnalysis.y" title="Link to this definition"></a></dt>
 <dd><p>Target values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -333,13 +357,16 @@ for classification.</p>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.run" title="analysis.RegressionAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#linreg.RegressionAnalysis.get_score_evol" title="linreg.RegressionAnalysis.get_score_evol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_evol</span></code></a>([limit])</p></td>
+<td><p>Return the evolution of the score.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#linreg.RegressionAnalysis.run" title="linreg.RegressionAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.set_hyper_params" title="analysis.RegressionAnalysis.set_hyper_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyper_params</span></code></a>(learning_rate[, momentum])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#linreg.RegressionAnalysis.set_hyper_params" title="linreg.RegressionAnalysis.set_hyper_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyper_params</span></code></a>(learning_rate[, momentum])</p></td>
 <td><p>Set the hyper parameters to use.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#analysis.RegressionAnalysis.set_params" title="analysis.RegressionAnalysis.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(method, gradient_descent[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#linreg.RegressionAnalysis.set_params" title="linreg.RegressionAnalysis.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(method, gradient_descent[, ...])</p></td>
 <td><p>Set the parameters to use for the problem.</p></td>
 </tr>
 </tbody>
@@ -350,8 +377,8 @@ for classification.</p>
 <section id="regression-analysis-methods">
 <h2>Regression analysis methods<a class="headerlink" href="#regression-analysis-methods" title="Link to this heading"></a></h2>
 <dl class="py method">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis.set_params">
-<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_descent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis.html#RegressionAnalysis.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis.RegressionAnalysis.set_params" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.set_params">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_descent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linreg.html#RegressionAnalysis.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#linreg.RegressionAnalysis.set_params" title="Link to this definition"></a></dt>
 <dd><p>Set the parameters to use for the problem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -365,8 +392,8 @@ descent.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis.set_hyper_params">
-<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_hyper_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">hyperparams</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis.html#RegressionAnalysis.set_hyper_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis.RegressionAnalysis.set_hyper_params" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.set_hyper_params">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">set_hyper_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">hyperparams</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linreg.html#RegressionAnalysis.set_hyper_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#linreg.RegressionAnalysis.set_hyper_params" title="Link to this definition"></a></dt>
 <dd><p>Set the hyper parameters to use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -379,9 +406,27 @@ descent.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="analysis.RegressionAnalysis.run">
-<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis.html#RegressionAnalysis.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis.RegressionAnalysis.run" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.run">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linreg.html#RegressionAnalysis.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#linreg.RegressionAnalysis.run" title="Link to this definition"></a></dt>
 <dd><p>Run the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linreg.RegressionAnalysis.get_score_evol">
+<span class="sig-prename descclassname"><span class="pre">RegressionAnalysis.</span></span><span class="sig-name descname"><span class="pre">get_score_evol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linreg.html#RegressionAnalysis.get_score_evol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#linreg.RegressionAnalysis.get_score_evol" title="Link to this definition"></a></dt>
+<dd><p>Return the evolution of the score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>limit</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), return the evolution up until the
+best score.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>score_eval</strong> – The array containing the score evolution,</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -389,7 +434,7 @@ descent.</p></li>
 <h2>Logistic regression class<a class="headerlink" href="#logistic-regression-class" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="logreg.LogisticRegression">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">logreg.</span></span><span class="sig-name descname"><span class="pre">LogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logreg.html#LogisticRegression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#logreg.LogisticRegression" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">logreg.</span></span><span class="sig-name descname"><span class="pre">LogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logreg.html#LogisticRegression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#logreg.LogisticRegression" title="Link to this definition"></a></dt>
 <dd><p>Logistic regression class for binary classification.</p>
 <p>The sigmoid function is used on the predicted outcome:</p>
 <div class="math notranslate nohighlight">
@@ -408,8 +453,12 @@ descent.</p></li>
 <li><p><strong>eta</strong> (<em>float</em>) – Learning rate (step size).</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – L2 regularization parameter.</p></li>
 <li><p><strong>n_epochs</strong> (<em>int</em>) – Number of epochs (iterations) to perform.</p></li>
-<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tolerance of how equal the gradients are between runs
-(default: 10^-4).</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tolerance (default: 0.5) to set when predicting an outcome. If
+the prediction is lower than or equal to the tolerance: set to
+zero. If not: set to 1.</p></li>
+<li><p><strong>constant_eta</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), the learning rate will remain unchanged.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code> and <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">=</span> <span class="pre">X.shape[0]</span></code>, ie. plain GD, the
+learning rate will vary.</p></li>
 </ul>
 </dd>
 </dl>
@@ -431,7 +480,7 @@ descent.</p></li>
 <h2>Logistic regression methods<a class="headerlink" href="#logistic-regression-methods" title="Link to this heading"></a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="logreg.LogisticRegression.fit">
-<span class="sig-prename descclassname"><span class="pre">LogisticRegression.</span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logreg.html#LogisticRegression.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#logreg.LogisticRegression.fit" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">LogisticRegression.</span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logreg.html#LogisticRegression.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#logreg.LogisticRegression.fit" title="Link to this definition"></a></dt>
 <dd><p>Fit the model to the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

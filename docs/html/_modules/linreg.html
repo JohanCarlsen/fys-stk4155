@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>linreg &mdash; FYS-STK4155  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            FYS-STK4155
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../project1.html">Project 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project2.html">Project 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project3.html">Project 3</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FYS-STK4155</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">linreg</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for linreg</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span> 
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;../project1/props&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">calc</span> <span class="kn">import</span> <span class="n">Calculate</span> <span class="k">as</span> <span class="n">calc</span>
+<span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">grad</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">alive_progress</span> <span class="kn">import</span> <span class="n">alive_bar</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">solvers</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># import seaborn as sns </span>
+<span class="c1"># sns.set_theme()</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">2023</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RegressionAnalysis">
+<a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis">[docs]</a>
+<span class="k">class</span> <span class="nc">RegressionAnalysis</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Regression class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array_like</span>
+<span class="sd">        Feature matrix.</span>
+
+<span class="sd">    y : array_like</span>
+<span class="sd">        Target values.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculate_mse</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">mean_sq_err</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_optimizers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AdaGrad&#39;</span><span class="p">,</span> <span class="s1">&#39;RMSprop&#39;</span><span class="p">,</span> <span class="s1">&#39;ADAM&#39;</span><span class="p">,</span> <span class="s1">&#39;const&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_grad_descents</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GD&#39;</span><span class="p">,</span> <span class="s1">&#39;SGD&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_mom</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">def</span> <span class="nf">_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Split the data into training (80%) and test (20%) datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like</span>
+<span class="sd">            Feature matrix.</span>
+
+<span class="sd">        y : array_like</span>
+<span class="sd">            Target values.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_set_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autograd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the gradient for the problem from the cost function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        autograd : boolean, optional</span>
+<span class="sd">            If ``True``, uses the ``autograd`` package to calculate </span>
+<span class="sd">            the gradient. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">grad_ols</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">grad_ridge</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">lamb</span> <span class="o">*</span> <span class="n">beta</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">cost_ols</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">@</span> <span class="n">beta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">cost_ridge</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">@</span> <span class="n">beta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">lamb</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">beta</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;OLS&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">autograd</span><span class="p">:</span>
+                <span class="n">autograd_ols</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">cost_ols</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grad_func</span> <span class="o">=</span> <span class="n">autograd_ols</span>
+            
+            <span class="k">else</span><span class="p">:</span>                
+                <span class="bp">self</span><span class="o">.</span><span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_ols</span>
+        
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">autograd</span><span class="p">:</span>
+                <span class="n">autograd_ridge</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">cost_ridge</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grad_func</span> <span class="o">=</span> <span class="n">autograd_ridge</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_ridge</span>
+    
+    <span class="k">def</span> <span class="nf">_set_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the optimizer to use with the solver. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">AdaGrad</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span> <span class="o">+=</span> <span class="n">gradient</span> <span class="o">@</span> <span class="n">gradient</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">G_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span><span class="p">)</span>
+            <span class="n">G_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">eta</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">G_diag</span><span class="p">))]</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="n">G_inv</span> <span class="o">*</span> <span class="n">gradient</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">update</span>
+        
+        <span class="k">def</span> <span class="nf">RMSprop</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="mf">0.99</span>
+            <span class="n">G_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span> <span class="o">+=</span> <span class="n">gradient</span> <span class="o">@</span> <span class="n">gradient</span><span class="o">.</span><span class="n">T</span> 
+            <span class="n">G_new</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">G_prev</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span><span class="p">)</span>
+            <span class="n">G_diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">G_new</span><span class="p">)</span>
+            <span class="n">G_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">eta</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">G_diag</span><span class="p">))]</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="n">G_inv</span> <span class="o">*</span> <span class="n">gradient</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">update</span>
+        
+        <span class="k">def</span> <span class="nf">ADAM</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-8</span>
+            <span class="n">rho1</span> <span class="o">=</span> <span class="mf">0.9</span>
+            <span class="n">rho2</span> <span class="o">=</span> <span class="mf">0.999</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_moment</span> <span class="o">=</span> <span class="n">rho1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_moment</span> <span class="o">+</span> \
+                                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rho1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">second_moment</span> <span class="o">=</span> <span class="n">rho2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_moment</span> <span class="o">+</span> \
+                                 <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rho2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradient</span><span class="o">**</span><span class="mi">2</span>
+            
+            <span class="n">first_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_moment</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">rho1</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">iter</span><span class="p">)</span>
+            <span class="n">second_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_moment</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">rho2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">iter</span><span class="p">)</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">first_term</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">second_term</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">update</span>
+        
+        <span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_mom</span><span class="p">:</span>
+                <span class="n">momentum</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">new_change</span> <span class="o">=</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">+</span> <span class="n">momentum</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">change</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">new_change</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="n">new_change</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">update</span> <span class="o">=</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">update</span>
+
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimizer&#39;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Available optimizers are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_optimizers</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">assert</span> <span class="n">optimizer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_optimizers</span><span class="p">,</span> <span class="n">msg</span> 
+
+        <span class="k">if</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">optimizer</span> <span class="o">==</span> <span class="s1">&#39;const&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_mom</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">constant</span>
+        
+        <span class="k">elif</span> <span class="n">optimizer</span> <span class="o">==</span> <span class="s1">&#39;AdaGrad&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">AdaGrad</span>
+        
+        <span class="k">elif</span> <span class="n">optimizer</span> <span class="o">==</span> <span class="s1">&#39;RMSprop&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">RMSprop</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">ADAM</span>
+    
+    <span class="k">def</span> <span class="nf">_gradient_descent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mf">1e4</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Gradient descent solver method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_iter : int, optional</span>
+<span class="sd">            Maximum numbers of iterations to perform (defaul: 10^5).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;n_iterations&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+        <span class="k">def</span> <span class="nf">descent</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">stochastic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">stochastic</span><span class="p">:</span>
+                <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+                <span class="n">n_iter</span> <span class="o">=</span> <span class="n">i</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rand_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">rand_ind</span><span class="p">:</span><span class="n">rand_ind</span> <span class="o">+</span> <span class="n">M</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">rand_ind</span><span class="p">:</span><span class="n">rand_ind</span> <span class="o">+</span> <span class="n">M</span><span class="p">]</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">M</span>
+                <span class="n">n_iter</span> <span class="o">=</span> <span class="n">epoch</span>
+
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stochastic</span><span class="p">:</span>
+                    <span class="n">t0</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">t1</span> <span class="o">=</span> <span class="mi">10</span>
+                    <span class="n">schedule</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t0</span><span class="o">/</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">t1</span><span class="p">)</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="n">epoch</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="n">i</span> 
+                    <span class="n">eta</span> <span class="o">=</span> <span class="n">schedule</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">iter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_func</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">lamb</span><span class="p">)</span>
+                <span class="c1"># self.momentum(gradient, eta, momentum)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="p">)</span>
+
+                <span class="n">ypred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_test</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> 
+                <span class="n">mse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_mse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="n">ypred</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">mse</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span> <span class="o">=</span> <span class="n">mse</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="n">eta</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ypred</span> <span class="o">=</span> <span class="n">ypred</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_iterations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_iter</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;momentum&#39;</span><span class="p">:</span> <span class="n">momentum</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;lamb&#39;</span><span class="p">:</span> <span class="n">lamb</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">n_iter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">lamb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">momentum</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mom</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">eta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">G_outer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">first_moment</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">second_moment</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">iter</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gradient-descent&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;GD&#39;</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">max_iter</span>
+                        <span class="n">descent</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;minibatch_size&#39;</span><span class="p">]</span>
+                        <span class="n">n_epochs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_epochs&#39;</span><span class="p">]</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">/</span> <span class="n">M</span><span class="p">)</span>
+
+                        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+                            <span class="n">descent</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">stochastic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">patience</span><span class="p">:</span>
+                        <span class="k">break</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span><span class="p">})</span>
+    
+    <span class="k">def</span> <span class="nf">_set_momentum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the momentum for the solver.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">momentum</span><span class="p">(</span><span class="n">gradient</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_mom</span><span class="p">:</span>
+                <span class="n">new_change</span> <span class="o">=</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">gradient</span> <span class="o">+</span> <span class="n">momentum</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">change</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_change</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">-=</span> <span class="n">new_change</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="n">new_change</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">momentum</span> <span class="o">=</span> <span class="n">momentum</span>        
+    
+<div class="viewcode-block" id="RegressionAnalysis.set_params">
+<a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the parameters to use for the problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : {&#39;OLS&#39;, &#39;Ridge&#39;}, str</span>
+<span class="sd">            Which method to use. This also sets the cost function.</span>
+
+<span class="sd">        gradient_descent : {&#39;GD&#39;, &#39;SGD&#39;}, str</span>
+<span class="sd">            Weather to use plain gradiend descent or stochastic gradient</span>
+<span class="sd">            descent.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradient_descent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">=</span> <span class="n">patience</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+                       <span class="s1">&#39;gradient-descent&#39;</span><span class="p">:</span> <span class="n">gradient_descent</span><span class="p">,</span>
+                       <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer</span><span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_gradient</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_optimizer</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="RegressionAnalysis.set_hyper_params">
+<a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis.set_hyper_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_hyper_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">hyperparams</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the hyper parameters to use.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        learning_rate : float</span>
+<span class="sd">            Learning rate (step size) to use.</span>
+
+<span class="sd">        momentum : float, optional</span>
+<span class="sd">            Momentum for the solver. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">learning_rate</span><span class="p">])</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        
+        <span class="k">if</span> <span class="n">momentum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mom</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">momentum</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mom</span> <span class="o">=</span> <span class="p">[</span><span class="n">momentum</span><span class="p">]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mom</span> <span class="o">=</span> <span class="n">momentum</span>
+        
+        <span class="n">lamb</span> <span class="o">=</span> <span class="n">hyperparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lamb&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lamb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;OLS&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">=</span> <span class="p">[</span><span class="n">lamb</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">=</span> <span class="n">lamb</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_momentum</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="RegressionAnalysis.run">
+<a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Run the model. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">get_score_evol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the evolution of the score.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        limit : boolean, optional</span>
+<span class="sd">            If ``True`` (default), return the evolution up until the</span>
+<span class="sd">            best score.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        score_eval : array_like</span>
+<span class="sd">            The array containing the score evolution,</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span><span class="p">[:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;../../project1/props&#39;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">preprocess</span> <span class="kn">import</span> <span class="n">center</span><span class="p">,</span> <span class="n">norm_data_zero_one</span>
+    <span class="k">def</span> <span class="nf">test_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">a_0</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">a_1</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">a_2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+        <span class="n">a_3</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="c1"># f = a_0 + a_1 * x + a_2 * x**2 + a_3 * x**3</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span>
+
+        <span class="k">return</span> <span class="n">f</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e2</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">n</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">test_func</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y_true</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">center</span><span class="p">(</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:]</span>   
+
+    <span class="n">grads</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GD&#39;</span><span class="p">,</span> <span class="s1">&#39;SGD&#39;</span><span class="p">]</span>
+    <span class="n">etas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">moms</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">batch_sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">20</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">lambs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">olsGD_DF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">etas</span><span class="p">,</span> <span class="n">moms</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">etas</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">moms</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">alive_bar</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;OLS GD...&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">eta</span><span class="p">,</span> <span class="n">mom</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">RegressionAnalysis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;OLS&#39;</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="o">=</span><span class="s1">&#39;GD&#39;</span><span class="p">,</span>
+                           <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;ADAM&#39;</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_hyper_params</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">mom</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">reg</span><span class="o">.</span><span class="n">best_mse</span>
+
+            <span class="n">olsGD_DF</span> <span class="o">=</span> <span class="n">olsGD_DF</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="n">eta</span><span class="p">,</span>
+                                        <span class="s1">&#39;mom&#39;</span><span class="p">:</span> <span class="n">mom</span><span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bar</span><span class="p">()</span>
+    
+    <span class="n">olsGD_DF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;ADAM-OLS-GD.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">olsSGD_DF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">etas</span><span class="p">,</span> <span class="n">moms</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_sizes</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">*=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_sizes</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">alive_bar</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;OLS SDG...&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">eta</span><span class="p">,</span> <span class="n">mom</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">RegressionAnalysis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;OLS&#39;</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="o">=</span><span class="s1">&#39;SGD&#39;</span><span class="p">,</span>
+                           <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;ADAM&#39;</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="n">epoch</span><span class="p">,</span>
+                           <span class="n">minibatch_size</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_hyper_params</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">mom</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">reg</span><span class="o">.</span><span class="n">best_mse</span>
+
+            <span class="n">olsSGD_DF</span> <span class="o">=</span> <span class="n">olsSGD_DF</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="n">eta</span><span class="p">,</span>
+                                          <span class="s1">&#39;mom&#39;</span><span class="p">:</span> <span class="n">mom</span><span class="p">,</span> <span class="s1">&#39;batch&#39;</span><span class="p">:</span> <span class="n">batch</span><span class="p">,</span>
+                                          <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bar</span><span class="p">()</span>
+    
+    <span class="n">olsSGD_DF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;ADAM-OLS-SGD.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ridgeGD_DF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">etas</span><span class="p">,</span> <span class="n">moms</span><span class="p">,</span> <span class="n">lambs</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">etas</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">moms</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">lambs</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">alive_bar</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Ridge GD...&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">eta</span><span class="p">,</span> <span class="n">mom</span><span class="p">,</span> <span class="n">lamb</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">RegressionAnalysis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;Rdige&#39;</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="o">=</span><span class="s1">&#39;GD&#39;</span><span class="p">,</span>
+                           <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;ADAM&#39;</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_hyper_params</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">mom</span><span class="p">,</span>
+                                 <span class="n">lamb</span><span class="o">=</span><span class="n">lamb</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">reg</span><span class="o">.</span><span class="n">best_mse</span>
+
+            <span class="n">ridgeGD_DF</span> <span class="o">=</span> <span class="n">ridgeGD_DF</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="n">eta</span><span class="p">,</span>
+                                            <span class="s1">&#39;mom&#39;</span><span class="p">:</span> <span class="n">mom</span><span class="p">,</span> <span class="s1">&#39;lamb&#39;</span><span class="p">:</span> <span class="n">lamb</span><span class="p">},</span>
+                                            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bar</span><span class="p">()</span>
+
+    <span class="n">ridgeGD_DF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;ADAM-Ridge-GD.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ridgeSGD_DF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">etas</span><span class="p">,</span> <span class="n">moms</span><span class="p">,</span> <span class="n">lambs</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_sizes</span><span class="p">)</span>
+    <span class="n">tot</span> <span class="o">*=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_sizes</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">alive_bar</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Ridge SDG...&#39;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">eta</span><span class="p">,</span> <span class="n">mom</span><span class="p">,</span> <span class="n">lamb</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">RegressionAnalysis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;Ridge&#39;</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="o">=</span><span class="s1">&#39;SGD&#39;</span><span class="p">,</span>
+                           <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;ADAM&#39;</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="n">epoch</span><span class="p">,</span>
+                           <span class="n">minibatch_size</span><span class="o">=</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">set_hyper_params</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">mom</span><span class="p">,</span>
+                                 <span class="n">lamb</span><span class="o">=</span><span class="n">lamb</span><span class="p">)</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">reg</span><span class="o">.</span><span class="n">best_mse</span>
+
+            <span class="n">ridgeSGD_DF</span> <span class="o">=</span> <span class="n">ridgeSGD_DF</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="n">eta</span><span class="p">,</span>
+                                              <span class="s1">&#39;mom&#39;</span><span class="p">:</span> <span class="n">mom</span><span class="p">,</span> <span class="s1">&#39;lamb&#39;</span><span class="p">:</span> <span class="n">lamb</span><span class="p">,</span>
+                                              <span class="s1">&#39;batch&#39;</span><span class="p">:</span> <span class="n">batch</span><span class="p">,</span> 
+                                              <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bar</span><span class="p">()</span>
+    
+    <span class="n">ridgeSGD_DF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;ADAM-Ridge-SGD.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Johan Carlsen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

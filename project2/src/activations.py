@@ -189,3 +189,54 @@ class RandomInitializer(WeightInitializers):
     @staticmethod
     def initialize(size_in, size_out):
         return np.random.randn(size_in, size_out)
+
+if __name__ == '__main__':
+    import sys 
+    sys.path.insert(0, '../../project1')
+    sys.path.insert(0, '../../project1/props')
+    import seaborn as sns
+    import matplotlib.pyplot as plt 
+    import numpy as np 
+    from src import set_size
+    from preprocess import norm_data_zero_one
+
+    sns.set_theme()
+
+    plt.rcParams.update({
+    'font.size': 8,
+    'axes.titlesize': 8,
+    'axes.labelsize': 8,
+    'xtick.labelsize': 8,
+    'ytick.labelsize': 8,
+    'legend.fontsize': 8,
+    'savefig.bbox': 'tight',
+    })
+
+    n = 101
+    x = np.linspace(-10, 10, n)
+    ylrelu = norm_data_zero_one(LeakyReLU.function(x))
+    dylrelu = norm_data_zero_one(LeakyReLU.derivative(x))
+    ysigmoid = norm_data_zero_one(Sigmoid.function(x))
+    dysigmoid = norm_data_zero_one(Sigmoid.derivative(x))
+    ylin = norm_data_zero_one(Linear.function(x))
+    dylin = Linear.derivative(x)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(scale=1.7),
+                                   sharex=True)
+
+    ax1.plot(x, ysigmoid, label='Sigmoid')
+    ax1.plot(x, ylrelu, label='LReLU')
+    # ax1.plot(x, ylin, label='Linear')
+    ax2.plot(x, dysigmoid)
+    ax2.plot(x, dylrelu)
+    # ax2.plot(x, dylin)
+
+    ax2.set_xlabel(r'$x$')
+    ax1.legend(ncol=3, loc='upper left', bbox_to_anchor=[0, 1.15])
+
+    fig.supylabel(r'$y$', fontsize=8)
+    fig.tight_layout()
+    fig.savefig('../figures/pdfs/actfuncs.pdf')
+    fig.savefig('../figures/actfuncs.png')
+
+    plt.show()

@@ -14,19 +14,21 @@ Artificial neural network methods
 .. automethod:: ffnn.NeuralNetwork.predict
 
 .. automethod:: ffnn.NeuralNetwork.calculate_score
+.. automethod:: ffnn.NeuralNetwork.get_score_evolution
 
 Regression analysis class 
 -------------------------
 
-.. autoclass:: analysis.RegressionAnalysis
+.. autoclass:: linreg.RegressionAnalysis
 
 Regression analysis methods 
 ---------------------------
 
-.. automethod:: analysis.RegressionAnalysis.set_params
+.. automethod:: linreg.RegressionAnalysis.set_params
 
-.. automethod:: analysis.RegressionAnalysis.set_hyper_params
-.. automethod:: analysis.RegressionAnalysis.run
+.. automethod:: linreg.RegressionAnalysis.set_hyper_params
+.. automethod:: linreg.RegressionAnalysis.run
+.. automethod:: linreg.RegressionAnalysis.get_score_evol
 
 Logistic regression class 
 -------------------------

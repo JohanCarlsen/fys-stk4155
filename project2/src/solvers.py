@@ -103,3 +103,62 @@ class ADAM(Solvers):
         self.n_epochs += 1
         self.moment = 0 
         self.second = 0
+
+class Adagrad(Solvers):
+    def __init__(self, eta):
+        super().__init__(eta)
+        self.G_t = None
+
+    def update_change(self, gradient):
+        delta = 1e-8  # avoid division ny zero
+
+        if self.G_t is None:
+            self.G_t = np.zeros((gradient.shape[0], gradient.shape[0]))
+
+        self.G_t += gradient @ gradient.T
+
+        G_t_inverse = 1 / (
+            delta + np.sqrt(np.reshape(np.diagonal(self.G_t), (self.G_t.shape[0], 1)))
+        )
+        return self.eta * gradient * G_t_inverse
+
+    def reset(self):
+        self.G_t = None
+
+class AdagradMomentum(Solvers):
+    def __init__(self, eta, momentum):
+        super().__init__(eta)
+        self.G_t = None
+        self.momentum = momentum
+        self.change = 0
+
+    def update_change(self, gradient):
+        delta = 1e-8  # avoid division ny zero
+
+        if self.G_t is None:
+            self.G_t = np.zeros((gradient.shape[0], gradient.shape[0]))
+
+        self.G_t += gradient @ gradient.T
+
+        G_t_inverse = 1 / (
+            delta + np.sqrt(np.reshape(np.diagonal(self.G_t), (self.G_t.shape[0], 1)))
+        )
+        self.change = self.change * self.momentum + self.eta * gradient * G_t_inverse
+        return self.change
+
+    def reset(self):
+        self.G_t = None
+
+class RMS_prop(Solvers):
+    def __init__(self, eta, rho):
+        super().__init__(eta)
+        self.rho = rho
+        self.second = 0.0
+
+    def update_change(self, gradient):
+        delta = 1e-8  # avoid division ny zero
+        self.second = self.rho * self.second + (1 - self.rho) * gradient * gradient
+        return self.eta * gradient / (np.sqrt(self.second + delta))
+
+    def reset(self):
+        self.second = 0.0

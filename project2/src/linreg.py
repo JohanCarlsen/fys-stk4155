@@ -1,21 +1,22 @@
 import sys
 import os 
-sys.path.insert(0, '../../project1/props')
+sys.path.insert(0, '../project1/props')
+sys.path.insert(0, 'src')
 from calc import Calculate as calc
 import autograd.numpy as np 
 from autograd import grad
-from numpy import random
 import matplotlib.pyplot as plt 
 import warnings
 from sklearn.model_selection import train_test_split
 from alive_progress import alive_bar
 import pandas as pd
 from itertools import product
+from solvers import *
 
 # import seaborn as sns 
 # sns.set_theme()
 warnings.filterwarnings('ignore')
-random.seed(2023)
+np.random.seed(2023)
 
 class RegressionAnalysis:
     r'''
@@ -35,8 +36,11 @@ class RegressionAnalysis:
         self.n, self.p = X.shape
         self.calculate_mse = calc.mean_sq_err
 
-        self.valid_optimizers = ['AdaGrad', 'RMSprop', 'ADAM']
+        self.valid_optimizers = ['AdaGrad', 'RMSprop', 'ADAM', 'const']
         self.valid_grad_descents = ['GD', 'SGD']
+
+        self.score_evol = []
+        self.add_mom = False
     
     def _split(self, X, y):
         r'''
@@ -94,7 +98,7 @@ class RegressionAnalysis:
         r'''
         Set the optimizer to use with the solver. 
         '''
-        def AdaGrad(gradient, eta, **kwargs):
+        def AdaGrad(gradient, eta, *arg, **kwargs):
             delta = 1e-8
             self.G_outer += gradient @ gradient.T
             G_diag = np.diagonal(self.G_outer)
@@ -102,7 +106,7 @@ class RegressionAnalysis:
             update = G_inv * gradient 
             self.beta -= update
         
-        def RMSprop(gradient, eta, **kwargs):
+        def RMSprop(gradient, eta, *arg, **kwargs):
             delta = 1e-8
             rho = 0.99
             G_prev = self.G_outer
@@ -113,7 +117,7 @@ class RegressionAnalysis:
             update = G_inv * gradient 
             self.beta -= update
         
-        def ADAM(gradient, eta, **kwargs):
+        def ADAM(gradient, eta, *arg, **kwargs):
             delta = 1e-8
             rho1 = 0.9
             rho2 = 0.999
@@ -127,13 +131,25 @@ class RegressionAnalysis:
             second_term = self.second_moment / (1.0 - rho2**self.iter)
             update = eta * first_term / (delta + np.sqrt(second_term))
             self.beta -= update
+        
+        def constant(gradient, eta, *arg, **kwargs):
+            if self.add_mom:
+                momentum = arg[0]
+                new_change = eta * gradient + momentum * self.change
+                self.beta -= new_change
+                self.change = new_change
+
+            else:
+                update = eta * gradient 
+                self.beta -= update
 
         optimizer = self.params.get('optimizer')
         msg = f'Available optimizers are: {self.valid_optimizers}'
         assert optimizer in self.valid_optimizers, msg 
 
-        if optimizer is None:
-            self.optimizer = lambda x, y, **nonargs: None
+        if optimizer is None or optimizer == 'const':
+            self.add_mom = True
+            self.optimizer = constant
         
         elif optimizer == 'AdaGrad':
             self.optimizer = AdaGrad
@@ -144,7 +160,7 @@ class RegressionAnalysis:
         else:
             self.optimizer = ADAM
     
-    def _gradient_descent(self, max_iter=int(1e5), **kwargs):
+    def _gradient_descent(self, max_iter=int(1e4), **kwargs):
         r'''
         Gradient descent solver method.
 
@@ -155,7 +171,7 @@ class RegressionAnalysis:
         '''
         self.params.update({'n_iterations': 0})
 
-        def descent(m, stochastic=False, **kwargs):
+        def descent(m, eta, stochastic=False, **kwargs):
             i = 0
 
             if not stochastic:
@@ -164,20 +180,29 @@ class RegressionAnalysis:
                 n_iter = i
             
             else:
-                rand_ind = random.randint(m)
+                rand_ind = np.random.randint(m)
                 X = self.X[rand_ind:rand_ind + M]
                 y = self.y[rand_ind:rand_ind + M]
                 n = M
                 n_iter = epoch
 
             while i < m:
+                if stochastic:
+                    t0 = 1
+                    t1 = 10
+                    schedule = lambda t: t0/(t + t1)
+                    t = epoch * m + i 
+                    eta = schedule(t)
+
                 self.iter += 1
+
                 gradient = self.grad_func(n, X, y, self.beta, lamb)
-                self.momentum(gradient, eta, momentum)
-                self.optimizer(gradient, eta)
+                # self.momentum(gradient, eta, momentum)
+                self.optimizer(gradient, eta, momentum)
 
                 ypred = self.X_test @ self.beta 
                 mse = self.calculate_mse(self.y_test, ypred)
+                self.score_evol.append(mse)
                 
                 if mse < self.best_mse:
                     self.best_mse = mse
@@ -186,6 +211,7 @@ class RegressionAnalysis:
                     self.ypred = ypred
                     self.params['n_iterations'] = n_iter
                     self.params.update({'momentum': momentum})
+                    self.params.update({'lamb': lamb})
                     self.counter = 0
                 
                 else:
@@ -199,7 +225,7 @@ class RegressionAnalysis:
                 for eta in self.eta:
                     self.change = 0.0
                     self.G_outer = np.zeros((self.p, self.p))
-                    self.beta = random.randn(self.p, 1)
+                    self.beta = np.random.randn(self.p, 1)
                     self.first_moment = 0.0
                     self.second_moment = 0.0
                     self.iter = 0
@@ -207,7 +233,7 @@ class RegressionAnalysis:
 
                     if self.params['gradient-descent'] == 'GD':
                         m = max_iter
-                        descent(m)
+                        descent(m, eta)
 
                     else:
                         M = self.params['minibatch_size']
@@ -215,7 +241,7 @@ class RegressionAnalysis:
                         m = int(self.n / M)
 
                         for epoch in range(n_epochs):
-                            descent(m, stochastic=True, M=M)
+                            descent(m, eta, stochastic=True, M=M)
                     
                     if self.counter >= self.patience:
                         break
@@ -227,13 +253,18 @@ class RegressionAnalysis:
         Set the momentum for the solver.
         '''
         def momentum(gradient, eta, momentum):
-            new_change = eta * gradient + momentum * self.change
+            if self.add_mom:
+                new_change = eta * gradient + momentum * self.change
+
+            else:
+                new_change = 0
+
             self.beta -= new_change
             self.change = new_change
 
         self.momentum = momentum        
     
-    def set_params(self, method, gradient_descent, patience=1000, optimizer=None, **params):
+    def set_params(self, method, gradient_descent, patience=200, optimizer=None, **params):
         r'''
         Set the parameters to use for the problem.
 
@@ -286,8 +317,7 @@ class RegressionAnalysis:
             self.mom = momentum
         
         lamb = hyperparams.get('lamb')
-        if lamb is not None:
-
+        if lamb is not None and self.params.get('method') != 'OLS':
             if isinstance(lamb, float):
                 self.lamb = [lamb]
             
@@ -302,9 +332,35 @@ class RegressionAnalysis:
         r'''
         Run the model. 
         '''
+        self.score_evol = []
         self.solver(**self.params)
 
+    def get_score_evol(self, limit=True):
+        r'''
+        Return the evolution of the score.
+
+        Parameters
+        ----------
+        limit : boolean, optional
+            If ``True`` (default), return the evolution up until the
+            best score.
+
+        Returns
+        -------
+        score_eval : array_like
+            The array containing the score evolution,
+        '''
+        if limit:
+            idx = np.argwhere(self.score_evol == self.best_mse)[0][0]
+
+            return self.score_evol[:idx+1]
+        
+        else:
+            return self.score_evol
+
 if __name__ == '__main__':
+    sys.path.insert(0, '../../project1/props')
+    from preprocess import center, norm_data_zero_one
     def test_func(x):
         a_0 = 1
         a_1 = 2
@@ -317,103 +373,101 @@ if __name__ == '__main__':
 
     n = int(1e2)
     x = np.linspace(-4, 4, n)[:, np.newaxis]
-    y_true = test_func(x)
-    y = y_true + random.normal(0, 1, x.shape)
-    X = calc.create_X(x, poly_deg=3)
-    mean = np.mean(X, axis=0)
-    std = np.std(X, axis=0)
-    X = ((X - mean) / std)[:, 1:]
+    y_true = norm_data_zero_one(test_func(x))
+    y = y_true + np.random.normal(0, 0.1, x.shape)
 
-    optimizer = 'ADAM'
+    X = np.c_[np.ones(n), x, x**2, x**3]
+    X = center(X)[:, 1:]   
 
     grads = ['GD', 'SGD']
     etas = np.logspace(-5, -2, 4)
-    moms = np.arange(0, 1, 0.1)
-    epochs = np.logspace(2, 4, 4, dtype=np.int32)
-    batch_sizes = np.arange(5, n+1, 5)
+    moms = [0.0, 0.9]
+    epochs = np.logspace(1, 4, 4, dtype=np.int32)
+    batch_sizes = np.arange(n/20, n+1, 20, dtype=np.int32)
+    lambs = np.logspace(-5, -2, 4)
 
-    params = product(grads, epochs, batch_sizes)
-    tot = len(epochs) * len(batch_sizes) * len(grads)
+    olsGD_DF = pd.DataFrame()
+    params = product(etas, moms)
+    tot = len(etas) * len(moms)
 
-    df_gd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
-                                'Iterations'])
-    df_sgd = pd.DataFrame(columns=['MSE', 'Momentum', 'Learning-rate',
-                                'Iterations', 'Epoch', 'Batch-size'])
-
-    reg = RegressionAnalysis(X, y)
-
-    with alive_bar(tot, title='Processing...', length=20) as bar:
-        for grad, epoch, batch in params:
-
-            reg.set_params(method='OLS', gradient_descent=grad,
-                            optimizer='ADAM', n_epochs=epoch,
-                            minibatch_size=batch,
-                            max_iter=epoch)
-                    
-            reg.set_hyper_params(learning_rate=etas, momentum=moms)
+    with alive_bar(tot, title='OLS GD...', length=20) as bar:
+        for eta, mom in params:
+            reg = RegressionAnalysis(X, y)
+            reg.set_params(method='OLS', gradient_descent='GD',
+                           optimizer='ADAM')
+            reg.set_hyper_params(learning_rate=eta, momentum=mom)
             reg.run()
-            beta = reg.best_beta
-            ypred = X @ beta 
-            mse = reg.calculate_mse(y, ypred)
-            iters = reg.params.get('n_iterations')
-            mom = reg.params.get('momentum')
-            eta = reg.params.get('eta')
+            mse = reg.best_mse
 
+            olsGD_DF = olsGD_DF.append({'mse': mse, 'eta': eta,
+                                        'mom': mom}, ignore_index=True)
+            bar()
+    
+    olsGD_DF.to_csv('ADAM-OLS-GD.csv', index=False)
 
-            if grad == 'GD':
-                df_gd = df_gd.append({'MSE': mse, 'Momentum': mom,
-                                    'Learning-rate': eta,
-                                    'Iterations': iters},
-                                    ignore_index=True)
-            
-            else:
-                df_sgd = df_sgd.append({'MSE': mse, 'Momentum': mom,
-                                        'Learning-rate': eta,
-                                        'Iterations': iters, 'Epoch': epoch,
-                                        'Batch-size': batch},
-                                        ignore_index=True)
+    olsSGD_DF = pd.DataFrame()
+    params = product(etas, moms, epochs, batch_sizes)
+    tot *= len(epochs) * len(batch_sizes)
+
+    with alive_bar(tot, title='OLS SDG...', length=20) as bar:
+        for eta, mom, epoch, batch in params:
+            reg = RegressionAnalysis(X, y)
+            reg.set_params(method='OLS', gradient_descent='SGD',
+                           optimizer='ADAM', n_epochs=epoch,
+                           minibatch_size=batch)
+            reg.set_hyper_params(learning_rate=eta, momentum=mom)
+            reg.run()
+            mse = reg.best_mse
+
+            olsSGD_DF = olsSGD_DF.append({'mse': mse, 'eta': eta,
+                                          'mom': mom, 'batch': batch,
+                                          'epoch': epoch}, ignore_index=True)
+            bar()
+    
+    olsSGD_DF.to_csv('ADAM-OLS-SGD.csv', index=False)
+
+    ridgeGD_DF = pd.DataFrame()
+    params = product(etas, moms, lambs)
+    tot = len(etas) * len(moms) * len(lambs)
+
+    with alive_bar(tot, title='Ridge GD...', length=20) as bar:
+        for eta, mom, lamb in params:
+            reg = RegressionAnalysis(X, y)
+            reg.set_params(method='Rdige', gradient_descent='GD',
+                           optimizer='ADAM')
+            reg.set_hyper_params(learning_rate=eta, momentum=mom,
+                                 lamb=lamb)
+            reg.run()
+            mse = reg.best_mse
+
+            ridgeGD_DF = ridgeGD_DF.append({'mse': mse, 'eta': eta,
+                                            'mom': mom, 'lamb': lamb},
+                                            ignore_index=True)
             bar()
 
-    df_gd.to_csv('OLS-GD.csv', index=False)
-    df_sgd.to_csv('OLS-SGD.csv', index=False)
+    ridgeGD_DF.to_csv('ADAM-Ridge-GD.csv', index=False)
 
-    # title = f'Optimizer: {optimizer}\n'
-    # fig, ax = plt.subplots()
-    # ax.scatter(x, y, color='black', s=3, label='Data', alpha=0.5)
-    # ax.plot(x, y_true, color='blue', ls='dotted', label='True')
+    ridgeSGD_DF = pd.DataFrame()
+    params = product(etas, moms, lambs, epochs, batch_sizes)
+    tot *= len(epochs) * len(batch_sizes)
 
-    # reg = RegressionAnalysis(X, y)
-    # reg.set_params(method='OLS', gradient_descent='GD', optimizer=optimizer, max_iter=int(1e4))
+    with alive_bar(tot, title='Ridge SDG...', length=20) as bar:
+        for eta, mom, lamb, epoch, batch in params:
+            reg = RegressionAnalysis(X, y)
+            reg.set_params(method='Ridge', gradient_descent='SGD',
+                           optimizer='ADAM', n_epochs=epoch,
+                           minibatch_size=batch)
+            reg.set_hyper_params(learning_rate=eta, momentum=mom,
+                                 lamb=lamb)
+            reg.run()
+            mse = reg.best_mse
 
-    # reg.set_hyper_params(learning_rate=1e-3, momentum=mom)
-    # reg.run()
-    # print(reg.params)
-    # title += r'MSE$_\mathrm{OLS}$: ' + f'{reg.best_mse:.3f} | '
-    # ax.plot(x, reg.ypred, ls='dashdot', color='green', label='OLS GD')
+            ridgeSGD_DF = ridgeSGD_DF.append({'mse': mse, 'eta': eta,
+                                              'mom': mom, 'lamb': lamb,
+                                              'batch': batch, 
+                                              'epoch': epoch}, ignore_index=True)
+            bar()
+    
+    ridgeSGD_DF.to_csv('ADAM-Ridge-SGD.csv', index=False)
 
-    # reg.set_params(method='Ridge', gradient_descent='GD', optimizer=optimizer, max_iter=int(2.5e4))
-    # reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-    # reg.run()
-    # print(reg.params)
-    # title += r'MSE$_\mathrm{Ridge}$: ' + f'{reg.best_mse:.3f}'
-    # ax.plot(x, reg.ypred, ls='dashed', color='red', label='Ridge GD')
-
-    # reg.set_params(method='OLS', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-    # reg.set_hyper_params(learning_rate=eta, momentum=mom)
-    # reg.run()
-    # ax.plot(x, reg.ypred, color='magenta', label='OLS SGD')
-    # print(reg.params)
-    # title += '\n' + r'MSE$_\mathrm{OLS, SGD}$: ' + f'{reg.best_mse:.3f} | '
-
-    # reg.set_params(method='Ridge', gradient_descent='SGD', optimizer=optimizer, n_epochs=int(5e2), minibatch_size=70)
-    # reg.set_hyper_params(learning_rate=eta, lamb=1e-3, momentum=mom)
-    # reg.run()
-    # ax.plot(x, reg.ypred, color='orange', ls=(0, (3,5,1,5,1,5)), label='Ridge SGD')
-    # print(reg.params)
-    # title += r'MSE$_\mathrm{Ridge, SLGD}$: ' + f'{reg.best_mse:.3f}'
-
-    # fig.tight_layout()
-    # ax.set_xlabel(r'$x$')
-    # ax.set_ylabel(r'$y$')
-    # ax.legend()
     plt.show()

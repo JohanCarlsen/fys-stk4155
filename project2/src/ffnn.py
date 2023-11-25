@@ -62,16 +62,23 @@ class NeuralNetwork:
         weights will be initialized from the normal distribution. If
         ``False`` (default), the activation of the hidden layers controls
         this.
+
+    variable_eta : boolearn, optional
+        Used with `constant` solver. If ``True`` (default), the learning
+        rate will be set by a scheduler.
     '''
     def __init__(self, input_size, hidden_sizes, output_size, eta, alpha,
                  hidden_activation, output_activation, cost_function,
-                 epochs, batch_size, solver, random_weights=False):
+                 epochs, batch_size, solver, random_weights=False,
+                 variable_eta=True):
         
         self.layer_sizes = [input_size] + hidden_sizes + [output_size]
         self.eta = eta 
         self.alpha = alpha 
         self.epochs = epochs
         self.batch_size = batch_size
+        self.solver = solver
+        self.variable_eta = variable_eta
 
         activs = {'sigmoid': [Sigmoid, XavierInitializer],
                   'relu': [ReLU, HeInitializer],
@@ -84,13 +91,11 @@ class NeuralNetwork:
                  'cross': CrossEntropy,
                  'log': LogLoss}
         
-        solvers = {'adam': ADAM(self.eta),
-                   'constant': Constant(self.eta)}
+        self.convergence = []
         
         self.hidden_func, self.weight_func = activs[hidden_activation]
         self.output_func = out_activs[output_activation]
         self.cost_func = costs[cost_function]
-        self.solver = solvers[solver]
 
         if random_weights:
             self.weight_func = RandomInitializer
@@ -113,13 +118,6 @@ class NeuralNetwork:
 
             self.weights.append(weights)
             self.bias.append(bias)
-        
-        self.w_solver = []
-        self.b_solver = []
-
-        for i in range(len(self.weights)):
-            self.w_solver.append(copy(self.solver))
-            self.b_solver.append(copy(self.solver))
 
     def _feed_forward(self, X):
         r'''
@@ -266,47 +264,87 @@ class NeuralNetwork:
         shuffled_inds = np.random.choice(indices, size=n, replace=False)
         rand_inds = np.array_split(shuffled_inds, n_batches)
 
-        best_loss = np.inf
+        self.best_loss = np.inf
         best_weights = None 
         best_bias = None
         counter = 0
 
+        # Learning rate schedule for SGD
+        t0 = 1
+        t1 = 50
+        schedule = lambda t: t0 / (t + t1)
+
+        self.w_solver = []
+        self.b_solver = []
+
+        if not self.variable_eta:
+            if self.solver == 'adam':
+                solver = ADAM(self.eta)            
+            
+            elif self.solver == 'constant':
+                solver = Constant(self.eta)
+            
+            for i in range(len(self.weights)):
+                self.w_solver.append(copy(solver))
+                self.b_solver.append(copy(solver))
+
         for i in range(self.epochs):
+            k = 0
             for inds in rand_inds:
                 xi = X[inds]
                 yi = y[inds]
+
+                if self.variable_eta:
+                    t = i * n_batches + k
+                    self._learning_rate_scheduler(t)
+                    solver = Constant(self.eta)
+
+                    for i in range(len(self.weights)):
+                        self.w_solver.append(copy(solver))
+                        self.b_solver.append(copy(solver))                
 
                 self._backpropagate(xi, yi)
 
                 if has_val:
                     y_pred = self.predict(X_val)
                     loss = self.cost_func.loss(y_val, y_pred)
-                    score = self.calculate_score(y_val, y_pred)
 
-                    if loss < best_loss:
+                    if loss < self.best_loss:
                         counter = 0
 
-                        if abs(loss - best_loss) <= tol:
+                        if abs(loss - self.best_loss) <= tol:
                             break
 
-                        best_loss = loss
+                        self.best_loss = loss
                         best_weights = self.weights
                         best_bias = self.bias 
 
                     else:
                         counter += 1
+                k += 1
+
+            if has_val:
+                y_pred = self.predict(X_val)
+                if self.output_func == Linear:
+                    loss = self.cost_func.loss(y_val, y_pred)
+                    self.convergence.append(loss)
                 
+                else:
+                    score = self.calculate_score(y_val, y_pred)
+                    self.convergence.append(score)
+                    
+
             for w_solver, b_solver in zip(self.w_solver, self.b_solver):
                 w_solver.reset()
                 b_solver.reset()
 
             if counter >= patience:
                 if verbose:
-                    print(f'Early stopping at epoch {i} with loss: {best_loss}')
+                    print(f'Early stopping at epoch {i} with loss: {self.best_loss}')
 
                 break            
 
-        if best_loss < np.inf:
+        if self.best_loss < np.inf:
             self.weights = best_weights
             self.bias = best_bias
 
@@ -346,3 +384,41 @@ class NeuralNetwork:
             accuracy = np.sum(y_pred == y_true) / y_true.size
 
             return accuracy
+    
+    def get_score_evolution(self, limit=True):
+        r'''
+        Get the evolution of the score.
+
+        Parameters
+        ----------
+        limit : boolean, optional
+            Wether to slice the array to only contain improving values.
+
+        Returns
+        -------
+        convergence : ndarray
+            Convergence array.
+        '''
+        if limit:
+            if self.best_loss in self.convergence:
+                idx = np.argwhere(self.convergence == self.best_loss)[0][0]
+                
+                return self.convergence[:idx+1]
+        
+        else:
+            return self.convergence
+        
+    def _learning_rate_scheduler(self, t, t0=1, t1=50):
+        r'''
+        Set a learning rate scheduler to deal with the noise when using
+        the SGD method.
+
+        Parameters
+        ----------
+        t : float
+            Time step.
+
+        t0, t1 : int, optional
+            Scale parameters. Default values are ``t0=1`` and ``t1=50``.
+        '''
+        self.eta = t0 / (t + t1)

@@ -45,15 +45,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../project1.html">Project 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project2.html">Project 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-methods">Artificial neural network methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-class">Regression analysis class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-methods">Regression analysis methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#logistic-regression-methods">Logistic regression methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#preprocessing-of-data">Preprocessing of data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#cost-functions">Cost functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#solver-optimizers">Solver optimizers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#activation-functions">Activation functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project3.html">Project 3</a></li>
 </ul>
 
@@ -300,6 +291,57 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">size_in</span><span class="p">,</span> <span class="n">size_out</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">size_in</span><span class="p">,</span> <span class="n">size_out</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span> 
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;../../project1&#39;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;../../project1/props&#39;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+    <span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">set_size</span>
+    <span class="kn">from</span> <span class="nn">preprocess</span> <span class="kn">import</span> <span class="n">norm_data_zero_one</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;axes.titlesize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;axes.labelsize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;xtick.labelsize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;ytick.labelsize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;legend.fontsize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;savefig.bbox&#39;</span><span class="p">:</span> <span class="s1">&#39;tight&#39;</span><span class="p">,</span>
+    <span class="p">})</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">101</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">ylrelu</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">LeakyReLU</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">dylrelu</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">LeakyReLU</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">ysigmoid</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">Sigmoid</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">dysigmoid</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">Sigmoid</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">ylin</span> <span class="o">=</span> <span class="n">norm_data_zero_one</span><span class="p">(</span><span class="n">Linear</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">dylin</span> <span class="o">=</span> <span class="n">Linear</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">set_size</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1.7</span><span class="p">),</span>
+                                   <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ysigmoid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Sigmoid&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ylrelu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;LReLU&#39;</span><span class="p">)</span>
+    <span class="c1"># ax1.plot(x, ylin, label=&#39;Linear&#39;)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dysigmoid</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dylrelu</span><span class="p">)</span>
+    <span class="c1"># ax2.plot(x, dylin)</span>
+
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$x$&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">])</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">supylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$y$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;../figures/pdfs/actfuncs.pdf&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;../figures/actfuncs.png&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
            </div>
