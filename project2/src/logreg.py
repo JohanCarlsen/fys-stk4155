@@ -55,6 +55,7 @@ class LogisticRegression:
         self.is_fit = False
 
         self.score_evol = []
+        self.loss_evol = []
         self.const_eta = constant_eta
 
     def _sigmoid(self, X, beta):
@@ -134,13 +135,17 @@ class LogisticRegression:
                 yi = self.y[inds, :]
                 
                 y_pred = self._sigmoid(xi, self.beta)
-                loss = self.loss(yi, y_pred)
+                # loss = self.loss(yi, y_pred)
 
                 if has_val:
                     pred = self._sigmoid(X_val, self.beta)
+                    loss = self.loss(y_val, pred)
+                    self.loss_evol.append(loss)
+                    
                     pred = np.where(pred > self.tol, 1, 0)
                     score = np.sum(pred == y_val) / y_val.size 
                     self.score_evol.append(score)
+                    
 
                     if verbose:
                         print(f'Epoch: {i}')

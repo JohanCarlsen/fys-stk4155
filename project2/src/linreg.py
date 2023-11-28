@@ -187,7 +187,7 @@ class RegressionAnalysis:
                 n_iter = epoch
 
             while i < m:
-                if stochastic:
+                if stochastic and self.var_eta:
                     t0 = 1
                     t1 = 10
                     schedule = lambda t: t0/(t + t1)
@@ -264,7 +264,8 @@ class RegressionAnalysis:
 
         self.momentum = momentum        
     
-    def set_params(self, method, gradient_descent, patience=200, optimizer=None, **params):
+    def set_params(self, method, gradient_descent, patience=200,
+                   optimizer=None, variable_eta=False, **params):
         r'''
         Set the parameters to use for the problem.
 
@@ -280,6 +281,7 @@ class RegressionAnalysis:
         self.best_mse = np.inf
         self.solver = self._gradient_descent
         self.patience = patience
+        self.var_eta = variable_eta
 
         self.params = {'method': method,
                        'gradient-descent': gradient_descent,

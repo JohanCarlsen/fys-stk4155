@@ -1,4 +1,5 @@
 import autograd.numpy as np 
+from autograd import elementwise_grad
 
 class Activations:
     r'''
@@ -150,12 +151,19 @@ class LeakyReLU(Activations):
 class Softmax(Activations):
     @staticmethod
     def function(x):
-        exp_x = np.exp(x)
-        return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+        x = x - np.max(x, axis=-1, keepdims=True)
+        delta = 1e-9
+        return np.exp(x) / (np.sum(np.exp(x), axis=-1, keepdims=True) \
+                            + delta)
+        # exp_x = np.exp(x)
+        # return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
     @staticmethod
     def derivative(x):
-        raise NotImplementedError
+        func = Softmax.function
+        dfunc = elementwise_grad(func)
+        return dfunc(x)
+        # raise NotImplementedError
 
 class WeightInitializers:
     def __init__(self):

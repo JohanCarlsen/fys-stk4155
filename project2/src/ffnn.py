@@ -4,6 +4,7 @@ from copy import copy
 from cost_funcs import *
 from solvers import *
 from activations import *
+from preprocess import to_categorical
 
 class NeuralNetwork:
     r'''
@@ -80,18 +81,24 @@ class NeuralNetwork:
         self.solver = solver
         self.variable_eta = variable_eta
 
+        self.is_multilabel = False
+        if output_size > 1:
+            self.is_multilabel = True
+
         activs = {'sigmoid': [Sigmoid, XavierInitializer],
                   'relu': [ReLU, HeInitializer],
                   'lrelu': [LeakyReLU, LeCunInitializer]}
         
         out_activs = {'sigmoid': Sigmoid, 'relu': ReLU,
-                      'lreu': LeakyReLU, 'linear': Linear}
+                      'lreu': LeakyReLU, 'linear': Linear,
+                      'softmax': Softmax}
         
         costs = {'mse': MeanSquaredError,
                  'cross': CrossEntropy,
                  'log': LogLoss}
         
-        self.convergence = []
+        self.loss_evol = []
+        self.score_evol = []
         
         self.hidden_func, self.weight_func = activs[hidden_activation]
         self.output_func = out_activs[output_activation]
@@ -182,7 +189,11 @@ class NeuralNetwork:
 
         for i in range(len(self.weights) - 1, -1, -1):
             if i == len(self.weights) - 1:
-                delta = dOut(self.z[-1]) * dCost(y, y_pred)
+                if self.is_multilabel:
+                    delta = y_pred - y
+                
+                else:
+                    delta = dOut(self.z[-1]) * dCost(y, y_pred)
 
             else:
                 delta = (delta @ self.weights[i+1].T) * dHidden(self.z[i+1])
@@ -219,7 +230,10 @@ class NeuralNetwork:
         '''
         y_pred = self._feed_forward(X)
 
-        if self.output_func == Linear:
+        if self.is_multilabel:
+            return np.argmax(y_pred, axis=-1)
+
+        elif self.output_func == Linear:
             return y_pred
         
         else:
@@ -307,6 +321,8 @@ class NeuralNetwork:
 
                 if has_val:
                     y_pred = self.predict(X_val)
+                    if self.is_multilabel:
+                        y_pred = to_categorical(y_pred)
                     loss = self.cost_func.loss(y_val, y_pred)
 
                     if loss < self.best_loss:
@@ -325,13 +341,15 @@ class NeuralNetwork:
 
             if has_val:
                 y_pred = self.predict(X_val)
-                if self.output_func == Linear:
-                    loss = self.cost_func.loss(y_val, y_pred)
-                    self.convergence.append(loss)
-                
-                else:
-                    score = self.calculate_score(y_val, y_pred)
-                    self.convergence.append(score)
+
+                if self.is_multilabel:
+                    y_pred = to_categorical(y_pred)
+
+                loss = self.cost_func.loss(y_val, y_pred)
+                self.loss_evol.append(loss)
+
+                score = self.calculate_score(y_val, y_pred)
+                self.score_evol.append(score)
                     
 
             for w_solver, b_solver in zip(self.w_solver, self.b_solver):
@@ -381,7 +399,11 @@ class NeuralNetwork:
             return r2score
         
         else:
-            accuracy = np.sum(y_pred == y_true) / y_true.size
+            if self.is_multilabel:
+                accuracy = np.average(y_pred == y_true)
+
+            else:
+                accuracy = np.sum(y_pred == y_true) / y_true.size
 
             return accuracy
     
@@ -396,17 +418,47 @@ class NeuralNetwork:
 
         Returns
         -------
-        convergence : ndarray
-            Convergence array.
+        score_evol : ndarray
+            Score array.
         '''
         if limit:
-            if self.best_loss in self.convergence:
-                idx = np.argwhere(self.convergence == self.best_loss)[0][0]
-                
-                return self.convergence[:idx+1]
-        
+            idx = np.argwhere(self.loss_evol >= self.best_loss)[0][0]
+
+            if not idx is None:
+                return self.score_evol[:idx+1]
+            
+            else:
+                return self.score_evol
+            
         else:
-            return self.convergence
+            return self.score_evol
+        
+    def get_loss_evolution(self, limit=True):
+        r'''
+        Get the evolution of the loss.
+
+        Parameters
+        ----------
+        limit : boolean, optional
+            Wether to slice the array to only contain improving values.
+
+
+        Returns
+        -------
+        loss_evol : ndarray
+            Loss array.
+        '''
+        if limit:
+            idx = np.argwhere(self.loss_evol >= self.best_loss)[0][0]
+
+            if not idx is None:
+                return self.loss_evol[:idx+1]
+            
+            else:
+                return self.loss_evol
+            
+        else:
+            return self.loss_evol
         
     def _learning_rate_scheduler(self, t, t0=1, t1=50):
         r'''
