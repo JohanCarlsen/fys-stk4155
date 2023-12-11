@@ -64,7 +64,7 @@ class CrossEntropy(CostFunctions):
         '''
         delta = 1e-9
         n = y_true.size
-
+        
         return -(1.0 / n) * np.sum(y_true * np.log10(y_pred + delta))
 
 class LogLoss(CostFunctions):

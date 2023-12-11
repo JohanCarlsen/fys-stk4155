@@ -18,6 +18,7 @@
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="_static/design-tabs.js?v=36754332"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -47,15 +48,36 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="project1.html">Project 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project2.html">Project 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#artificial-neural-network-methods">Artificial neural network methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#regression-analysis-class">Regression analysis class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#regression-analysis-methods">Regression analysis methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#logistic-regression-methods">Logistic regression methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#preprocessing-of-data">Preprocessing of data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#cost-functions">Cost functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project2.html#activation-functions">Activation functions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Project 3</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project 3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#decision-tree-class">Decision tree class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decision_tree.DecisionTree"><code class="docutils literal notranslate"><span class="pre">DecisionTree</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#decision_tree.DecisionTree.fit"><code class="docutils literal notranslate"><span class="pre">DecisionTree.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decision_tree.DecisionTree.plot_tree"><code class="docutils literal notranslate"><span class="pre">DecisionTree.plot_tree()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decision_tree.DecisionTree.predict"><code class="docutils literal notranslate"><span class="pre">DecisionTree.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#classiciation-metrics">Classiciation metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#classification_metrics.Metrics"><code class="docutils literal notranslate"><span class="pre">Metrics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.accuracy"><code class="docutils literal notranslate"><span class="pre">Metrics.accuracy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.precision"><code class="docutils literal notranslate"><span class="pre">Metrics.precision</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.recall"><code class="docutils literal notranslate"><span class="pre">Metrics.recall</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.mean_precision"><code class="docutils literal notranslate"><span class="pre">Metrics.mean_precision</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.mean_recall"><code class="docutils literal notranslate"><span class="pre">Metrics.mean_recall</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classification_metrics.Metrics.print_metrics"><code class="docutils literal notranslate"><span class="pre">Metrics.print_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#classification_metrics.confusion_matrix"><code class="docutils literal notranslate"><span class="pre">confusion_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#preprocessing">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preprocess.to_categorical"><code class="docutils literal notranslate"><span class="pre">to_categorical()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preprocess.from_categorical"><code class="docutils literal notranslate"><span class="pre">from_categorical()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -84,6 +106,240 @@
              
   <section id="project-3">
 <h1>Project 3<a class="headerlink" href="#project-3" title="Link to this heading"></a></h1>
+<section id="decision-tree-class">
+<h2>Decision tree class<a class="headerlink" href="#decision-tree-class" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="decision_tree.DecisionTree">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">decision_tree.</span></span><span class="sig-name descname"><span class="pre">DecisionTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'entropy'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/decision_tree.html#DecisionTree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decision_tree.DecisionTree" title="Link to this definition"></a></dt>
+<dd><p>Decision tree for classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_depth</strong> (int, default <code class="docutils literal notranslate"><span class="pre">None</span></code>) – The maximum number of subtrees to grow during training.</p></li>
+<li><p><strong>min_split</strong> (<em>int</em><em>, </em><em>default 2</em>) – Minimum number of samples needed to split a node.</p></li>
+<li><p><strong>loss</strong> (<em>{'entropy'</em><em>, </em><em>'gini'}</em><em>, </em><em>default 'entropy'</em>) – Loss function to use.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#decision_tree.DecisionTree.fit" title="decision_tree.DecisionTree.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X, y)</p></td>
+<td><p>Train the tree on the input data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#decision_tree.DecisionTree.plot_tree" title="decision_tree.DecisionTree.plot_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_tree</span></code></a>(save_name[, format])</p></td>
+<td><p>Plot and save the structure of the tree.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#decision_tree.DecisionTree.predict" title="decision_tree.DecisionTree.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<td><p>Make a prediction with a trained tree.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="decision_tree.DecisionTree.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/decision_tree.html#DecisionTree.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decision_tree.DecisionTree.fit" title="Link to this definition"></a></dt>
+<dd><p>Train the tree on the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – Feature matrix of shape <cite>(n_data, n_features)</cite>.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em>) – Target values of shape <cite>(n_data,)</cite></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="decision_tree.DecisionTree.plot_tree">
+<span class="sig-name descname"><span class="pre">plot_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pdf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/decision_tree.html#DecisionTree.plot_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decision_tree.DecisionTree.plot_tree" title="Link to this definition"></a></dt>
+<dd><p>Plot and save the structure of the tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_name</strong> (<em>str</em>) – Filename to save the figure.</p></li>
+<li><p><strong>format</strong> (str, default <cite>pdf</cite>) – Format to save the figure.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="decision_tree.DecisionTree.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/decision_tree.html#DecisionTree.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#decision_tree.DecisionTree.predict" title="Link to this definition"></a></dt>
+<dd><p>Make a prediction with a trained tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>ndarray</em>) – Feature matrix of shape <cite>(n_data, n_features)</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The predictions from traverseing the tree.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="classiciation-metrics">
+<h2>Classiciation metrics<a class="headerlink" href="#classiciation-metrics" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="classification_metrics.Metrics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">classification_metrics.</span></span><span class="sig-name descname"><span class="pre">Metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classification_metrics.html#Metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#classification_metrics.Metrics" title="Link to this definition"></a></dt>
+<dd><p>Class for calculating the accuracy, precision, and recall between
+predicted and true labels.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathrm{Accuracy}&amp;=\mathrm{\frac{Correct\,predictions}{All\,predictions}}\\
+\mathrm{Precision}&amp;=\mathrm{\frac{TP}{TP+FP}}\\
+\mathrm{Recall}&amp;=\mathrm{\frac{TP}{TP+FN}}
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(TP,FP,FN\)</span> are true positive, false positive, and false
+negative, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array_like</em>) – True labels.</p></li>
+<li><p><strong>y_pred</strong> (<em>array_like</em>) – Predicted labels.</p></li>
+<li><p><strong>classes</strong> (<em>array_like</em>) – Class or classes to evaluate the metrics against.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.accuracy">
+<span class="sig-name descname"><span class="pre">accuracy</span></span><a class="headerlink" href="#classification_metrics.Metrics.accuracy" title="Link to this definition"></a></dt>
+<dd><p>Accuracy score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.precision">
+<span class="sig-name descname"><span class="pre">precision</span></span><a class="headerlink" href="#classification_metrics.Metrics.precision" title="Link to this definition"></a></dt>
+<dd><p>Precision score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.recall">
+<span class="sig-name descname"><span class="pre">recall</span></span><a class="headerlink" href="#classification_metrics.Metrics.recall" title="Link to this definition"></a></dt>
+<dd><p>Recall score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.mean_precision">
+<span class="sig-name descname"><span class="pre">mean_precision</span></span><a class="headerlink" href="#classification_metrics.Metrics.mean_precision" title="Link to this definition"></a></dt>
+<dd><p>Mean precision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.mean_recall">
+<span class="sig-name descname"><span class="pre">mean_recall</span></span><a class="headerlink" href="#classification_metrics.Metrics.mean_recall" title="Link to this definition"></a></dt>
+<dd><p>Mean recall.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#classification_metrics.Metrics.print_metrics" title="classification_metrics.Metrics.print_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_metrics</span></code></a>()</p></td>
+<td><p>Print the mean scores.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="classification_metrics.Metrics.print_metrics">
+<span class="sig-name descname"><span class="pre">print_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/classification_metrics.html#Metrics.print_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#classification_metrics.Metrics.print_metrics" title="Link to this definition"></a></dt>
+<dd><p>Print the mean scores.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="classification_metrics.confusion_matrix">
+<span class="sig-prename descclassname"><span class="pre">classification_metrics.</span></span><span class="sig-name descname"><span class="pre">confusion_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/classification_metrics.html#confusion_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#classification_metrics.confusion_matrix" title="Link to this definition"></a></dt>
+<dd><p>Calculate the confusion matrix for true and predicted labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array_like</em>) – True labels.</p></li>
+<li><p><strong>y_pred</strong> (<em>array_like</em>) – Predicted labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cont_mat</strong> – Confusion matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#preprocessing" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="preprocess.to_categorical">
+<span class="sig-prename descclassname"><span class="pre">preprocess.</span></span><span class="sig-name descname"><span class="pre">to_categorical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_categories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/preprocess.html#to_categorical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#preprocess.to_categorical" title="Link to this definition"></a></dt>
+<dd><p>Create one-hot vectors of the target data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>targets</strong> (<em>ndarray</em>) – Integer vector.</p></li>
+<li><p><strong>n_categories</strong> (<em>int</em><em>, </em><em>optional</em>) – If not set, the number of categories will be
+the highest value in <code class="docutils literal notranslate"><span class="pre">targets</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>onehot</strong> – A one-hot vector.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="preprocess.from_categorical">
+<span class="sig-prename descclassname"><span class="pre">preprocess.</span></span><span class="sig-name descname"><span class="pre">from_categorical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/preprocess.html#from_categorical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#preprocess.from_categorical" title="Link to this definition"></a></dt>
+<dd><p>Reverse operation from <a class="reference internal" href="#preprocess.to_categorical" title="preprocess.to_categorical"><code class="xref any py py-func docutils literal notranslate"><span class="pre">to_categorical</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>targets</strong> (<em>ndarray</em>) – The one-hot array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Numeric values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 

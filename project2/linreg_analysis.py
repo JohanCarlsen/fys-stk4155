@@ -63,37 +63,37 @@ dfs = [olsGD, ridgeGD, olsSGD, ridgeSGD]
 adamDFs = [adamOlsGD, adamRidgeGD, adamOlsSGD, adamRidgeSGD]
 names = ['OLSGD', 'RidgeGD', 'OLSSGD', 'RidgeSGD']
 
-# fig, axes = plt.subplots(2, 2, figsize=set_size('text', scale=1.3),
-#                          sharex='col', sharey='row')
+fig, axes = plt.subplots(2, 2, figsize=set_size('text', scale=1.3),
+                         sharex='col', sharey='row')
 
-# fig.suptitle(r'Constant eta')
-# for df, name, ax in zip(dfs, names, axes.flatten()):
-#     plot_heatmap(df, name, ax)
+fig.suptitle(r'Constant eta')
+for df, name, ax in zip(dfs, names, axes.flatten()):
+    plot_heatmap(df, name, ax)
 
-# fig.savefig('figures/pdfs/heat-const.pdf')
-# fig.savefig('figures/heat-const.png')
+fig.savefig('figures/pdfs/heat-const.pdf')
+fig.savefig('figures/heat-const.png')
 
-# fig, axes = plt.subplots(2, 2, figsize=set_size('text', scale=1.3),
-#                          sharex='col', sharey='row')
+fig, axes = plt.subplots(2, 2, figsize=set_size('text', scale=1.3),
+                         sharex='col', sharey='row')
 
-# fig.suptitle('ADAM optimizer')
-# for df, name, ax in zip(adamDFs, names, axes.flatten()):
-#     plot_heatmap(df, name, ax)
+fig.suptitle('ADAM optimizer')
+for df, name, ax in zip(adamDFs, names, axes.flatten()):
+    plot_heatmap(df, name, ax)
 
-# fig.savefig('figures/pdfs/heat-adam.pdf')
-# fig.savefig('figures/heat-adam.png')
+fig.savefig('figures/pdfs/heat-adam.pdf')
+fig.savefig('figures/heat-adam.png')
 
-# for i, df in enumerate(dfs):
-#     arr = np.array(df['mse'])
-#     idx = np.argwhere(arr == np.min(arr))[0][0]
-#     print(f'\n {names[i]}')
-#     print(df.loc[[idx], :])
+for i, df in enumerate(dfs):
+    arr = np.array(df['mse'])
+    idx = np.argwhere(arr == np.min(arr))[0][0]
+    print(f'\n {names[i]}')
+    print(df.loc[[idx], :])
 
-# for i, adamDFs in enumerate(dfs):
-#     arr = np.array(adamDFs['mse'])
-#     idx = np.argwhere(arr == np.min(arr))[0][0]
-#     print(f'\n {names[i]}')
-#     print(adamDFs.loc[[idx], :])
+for i, adamDFs in enumerate(dfs):
+    arr = np.array(adamDFs['mse'])
+    idx = np.argwhere(arr == np.min(arr))[0][0]
+    print(f'\n {names[i]}')
+    print(adamDFs.loc[[idx], :])
 
 def test_func(x):
     a_0 = 1
@@ -110,16 +110,16 @@ x = np.linspace(-4, 4, n)[:, np.newaxis]
 y_true = norm_data_zero_one(test_func(x))
 y = y_true + np.random.normal(0, 0.1, x.shape)
 
-# fig, ax = plt.subplots(figsize=set_size())
-# ax.scatter(x, y, s=1, color='black', label='Data')
-# ax.plot(x, y_true, label='True')
-# ax.set_xlabel(r'$x$')
-# ax.set_ylabel(r'$y$')
-# ax.legend()
+fig, ax = plt.subplots(figsize=set_size())
+ax.scatter(x, y, s=1, color='black', label='Data')
+ax.plot(x, y_true, label='True')
+ax.set_xlabel(r'$x$')
+ax.set_ylabel(r'$y$')
+ax.legend()
 
-# fig.tight_layout()
-# fig.savefig('figures/pdfs/regfunc.pdf')
-# fig.savefig('figures/regfunc.png')
+fig.tight_layout()
+fig.savefig('figures/pdfs/regfunc.pdf')
+fig.savefig('figures/regfunc.png')
 
 X = np.c_[np.ones(n), x, x**2, x**3]
 X = center(X)[:, 1:]

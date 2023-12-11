@@ -1,7 +1,8 @@
 import autograd.numpy as np 
-from cost_funcs import LogLoss
+from cost_funcs import LogLoss, CrossEntropy
 from autograd import grad 
 import matplotlib.pyplot as plt
+from preprocess import to_categorical
 
 class LogisticRegression:
     r'''
@@ -38,20 +39,31 @@ class LogisticRegression:
         the prediction is lower than or equal to the tolerance: set to 
         zero. If not: set to 1.
 
+    multilabel : boolean, optional 
+        If ``True``, the cost function is the cost entropy, and the 
+        prediction is the argmax function.
+
     constant_eta : boolean, optional
         If ``True`` (default), the learning rate will remain unchanged.
         If ``False`` and ``batch_size = X.shape[0]``, ie. plain GD, the
         learning rate will vary.
     '''
     def __init__(self, eta, alpha, n_epochs, batch_size, tol=0.5,
-                 constant_eta=True):
+                 multilabel=False, constant_eta=True):
         
         self.eta = eta
         self.alpha = alpha
         self.epochs = n_epochs
         self.batch_size = batch_size
         self.tol = tol
-        self.loss = LogLoss.loss
+        self.is_multilabel = multilabel
+
+        if multilabel:
+            self.loss = CrossEntropy.loss
+        
+        else:
+            self.loss = LogLoss.loss
+
         self.is_fit = False
 
         self.score_evol = []
@@ -86,7 +98,7 @@ class LogisticRegression:
         return 1 / (1 + np.exp(-y_tilde))
     
     def fit(self, X, y, X_val=None, y_val=None, verbose=True,
-            patience=100):
+            patience=10):
         r'''
         Fit the model to the data.
 
@@ -112,7 +124,8 @@ class LogisticRegression:
             has_val=True
 
         self.X = X
-        self.beta = np.zeros((self.X.shape[1], 1))
+        self.beta = np.zeros((X.shape[1], y.shape[1]))
+        # self.beta = np.zeros((self.X.shape[1], 1))
         self.y = y 
 
         n = self.X.shape[0]
@@ -135,10 +148,13 @@ class LogisticRegression:
                 yi = self.y[inds, :]
                 
                 y_pred = self._sigmoid(xi, self.beta)
-                # loss = self.loss(yi, y_pred)
 
                 if has_val:
-                    pred = self._sigmoid(X_val, self.beta)
+                    pred = self.predict(X_val)
+
+                    if self.beta.shape[1] > 1:
+                        pred = to_categorical(pred, self.beta.shape[1])
+                        
                     loss = self.loss(y_val, pred)
                     self.loss_evol.append(loss)
                     
@@ -149,7 +165,7 @@ class LogisticRegression:
 
                     if verbose:
                         print(f'Epoch: {i}')
-                        print(f'Accuracy: {score}\n')
+                        print(f'Score: {score}\n')
 
                     if score > best_acc:
                         best_acc = score 
@@ -186,18 +202,22 @@ class LogisticRegression:
         NotImplementedError
             If the model has not been fitted to data.
         '''
-        if not self.is_fit:
-            raise NotImplementedError
         
         y_pred = self._sigmoid(X, self.beta)
 
-        return np.where(y_pred > self.tol, 1, 0)
+        if self.is_multilabel:
+            return np.argmax(y_pred, axis=-1)
+        
+        else:
+            return np.where(y_pred > self.tol, 1, 0)
     
     def _eta_scheduler(self, t, t0=50, t1=75):
 
         self.eta = t0 / (t + t1)
 
 if __name__ == '__main__':
+    import sys 
+    sys.path.insert(0, '..')
     from sklearn.model_selection import train_test_split
     from sklearn.datasets import load_breast_cancer
     from preprocess import center
@@ -214,6 +234,7 @@ if __name__ == '__main__':
 
     logreg = LogisticRegression(1e-3, 1e-3, int(1e4), batch_size=100,
                                 constant_eta=False)
+    
     logreg.fit(X_train, y_train, X_test, y_test, verbose=True)
     y_pred = logreg.predict(X_test)
 

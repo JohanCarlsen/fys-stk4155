@@ -264,7 +264,7 @@
                 <span class="n">n_iter</span> <span class="o">=</span> <span class="n">epoch</span>
 
             <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">stochastic</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stochastic</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_eta</span><span class="p">:</span>
                     <span class="n">t0</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">t1</span> <span class="o">=</span> <span class="mi">10</span>
                     <span class="n">schedule</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t0</span><span class="o">/</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">t1</span><span class="p">)</span>
@@ -343,7 +343,8 @@
     
 <div class="viewcode-block" id="RegressionAnalysis.set_params">
 <a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis.set_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">gradient_descent</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                   <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable_eta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set the parameters to use for the problem.</span>
 
@@ -359,6 +360,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">best_mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradient_descent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">=</span> <span class="n">patience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_eta</span> <span class="o">=</span> <span class="n">variable_eta</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
                        <span class="s1">&#39;gradient-descent&#39;</span><span class="p">:</span> <span class="n">gradient_descent</span><span class="p">,</span>
@@ -421,6 +423,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="RegressionAnalysis.get_score_evol">
+<a class="viewcode-back" href="../project2.html#linreg.RegressionAnalysis.get_score_evol">[docs]</a>
     <span class="k">def</span> <span class="nf">get_score_evol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Return the evolution of the score.</span>
@@ -443,6 +447,7 @@
         
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span></div>
+</div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

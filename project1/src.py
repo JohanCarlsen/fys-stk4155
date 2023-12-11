@@ -1,6 +1,3 @@
-import sys 
-import os
-sys.path.append('./props')
 import numpy as np 
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
@@ -15,7 +12,7 @@ from sklearn.utils import resample
 from scipy.linalg import svd
 from time import perf_counter_ns
 from numba import njit
-from calc import Calculate
+from props.calc import Calculate
 
 plt.rcParams.update({
     'lines.linewidth': 1,

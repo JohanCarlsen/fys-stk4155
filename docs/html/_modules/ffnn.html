@@ -79,6 +79,7 @@
 <span class="kn">from</span> <span class="nn">cost_funcs</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">solvers</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">activations</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">preprocess</span> <span class="kn">import</span> <span class="n">to_categorical</span>
 
 <div class="viewcode-block" id="NeuralNetwork">
 <a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork">[docs]</a>
@@ -157,18 +158,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable_eta</span> <span class="o">=</span> <span class="n">variable_eta</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">output_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Controls the way the predictions are represented. When </span>
+<span class="sd">            is_multilabel is true, predictions will be represented as</span>
+<span class="sd">            one-hot vectors.</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="n">activs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Sigmoid</span><span class="p">,</span> <span class="n">XavierInitializer</span><span class="p">],</span>
                   <span class="s1">&#39;relu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">ReLU</span><span class="p">,</span> <span class="n">HeInitializer</span><span class="p">],</span>
                   <span class="s1">&#39;lrelu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">LeakyReLU</span><span class="p">,</span> <span class="n">LeCunInitializer</span><span class="p">]}</span>
         
         <span class="n">out_activs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">Sigmoid</span><span class="p">,</span> <span class="s1">&#39;relu&#39;</span><span class="p">:</span> <span class="n">ReLU</span><span class="p">,</span>
-                      <span class="s1">&#39;lreu&#39;</span><span class="p">:</span> <span class="n">LeakyReLU</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">Linear</span><span class="p">}</span>
+                      <span class="s1">&#39;lreu&#39;</span><span class="p">:</span> <span class="n">LeakyReLU</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">Linear</span><span class="p">,</span>
+                      <span class="s1">&#39;softmax&#39;</span><span class="p">:</span> <span class="n">Softmax</span><span class="p">}</span>
         
         <span class="n">costs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mse&#39;</span><span class="p">:</span> <span class="n">MeanSquaredError</span><span class="p">,</span>
                  <span class="s1">&#39;cross&#39;</span><span class="p">:</span> <span class="n">CrossEntropy</span><span class="p">,</span>
                  <span class="s1">&#39;log&#39;</span><span class="p">:</span> <span class="n">LogLoss</span><span class="p">}</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span> <span class="o">=</span> <span class="p">[]</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">hidden_func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_func</span> <span class="o">=</span> <span class="n">activs</span><span class="p">[</span><span class="n">hidden_activation</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">=</span> <span class="n">out_activs</span><span class="p">[</span><span class="n">output_activation</span><span class="p">]</span>
@@ -259,7 +272,11 @@
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">delta</span> <span class="o">=</span> <span class="n">dOut</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">dCost</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span><span class="p">:</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">y</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">dOut</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">dCost</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">delta</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">dHidden</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
@@ -298,7 +315,10 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feed_forward</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">==</span> <span class="n">Linear</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">==</span> <span class="n">Linear</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">y_pred</span>
         
         <span class="k">else</span><span class="p">:</span>
@@ -307,7 +327,7 @@
 
 <div class="viewcode-block" id="NeuralNetwork.fit">
 <a class="viewcode-back" href="../project2.html#ffnn.NeuralNetwork.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Train the network with features and targets.</span>
@@ -383,12 +403,17 @@
 
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">solver</span><span class="p">))</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">solver</span><span class="p">))</span>                
+                        <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">solver</span><span class="p">))</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_backpropagate</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">has_val</span><span class="p">:</span>
                     <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span><span class="p">:</span>
+                        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span>
+                                                <span class="n">n_categories</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
                     <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">loss</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">:</span>
@@ -407,13 +432,16 @@
 
             <span class="k">if</span> <span class="n">has_val</span><span class="p">:</span>
                 <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_func</span> <span class="o">==</span> <span class="n">Linear</span><span class="p">:</span>
-                    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
-                
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span><span class="p">:</span>
+                    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span>
+                                            <span class="n">n_categories</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost_func</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+                <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
                     
 
             <span class="k">for</span> <span class="n">w_solver</span><span class="p">,</span> <span class="n">b_solver</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_solver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_solver</span><span class="p">):</span>
@@ -466,7 +494,11 @@
             <span class="k">return</span> <span class="n">r2score</span>
         
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_true</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel</span><span class="p">:</span>
+                <span class="n">accuracy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_true</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">accuracy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_true</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span>
 
             <span class="k">return</span> <span class="n">accuracy</span></div>
 
@@ -484,18 +516,48 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        convergence : ndarray</span>
-<span class="sd">            Convergence array.</span>
+<span class="sd">        score_evol : ndarray</span>
+<span class="sd">            Score array.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">limit</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span><span class="p">:</span>
-                <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">convergence</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span><span class="p">[:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-        
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence</span></div>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span><span class="p">[:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_evol</span></div>
+
+        
+    <span class="k">def</span> <span class="nf">get_loss_evolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the evolution of the loss.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        limit : boolean, optional</span>
+<span class="sd">            Wether to slice the array to only contain improving values.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        loss_evol : ndarray</span>
+<span class="sd">            Loss array.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_loss</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span><span class="p">[:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_evol</span>
         
     <span class="k">def</span> <span class="nf">_learning_rate_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">t1</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>

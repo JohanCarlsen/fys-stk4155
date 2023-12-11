@@ -74,6 +74,7 @@
              
   <h1>Source code for activations</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">elementwise_grad</span>
 
 <span class="k">class</span> <span class="nc">Activations</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
@@ -252,12 +253,19 @@
 <span class="k">class</span> <span class="nc">Softmax</span><span class="p">(</span><span class="n">Activations</span><span class="p">):</span>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-        <span class="n">exp_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">exp_x</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">exp_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-9</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> \
+                            <span class="o">+</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="c1"># exp_x = np.exp(x)</span>
+        <span class="c1"># return exp_x / np.sum(exp_x, axis=1, keepdims=True)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">derivative</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">Softmax</span><span class="o">.</span><span class="n">function</span>
+        <span class="n">dfunc</span> <span class="o">=</span> <span class="n">elementwise_grad</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dfunc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># raise NotImplementedError</span>
 
 <span class="k">class</span> <span class="nc">WeightInitializers</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

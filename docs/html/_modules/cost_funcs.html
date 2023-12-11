@@ -6,6 +6,7 @@
   <title>cost_funcs &mdash; FYS-STK4155  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,7 @@
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/design-tabs.js?v=36754332"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -43,14 +45,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../project1.html">Project 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project2.html">Project 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-class">Artificial neural network class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#artificial-neural-network-methods">Artificial neural network methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-class">Regression analysis class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#regression-analysis-methods">Regression analysis methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#logistic-regression-methods">Logistic regression methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#preprocessing-of-data">Preprocessing of data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#cost-functions">Cost functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../project2.html#activation-functions">Activation functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../project3.html">Project 3</a></li>
 </ul>
 
@@ -155,7 +149,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="mf">1e-9</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span>
-
+        
         <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">+</span> <span class="n">delta</span><span class="p">))</span></div>
 </div>
 

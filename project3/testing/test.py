@@ -1,7 +1,7 @@
 import sys
-sys.path.insert(0, '../project1')
-sys.path.insert(0, '../project2/src')
-sys.path.insert(0, '../project1/props')
+sys.path.insert(0, '../../project2/src')
+sys.path.insert(0, '../..')
+sys.path.insert(0, '..')
 
 import autograd.numpy as np 
 from sklearn.model_selection import train_test_split
@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 from alive_progress import alive_bar
 import seaborn as sns
 
-from ffnn import NeuralNetwork
-from logreg import LogisticRegression
-from preprocess import center
-from src import set_size
+from project2.src.ffnn import NeuralNetwork
+from project2.src.logreg import LogisticRegression
+from project2.src.preprocess import center
+from project1.src import set_size
 
 sns.set_theme()
 np.random.seed(2023)

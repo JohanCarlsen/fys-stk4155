@@ -82,7 +82,13 @@ class NeuralNetwork:
         self.variable_eta = variable_eta
 
         self.is_multilabel = False
+
         if output_size > 1:
+            '''
+            Controls the way the predictions are represented. When 
+            is_multilabel is true, predictions will be represented as
+            one-hot vectors.
+            '''
             self.is_multilabel = True
 
         activs = {'sigmoid': [Sigmoid, XavierInitializer],
@@ -239,7 +245,7 @@ class NeuralNetwork:
         else:
             return np.where(y_pred > tol, 1, 0)
 
-    def fit(self, X, y, X_val=None, y_val=None, tol=1e-4, patience=100,
+    def fit(self, X, y, X_val=None, y_val=None, tol=1e-4, patience=10,
             verbose=True):
         r'''
         Train the network with features and targets.
@@ -315,14 +321,17 @@ class NeuralNetwork:
 
                     for i in range(len(self.weights)):
                         self.w_solver.append(copy(solver))
-                        self.b_solver.append(copy(solver))                
+                        self.b_solver.append(copy(solver))
 
                 self._backpropagate(xi, yi)
 
                 if has_val:
                     y_pred = self.predict(X_val)
+
                     if self.is_multilabel:
-                        y_pred = to_categorical(y_pred)
+                        y_pred = to_categorical(y_pred,
+                                                n_categories=self.layer_sizes[-1])
+
                     loss = self.cost_func.loss(y_val, y_pred)
 
                     if loss < self.best_loss:
@@ -343,7 +352,8 @@ class NeuralNetwork:
                 y_pred = self.predict(X_val)
 
                 if self.is_multilabel:
-                    y_pred = to_categorical(y_pred)
+                    y_pred = to_categorical(y_pred,
+                                            n_categories=self.layer_sizes[-1])
 
                 loss = self.cost_func.loss(y_val, y_pred)
                 self.loss_evol.append(loss)
