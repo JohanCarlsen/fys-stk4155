@@ -6,7 +6,7 @@ from preprocess import to_categorical
 
 class LogisticRegression:
     r'''
-    Logistic regression class for binary classification.
+    Logistic regression class for classification.
 
     The sigmoid function is used on the predicted outcome:
 

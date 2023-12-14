@@ -484,3 +484,86 @@ class NeuralNetwork:
             Scale parameters. Default values are ``t0=1`` and ``t1=50``.
         '''
         self.eta = t0 / (t + t1)
+
+    def plot_layers(self, node_size=50, layer_spacing=2.5,
+                    node_spacing=1.5, lw=0.25, ax=None):
+        r'''
+        Plot a figure of the layer structure. 
+
+        Parameters
+        ----------
+        node_size : int, default 50
+            Size of the nodes, which are created with ``matplotlib.pyplot.scatter``.
+
+        layer_spacing : float, default 2.5
+            Distance between the layers along the x-axis.
+
+        node_spacing : float, defayúlt 1.5
+            Vertical distance between the nodes in a layer.
+
+        lw : float, default 0.25
+            Width of the lines between the nodes.
+
+        ax : matplotlib.AxesUbplot, optional
+            If provided, the figure will be plotted on the given axis.
+        '''
+        layers = self.layer_sizes
+        nodes = max(layers)
+
+        if ax is None:
+            fig, ax = plt.subplots()
+        
+        ax.axis('off')
+
+        layer_x = [i * layer_spacing for i in range(len(layers))]
+        y_offset = [node_spacing * (nodes - layer_size) / 2 for layer_size in layers]
+
+        for i, layer_size in enumerate(layers):
+            for j in range(layer_size):
+                ax.scatter(layer_x[i],
+                           j * node_spacing + y_offset[i],
+                           s=node_size, ec='black', fc='grey', lw=0.5)
+
+            if i < len(layers) - 1:
+                for node1 in range(layers[i]):
+                    for node2 in range(layers[i+1]):
+                        ax.plot([layer_x[i], layer_x[i+1]],
+                                [node1 * node_spacing + y_offset[i],
+                                 node2 * node_spacing + y_offset[i+1]],
+                                 color='black', lw=lw)
+                        
+        layer_names = ['Input layer', 'Hidden layers', 'Output layer']
+        half = layer_x[-1] / 2
+        names_x = [layer_x[0], half, layer_x[-1]]
+        for i, layer_name in enumerate(layer_names):
+            ax.text(names_x[i], nodes * node_spacing - 0.5,
+                    layer_name, ha='center', color='black')
+            
+
+if __name__ == '__main__':
+    import sys
+    sys.path.insert(0, '../../')
+    sys.path.insert(0, '../../project1/')
+    import matplotlib.pyplot as plt 
+    import seaborn as sns
+    from project1.src import set_size
+
+    sns.set_theme()
+
+    plt.rcParams.update({
+        'font.size': 8,
+        'axes.titlesize': 8,
+        'axes.labelsize': 8,
+        'xtick.labelsize': 8,
+        'ytick.labelsize': 8,
+        'legend.fontsize': 8,
+        'savefig.bbox': 'tight',
+    })
+    
+    NN = NeuralNetwork(2, [6, 8, 4], 2, 0.1, 0.1, 'relu', 'linear', 'mse', 10, 10, 'adam')
+
+    fig, ax = plt.subplots(figsize=set_size())
+    NN.plot_layers(ax=ax)
+    fig.savefig('../figures/pdfs/layer_example.pdf')
+    fig.savefig('../figures/layer_example.png')
+    plt.show()

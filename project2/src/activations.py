@@ -200,12 +200,13 @@ class RandomInitializer(WeightInitializers):
 
 if __name__ == '__main__':
     import sys 
+    sys.path.insert(0, '../..')
     sys.path.insert(0, '../../project1')
     sys.path.insert(0, '../../project1/props')
     import seaborn as sns
     import matplotlib.pyplot as plt 
     import numpy as np 
-    from src import set_size
+    from project1.src import set_size
     from preprocess import norm_data_zero_one
 
     sns.set_theme()
@@ -244,7 +245,7 @@ if __name__ == '__main__':
 
     fig.supylabel(r'$y$', fontsize=8)
     fig.tight_layout()
-    fig.savefig('../figures/pdfs/actfuncs.pdf')
-    fig.savefig('../figures/actfuncs.png')
+    # fig.savefig('../figures/pdfs/actfuncs.pdf')
+    # fig.savefig('../figures/actfuncs.png')
 
     plt.show()

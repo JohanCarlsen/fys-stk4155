@@ -42,7 +42,7 @@ class CrossEntropy(CostFunctions):
     r'''
     Cross entropy cost function.
 
-    .. math:: C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y+\delta)\right]
+    .. math:: C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y_n+\delta)\right]
     '''
     @staticmethod
     def loss(y_true, y_pred):
