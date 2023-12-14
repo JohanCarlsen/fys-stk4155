@@ -349,10 +349,12 @@ class DecisionTree:
 if __name__ == '__main__':
     import os 
     import sys 
-    sys.path.insert(0, os.path.abspath('../../project2/src'))
-    from preprocess import center
+    sys.path.insert(0, os.path.abspath('../..'))
+    sys.path.insert(0, os.path.abspath('../../project1'))
+    from project2.src.preprocess import center
     from sklearn.datasets import load_breast_cancer, load_digits
     from sklearn.model_selection import train_test_split
+    from project3.src.classification_metrics import Metrics
     np.random.seed(2023)
 
     data = load_digits()
@@ -360,8 +362,10 @@ if __name__ == '__main__':
     y = data.target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    DT = DecisionTree(max_depth=10, min_split=2)
+    DT = DecisionTree(max_depth=5, min_split=2)
     DT.fit(X_train, y_train)
     ypred = DT.predict(X_test)
-    acc = Precision(y_test, ypred, np.unique(y_test)).score()
-    print(f'Decision tree accuracy: {np.mean(acc)}')
+    metrics = Metrics(y_test, ypred, np.unique(y))
+    metrics.print_metrics()
+    DT.plot_tree('../figures/pdfs/tree_example')
+    DT.plot_tree('../figures/tree_example', format='png')
