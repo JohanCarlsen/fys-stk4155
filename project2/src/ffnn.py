@@ -564,6 +564,6 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(figsize=set_size())
     NN.plot_layers(ax=ax)
-    fig.savefig('../figures/pdfs/layer_example.pdf')
-    fig.savefig('../figures/layer_example.png')
+    fig.savefig('../../project3/figures/pdfs/layer_example.pdf')
+    fig.savefig('../../project3/figures/layer_example.png')
     plt.show()

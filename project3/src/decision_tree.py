@@ -337,7 +337,7 @@ class DecisionTree:
         dot = Digraph()
 
         for i, (d, s, f, v) in enumerate(struct):
-            label = f'Feature: {f}\nSplit value: {s}'
+            label = f'Feature: {int(f)}\nSplit value: {int(s)}'
             dot.node(f'{i}', label=label)
 
             if i > 0:

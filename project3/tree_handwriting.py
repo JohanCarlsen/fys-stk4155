@@ -7,6 +7,7 @@ sys.path.insert(0, '../')
 import autograd.numpy as np
 import matplotlib.pyplot as plt 
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
 import seaborn as sns 
 import pandas as pd 
 from alive_progress import alive_bar
@@ -42,7 +43,21 @@ classes = np.unique(y_train)
 
 X_train = center(X_train)
 X_test = center(X_test)
+SKTree = DecisionTreeClassifier(criterion='entropy', max_depth=10)
+SKTree.fit(X_train, y_train)
+SKPred = SKTree.predict(X_test)
+SKMetrics = Metrics(y_test, SKPred, classes)
+print('\nSciKit results:')
+SKMetrics.print_metrics()
+'''
+SciKit results:
 
+Mean metrics
+------------
+Accuracy:    0.90077
+Precision:   0.90465
+Recall:      0.90091
+'''
 tree = DecisionTree(max_depth=10)
 tree.fit(X_train, y_train)
 ypred = np.int64(tree.predict(X_test))

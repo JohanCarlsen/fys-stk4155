@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from alive_progress import alive_bar
 import seaborn as sns
 import pandas as pd
+from sklearn.linear_model import LogisticRegression as SKLogReg
+from sklearn.neural_network import MLPClassifier
 
 from project2.src.ffnn import NeuralNetwork
 from project2.src.logreg import LogisticRegression
@@ -87,8 +89,8 @@ with alive_bar(tot, title='Processing...', length=20) as bar:
 
             bar()
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=set_size('text', scale=0.75),
-                               sharey=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(scale=1.5),
+                               sharex=True)
 
 loss_kw = {'label': 'Cross entropy', 'pad': 0.02}
 sns.heatmap(losses, annot=True, cmap='viridis', xticklabels=alpha_labels,
@@ -99,9 +101,9 @@ sns.heatmap(accs, annot=True, cmap='viridis', xticklabels=alpha_labels,
             yticklabels=eta_labels, ax=ax2, cbar_kws=acc_kw)
 
 ax1.set_title('Loss')
-ax1.set_ylabel(r'$\eta$')
 ax2.set_title('Score')
-fig.supxlabel(r'$\alpha$', fontsize=8)
+ax2.set_xlabel(r'$\alpha$')
+fig.supylabel(r'$\eta$', fontsize=8)
 fig.savefig('figures/pdfs/nn_heat.pdf')
 fig.savefig('figures/nn_heat.png')
 
@@ -117,8 +119,8 @@ for i, eta in enumerate(etas):
         losses[i, j] = logreg.loss(y_test, ypred)
         accs[i, j] = np.average(ypred == y_test)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=set_size('text', scale=0.75),
-                               sharey=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(scale=1.5),
+                               sharex=True)
 
 loss_kw = {'label': 'Cross entropy', 'pad': 0.02}
 sns.heatmap(losses, annot=True, cmap='viridis', xticklabels=alpha_labels,
@@ -129,14 +131,30 @@ sns.heatmap(accs, annot=True, cmap='viridis', xticklabels=alpha_labels,
             yticklabels=eta_labels, ax=ax2, cbar_kws=acc_kw)
 
 ax1.set_title('Loss')
-ax1.set_ylabel(r'$\eta$')
 ax2.set_title('Score')
-fig.supxlabel(r'$\alpha$', fontsize=8)
+ax2.set_xlabel(r'$\alpha$')
+fig.supylabel(r'$\eta$', fontsize=8)
 fig.savefig('figures/pdfs/logreg_heat.pdf')
 fig.savefig('figures/logreg_heat.png')
 
 log_eta = 1e-4
-log_alpha = 1e-1
+log_alpha = 1e-2
+
+skLog = SKLogReg(fit_intercept=False, max_iter=200)
+skLog.fit(X_train, from_categorical(y_train))
+skPred = skLog.predict(X_test)
+sk_metrics = Metrics(from_categorical(y_test), skPred, classes)
+print('\nSciKit Results:')
+sk_metrics.print_metrics()
+'''
+SciKit Results:
+
+Mean metrics
+------------
+Accuracy:    0.90106
+Precision:   0.90243
+Recall:      0.90133
+'''
 
 LogReg = LogisticRegression(eta=log_eta, alpha=log_alpha, **logparams)
 LogReg.fit(X_train, y_train, X_test, y_test, verbose=False)
@@ -181,6 +199,25 @@ fig.savefig('figures/loss_score_logreg.png')
 
 nn_eta = 1e-3
 nn_alpha = 1e-3
+
+skNN = MLPClassifier(hidden_layer_sizes=(50), solver='sgd',
+                     alpha=nn_alpha, learning_rate_init=nn_eta, momentum=0,
+                     batch_size=1000, max_iter=2000)
+
+skNN.fit(X_train, from_categorical(y_train))
+skNNPred = skNN.predict(X_test)
+skNN_metrics = Metrics(ytrue, skNNPred, classes)
+print('\nSciKit results:')
+skNN_metrics.print_metrics()
+'''
+SciKit results:
+
+Mean metrics
+------------
+Accuracy:    0.87275
+Precision:   0.87526
+Recall:      0.87504
+'''
 
 nn = NeuralNetwork(eta=nn_eta, alpha=nn_alpha, **params)
 nn.fit(X_train, y_train, X_test, y_test)
