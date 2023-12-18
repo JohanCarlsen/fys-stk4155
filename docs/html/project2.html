@@ -58,6 +58,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.predict"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.predict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.calculate_score"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.calculate_score()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.get_score_evolution"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.get_score_evolution()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ffnn.NeuralNetwork.plot_layers"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.plot_layers()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#regression-analysis-class">Regression analysis class</a><ul>
@@ -233,7 +234,10 @@ rate will be set by a scheduler.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.get_score_evolution" title="ffnn.NeuralNetwork.get_score_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_score_evolution</span></code></a>([limit])</p></td>
 <td><p>Get the evolution of the score.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.predict" title="ffnn.NeuralNetwork.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X[, tol])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.plot_layers" title="ffnn.NeuralNetwork.plot_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_layers</span></code></a>([node_size, layer_spacing, ...])</p></td>
+<td><p>Plot a figure of the layer structure.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ffnn.NeuralNetwork.predict" title="ffnn.NeuralNetwork.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X[, tol])</p></td>
 <td><p>Predict the output of a given dataset.</p></td>
 </tr>
 </tbody>
@@ -324,6 +328,23 @@ for classification.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffnn.NeuralNetwork.plot_layers">
+<span class="sig-prename descclassname"><span class="pre">NeuralNetwork.</span></span><span class="sig-name descname"><span class="pre">plot_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ffnn.html#NeuralNetwork.plot_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffnn.NeuralNetwork.plot_layers" title="Link to this definition"></a></dt>
+<dd><p>Plot a figure of the layer structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_size</strong> (<em>int</em><em>, </em><em>default 50</em>) – Size of the nodes, which are created with <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter</span></code>.</p></li>
+<li><p><strong>layer_spacing</strong> (<em>float</em><em>, </em><em>default 2.5</em>) – Distance between the layers along the x-axis.</p></li>
+<li><p><strong>node_spacing</strong> (<em>float</em><em>, </em><em>defayúlt 1.5</em>) – Vertical distance between the nodes in a layer.</p></li>
+<li><p><strong>lw</strong> (<em>float</em><em>, </em><em>default 0.25</em>) – Width of the lines between the nodes.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.AxesUbplot</em><em>, </em><em>optional</em>) – If provided, the figure will be plotted on the given axis.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -602,7 +623,7 @@ the data being centered along the columns.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cost_funcs.</span></span><span class="sig-name descname"><span class="pre">CrossEntropy</span></span><a class="reference internal" href="_modules/cost_funcs.html#CrossEntropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cost_funcs.CrossEntropy" title="Link to this definition"></a></dt>
 <dd><p>Cross entropy cost function.</p>
 <div class="math notranslate nohighlight">
-\[C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y+\delta)\right]\]</div>
+\[C(\beta)=-\frac{1}{n}\sum_n\left[y_n\log_{10}(\tilde y_n+\delta)\right]\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>

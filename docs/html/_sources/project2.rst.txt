@@ -15,6 +15,7 @@ Artificial neural network methods
 
 .. automethod:: ffnn.NeuralNetwork.calculate_score
 .. automethod:: ffnn.NeuralNetwork.get_score_evolution
+.. automethod:: ffnn.NeuralNetwork.plot_layers
 
 Regression analysis class 
 -------------------------
